@@ -1,16 +1,10 @@
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
 
-/**
- * Merge Tailwind classes with `clsx` + `tailwind-merge`.
- */
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-/**
- * Generate a URL-friendly slug from a string.
- */
 export function slugify(text: string): string {
   return text
     .toLowerCase()
@@ -21,9 +15,6 @@ export function slugify(text: string): string {
     .replace(/^-+|-+$/g, "");
 }
 
-/**
- * Format a number as Indian Rupee currency.
- */
 export function formatCurrency(amount: number): string {
   return new Intl.NumberFormat("en-IN", {
     style: "currency",
@@ -33,9 +24,6 @@ export function formatCurrency(amount: number): string {
   }).format(amount);
 }
 
-/**
- * Standard paginated response helper.
- */
 export function buildPaginationMeta(
   page: number,
   limit: number,
