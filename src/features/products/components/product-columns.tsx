@@ -15,8 +15,8 @@ import type { ProductWithImages } from "@/features/products/types";
 
 interface ColumnActions {
   onView: (id: string) => void;
-  onEdit: (id: string) => void;
-  onDelete: (product: ProductWithImages) => void;
+  onEdit?: (id: string) => void;
+  onDelete?: (product: ProductWithImages) => void;
 }
 
 export function getProductColumns(
@@ -112,34 +112,38 @@ export function getProductColumns(
               </TooltipTrigger>
               <TooltipContent side="top">View product</TooltipContent>
             </Tooltip>
-            <Tooltip>
-              <TooltipTrigger
-                render={
-                  <span
-                    role="button"
-                    tabIndex={0}
-                    onClick={() => actions.onEdit(product.id)}
-                  />
-                }
-              >
-                <Pencil className="size-[18px] text-muted-foreground cursor-pointer hover:text-foreground hover:scale-110 transition-all duration-200" />
-              </TooltipTrigger>
-              <TooltipContent side="top">Edit product</TooltipContent>
-            </Tooltip>
-            <Tooltip>
-              <TooltipTrigger
-                render={
-                  <span
-                    role="button"
-                    tabIndex={0}
-                    onClick={() => actions.onDelete(product)}
-                  />
-                }
-              >
-                <Trash2 className="size-[18px] text-destructive/60 cursor-pointer hover:text-destructive hover:scale-110 transition-all duration-200" />
-              </TooltipTrigger>
-              <TooltipContent side="top">Delete product</TooltipContent>
-            </Tooltip>
+            {actions.onEdit && (
+              <Tooltip>
+                <TooltipTrigger
+                  render={
+                    <span
+                      role="button"
+                      tabIndex={0}
+                      onClick={() => actions.onEdit!(product.id)}
+                    />
+                  }
+                >
+                  <Pencil className="size-[18px] text-muted-foreground cursor-pointer hover:text-foreground hover:scale-110 transition-all duration-200" />
+                </TooltipTrigger>
+                <TooltipContent side="top">Edit product</TooltipContent>
+              </Tooltip>
+            )}
+            {actions.onDelete && (
+              <Tooltip>
+                <TooltipTrigger
+                  render={
+                    <span
+                      role="button"
+                      tabIndex={0}
+                      onClick={() => actions.onDelete!(product)}
+                    />
+                  }
+                >
+                  <Trash2 className="size-[18px] text-destructive/60 cursor-pointer hover:text-destructive hover:scale-110 transition-all duration-200" />
+                </TooltipTrigger>
+                <TooltipContent side="top">Delete product</TooltipContent>
+              </Tooltip>
+            )}
           </div>
         );
       },

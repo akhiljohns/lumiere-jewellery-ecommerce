@@ -9,9 +9,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { DataTable } from "@/components/data-table";
 import { ConfirmDialog } from "@/components/confirm-dialog";
+import { PermissionGuard } from "@/components/permission-guard";
 import { useGetUsers } from "@/features/users/api/get-users";
 import { useDeleteUser } from "@/features/users/api/delete-user";
 import { getUserColumns } from "@/features/users/components/user-columns";
+import { usePermissions } from "@/hooks/use-permissions";
 import type { SafeUser } from "@/features/users/types";
 
 export default function UsersPage() {
@@ -30,6 +32,7 @@ export default function UsersPage() {
   });
 
   const deleteUser = useDeleteUser();
+  const { canEdit, canDelete } = usePermissions();
 
   const handleSearchChange = useCallback((value: string) => {
     setSearch(value);
@@ -59,10 +62,10 @@ export default function UsersPage() {
     () =>
       getUserColumns({
         onView: (id) => router.push(`/admin/users/${id}`),
-        onEdit: (id) => router.push(`/admin/users/${id}/edit`),
-        onDelete: (user) => setDeleteTarget(user),
+        onEdit: canEdit("user") ? (id) => router.push(`/admin/users/${id}/edit`) : undefined,
+        onDelete: canDelete("user") ? (user) => setDeleteTarget(user) : undefined,
       }),
-    [router],
+    [router, canEdit, canDelete],
   );
 
   const users = data?.data ?? [];
@@ -84,10 +87,12 @@ export default function UsersPage() {
             Manage user accounts
           </p>
         </div>
-        <Button size="lg" onClick={() => router.push("/admin/users/create")}>
-          <Plus />
-          Add User
-        </Button>
+        <PermissionGuard permission="user.create">
+          <Button size="lg" onClick={() => router.push("/admin/users/create")}>
+            <Plus />
+            Add User
+          </Button>
+        </PermissionGuard>
       </div>
 
       <div className="relative max-w-sm">

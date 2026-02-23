@@ -22,7 +22,7 @@ export async function proxy(request: NextRequest) {
     }
 
     const payload = await verifyToken(token);
-    if (!payload || payload.role !== "admin") {
+    if (!payload || payload.role === "customer") {
       return NextResponse.json(
         { error: "Invalid or expired token" },
         { status: 401 },
@@ -33,6 +33,11 @@ export async function proxy(request: NextRequest) {
     const requestHeaders = new Headers(request.headers);
     requestHeaders.set("x-user-id", payload.sub!);
     requestHeaders.set("x-user-email", payload.email);
+    requestHeaders.set("x-user-role", payload.role);
+    requestHeaders.set(
+      "x-user-permissions",
+      JSON.stringify(payload.permissions ?? []),
+    );
 
     return NextResponse.next({ request: { headers: requestHeaders } });
   }
@@ -46,7 +51,7 @@ export async function proxy(request: NextRequest) {
     }
 
     const payload = await verifyToken(token);
-    if (!payload || payload.role !== "admin") {
+    if (!payload || payload.role === "customer") {
       const loginUrl = new URL("/login", request.url);
       loginUrl.searchParams.set("redirect", pathname);
       return NextResponse.redirect(loginUrl);
@@ -58,7 +63,7 @@ export async function proxy(request: NextRequest) {
   // ── Redirect authenticated admins away from login ──
   if (pathname === "/login" && token) {
     const payload = await verifyToken(token);
-    if (payload && payload.role === "admin") {
+    if (payload && payload.role !== "customer") {
       return NextResponse.redirect(new URL("/admin", request.url));
     }
   }

@@ -6,6 +6,7 @@ import {
   deleteUser,
 } from "@/features/users/services/user-service";
 import { logAdminAction, logAdminError, diffFields } from "@/lib/discord";
+import { requirePermission, ForbiddenError, forbiddenResponse } from "@/lib/api-auth";
 
 interface RouteParams {
   params: Promise<{ id: string }>;
@@ -17,6 +18,7 @@ interface RouteParams {
  */
 export async function GET(_request: NextRequest, { params }: RouteParams) {
   try {
+    requirePermission(_request, "user.view");
     const { id } = await params;
     const user = await getUserById(id);
 
@@ -26,6 +28,7 @@ export async function GET(_request: NextRequest, { params }: RouteParams) {
 
     return NextResponse.json({ data: user }, { status: 200 });
   } catch (err) {
+    if (err instanceof ForbiddenError) return forbiddenResponse(err.message);
     const message =
       err instanceof Error ? err.message : "Internal server error";
     return NextResponse.json({ error: message }, { status: 500 });
@@ -40,6 +43,7 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
   const actor = request.headers.get("x-user-email") ?? "unknown";
 
   try {
+    requirePermission(request, "user.edit");
     const { id } = await params;
     const body = await request.json();
 
@@ -81,6 +85,7 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
       { status: 200 },
     );
   } catch (err) {
+    if (err instanceof ForbiddenError) return forbiddenResponse(err.message);
     const message =
       err instanceof Error ? err.message : "Internal server error";
     logAdminError("Update User", message, actor);
@@ -96,6 +101,7 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
   const actor = request.headers.get("x-user-email") ?? "unknown";
 
   try {
+    requirePermission(request, "user.delete");
     const { id } = await params;
 
     // Verify user exists
@@ -126,6 +132,7 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
       { status: 200 },
     );
   } catch (err) {
+    if (err instanceof ForbiddenError) return forbiddenResponse(err.message);
     const message =
       err instanceof Error ? err.message : "Internal server error";
     logAdminError("Delete User", message, actor);

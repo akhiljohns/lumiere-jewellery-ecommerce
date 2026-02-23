@@ -5,6 +5,7 @@ import {
   createProduct,
 } from "@/features/products/services/product-service";
 import { logAdminAction, logAdminError } from "@/lib/discord";
+import { requirePermission, ForbiddenError, forbiddenResponse } from "@/lib/api-auth";
 
 /**
  * GET /api/admin/products
@@ -12,6 +13,7 @@ import { logAdminAction, logAdminError } from "@/lib/discord";
  */
 export async function GET(request: NextRequest) {
   try {
+    requirePermission(request, "product.view");
     const { searchParams } = new URL(request.url);
     const queryInput = {
       page: searchParams.get("page") ?? undefined,
@@ -34,6 +36,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json(result, { status: 200 });
   } catch (err) {
+    if (err instanceof ForbiddenError) return forbiddenResponse(err.message);
     const message =
       err instanceof Error ? err.message : "Internal server error";
     return NextResponse.json({ error: message }, { status: 500 });
@@ -48,6 +51,7 @@ export async function POST(request: NextRequest) {
   const actor = request.headers.get("x-user-email") ?? "unknown";
 
   try {
+    requirePermission(request, "product.create");
     const body = await request.json();
 
     const parsed = productCreateSchema.safeParse(body);
@@ -73,6 +77,7 @@ export async function POST(request: NextRequest) {
       { status: 201 },
     );
   } catch (err) {
+    if (err instanceof ForbiddenError) return forbiddenResponse(err.message);
     const message =
       err instanceof Error ? err.message : "Internal server error";
     logAdminError("Create Product", message, actor);

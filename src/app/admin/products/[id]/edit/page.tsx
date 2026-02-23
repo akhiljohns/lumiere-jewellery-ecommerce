@@ -1,7 +1,9 @@
 "use client";
 
 import { useParams, useRouter } from "next/navigation";
+import { useEffect } from "react";
 import { toast } from "sonner";
+import { usePermissions } from "@/hooks/use-permissions";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PageLoader } from "@/components/page-loader";
@@ -17,6 +19,13 @@ export default function EditProductPage() {
   const router = useRouter();
   const { data, isLoading, isError, error } = useGetProduct(id);
   const updateProduct = useUpdateProduct();
+  const { canEdit } = usePermissions();
+
+  useEffect(() => {
+    if (!canEdit("product")) {
+      router.replace("/admin/products");
+    }
+  }, [canEdit, router]);
 
   if (isLoading) return <PageLoader message="Loading product..." />;
 

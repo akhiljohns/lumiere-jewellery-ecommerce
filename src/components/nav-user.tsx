@@ -41,6 +41,8 @@ export function NavUser({
     .slice(0, 2);
 
   async function handleLogout() {
+    const { useAuthStore } = await import("@/stores/auth-store");
+    useAuthStore.getState().clearAuth();
     await fetch("/api/auth/logout", { method: "POST" });
     router.push("/login");
     router.refresh();

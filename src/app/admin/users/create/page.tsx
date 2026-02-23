@@ -1,7 +1,9 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 import { toast } from "sonner";
+import { usePermissions } from "@/hooks/use-permissions";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PageHeader } from "@/components/page-header";
@@ -11,6 +13,13 @@ import { UserForm } from "@/features/users/components/user-form";
 export default function CreateUserPage() {
   const router = useRouter();
   const createUser = useCreateUser();
+  const { canCreate } = usePermissions();
+
+  useEffect(() => {
+    if (!canCreate("user")) {
+      router.replace("/admin");
+    }
+  }, [canCreate, router]);
 
   return (
     <div className="flex flex-col gap-6">

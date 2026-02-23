@@ -7,7 +7,8 @@ const EXPIRATION = "7d";
 export interface AdminTokenPayload extends JWTPayload {
   sub: string; // user id
   email: string;
-  role: "admin";
+  role: string;
+  permissions: string[];
 }
 
 /**
@@ -16,11 +17,14 @@ export interface AdminTokenPayload extends JWTPayload {
 export async function signToken(payload: {
   id: string;
   email: string;
+  role: string;
+  permissions: string[];
 }): Promise<string> {
   return new SignJWT({
     sub: payload.id,
     email: payload.email,
-    role: "admin" as const,
+    role: payload.role,
+    permissions: payload.permissions,
   })
     .setProtectedHeader({ alg: ALG })
     .setIssuedAt()

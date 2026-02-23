@@ -20,7 +20,9 @@ import {
   FieldError,
   FieldGroup,
 } from "@/components/ui/field";
+import { Badge } from "@/components/ui/badge";
 import { userCreateSchema, userUpdateSchema } from "@/lib/validators";
+import { ROLE_PERMISSIONS } from "@/lib/permissions";
 import type { UserCreateInput, UserUpdateInput } from "@/lib/validators";
 
 type UserFormValues = {
@@ -28,7 +30,7 @@ type UserFormValues = {
   password: string;
   full_name?: string | null;
   phone?: string | null;
-  role: "admin" | "customer";
+  role: string;
   is_active: boolean;
 };
 
@@ -50,9 +52,15 @@ interface UserFormEditProps extends UserFormBaseProps {
 
 type UserFormProps = UserFormCreateProps | UserFormEditProps;
 
-const ROLES: { value: "admin" | "customer"; label: string }[] = [
+const ROLES = Object.keys(ROLE_PERMISSIONS).map((name) => ({
+  value: name,
+  label: name.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase()),
+}));
+
+// Also include customer as a role option
+const ALL_ROLES = [
   { value: "customer", label: "Customer" },
-  { value: "admin", label: "Admin" },
+  ...ROLES,
 ];
 
 export function UserForm({
@@ -66,6 +74,7 @@ export function UserForm({
     register,
     handleSubmit,
     control,
+    watch,
     formState: { errors },
   } = useForm<UserFormValues>({
     resolver: zodResolver(isEdit ? userUpdateSchema : userCreateSchema) as any,
@@ -79,6 +88,9 @@ export function UserForm({
       ...defaultValues,
     },
   });
+
+  const selectedRole = watch("role");
+  const rolePerms = ROLE_PERMISSIONS[selectedRole] ?? [];
 
   const onFormSubmit = handleSubmit((data) => {
     if (isEdit) {
@@ -148,28 +160,43 @@ export function UserForm({
           </Field>
         </div>
 
-        <Field>
-          <FieldLabel>Role *</FieldLabel>
-          <Controller
-            control={control}
-            name="role"
-            render={({ field }) => (
-              <Select value={field.value} onValueChange={field.onChange}>
-                <SelectTrigger className="w-full max-w-xs">
-                  <SelectValue placeholder="Select role" />
-                </SelectTrigger>
-                <SelectContent>
-                  {ROLES.map((r) => (
-                    <SelectItem key={r.value} value={r.value}>
-                      {r.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            )}
-          />
-          {errors.role && <FieldError>{errors.role.message}</FieldError>}
-        </Field>
+        <div className="grid gap-6 sm:grid-cols-2">
+          <Field>
+            <FieldLabel>Role *</FieldLabel>
+            <Controller
+              control={control}
+              name="role"
+              render={({ field }) => (
+                <Select value={field.value} onValueChange={field.onChange}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Select role" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {ALL_ROLES.map((r) => (
+                      <SelectItem key={r.value} value={r.value}>
+                        {r.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              )}
+            />
+            {errors.role && <FieldError>{errors.role.message}</FieldError>}
+          </Field>
+        </div>
+
+        {rolePerms.length > 0 && (
+          <Field>
+            <FieldLabel>Permissions for this role</FieldLabel>
+            <div className="flex flex-wrap gap-1.5 mt-1">
+              {rolePerms.map((perm) => (
+                <Badge key={perm} variant="secondary" className="text-xs font-mono">
+                  {perm}
+                </Badge>
+              ))}
+            </div>
+          </Field>
+        )}
 
         <Field orientation="horizontal">
           <Controller

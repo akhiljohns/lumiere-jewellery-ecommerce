@@ -9,9 +9,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { DataTable } from "@/components/data-table";
 import { ConfirmDialog } from "@/components/confirm-dialog";
+import { PermissionGuard } from "@/components/permission-guard";
 import { useGetProducts } from "@/features/products/api/get-products";
 import { useDeleteProduct } from "@/features/products/api/delete-product";
 import { getProductColumns } from "@/features/products/components/product-columns";
+import { usePermissions } from "@/hooks/use-permissions";
 import type { ProductWithImages } from "@/features/products/types";
 
 export default function ProductsPage() {
@@ -32,6 +34,7 @@ export default function ProductsPage() {
   });
 
   const deleteProduct = useDeleteProduct();
+  const { canEdit, canDelete } = usePermissions();
 
   const handleSearchChange = useCallback(
     (value: string) => {
@@ -62,10 +65,10 @@ export default function ProductsPage() {
     () =>
       getProductColumns({
         onView: (id) => router.push(`/admin/products/${id}`),
-        onEdit: (id) => router.push(`/admin/products/${id}/edit`),
-        onDelete: (product) => setDeleteTarget(product),
+        onEdit: canEdit("product") ? (id) => router.push(`/admin/products/${id}/edit`) : undefined,
+        onDelete: canDelete("product") ? (product) => setDeleteTarget(product) : undefined,
       }),
-    [router],
+    [router, canEdit, canDelete],
   );
 
   const products = data?.data ?? [];
@@ -87,10 +90,12 @@ export default function ProductsPage() {
             Manage your jewellery products
           </p>
         </div>
-        <Button size="lg" onClick={() => router.push("/admin/products/create")}>
-          <Plus />
-          Add Product
-        </Button>
+        <PermissionGuard permission="product.create">
+          <Button size="lg" onClick={() => router.push("/admin/products/create")}>
+            <Plus />
+            Add Product
+          </Button>
+        </PermissionGuard>
       </div>
 
       <div className="relative max-w-sm">

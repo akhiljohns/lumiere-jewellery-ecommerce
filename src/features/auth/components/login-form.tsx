@@ -76,6 +76,9 @@ export function LoginForm({
         return;
       }
 
+      const { useAuthStore } = await import("@/stores/auth-store");
+      useAuthStore.getState().setAuth(data.data.user, data.data.permissions);
+
       router.push(redirect);
       router.refresh();
     } catch {

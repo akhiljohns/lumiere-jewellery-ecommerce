@@ -45,7 +45,7 @@ export const userCreateSchema = z.object({
   password: z.string().min(6, "Password must be at least 6 characters"),
   full_name: z.string().optional().nullable(),
   phone: z.string().optional().nullable(),
-  role: z.enum(["admin", "customer"]).default("customer"),
+  role: z.string().default("customer"),
   is_active: z.boolean().default(true),
 });
 
@@ -57,7 +57,7 @@ export const userUpdateSchema = z.object({
     .optional(),
   full_name: z.string().optional().nullable(),
   phone: z.string().optional().nullable(),
-  role: z.enum(["admin", "customer"]).optional(),
+  role: z.string().optional(),
   is_active: z.boolean().optional(),
 });
 

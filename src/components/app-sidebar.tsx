@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { Gem } from "lucide-react";
 import { adminMenuItems } from "@/config/admin-menu";
 import { NavUser } from "@/components/nav-user";
+import { usePermissions } from "@/hooks/use-permissions";
 import {
   Sidebar,
   SidebarContent,
@@ -26,6 +27,11 @@ export function AppSidebar({
   user: { name: string; email: string };
 }) {
   const pathname = usePathname();
+  const { hasPermission } = usePermissions();
+
+  const visibleItems = adminMenuItems.filter(
+    (item) => !item.permission || hasPermission(item.permission),
+  );
 
   return (
     <Sidebar variant="inset" {...props}>
@@ -51,7 +57,7 @@ export function AppSidebar({
           <SidebarGroupLabel>Navigation</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {adminMenuItems.map((item, index) => {
+              {visibleItems.map((item, index) => {
                 const isActive =
                   item.href === "/admin"
                     ? pathname === "/admin"

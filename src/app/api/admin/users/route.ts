@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { userCreateSchema, paginationSchema } from "@/lib/validators";
 import { getUsers, createUser } from "@/features/users/services/user-service";
 import { logAdminAction, logAdminError } from "@/lib/discord";
+import { requirePermission, ForbiddenError, forbiddenResponse } from "@/lib/api-auth";
 
 /**
  * GET /api/admin/users
@@ -9,6 +10,7 @@ import { logAdminAction, logAdminError } from "@/lib/discord";
  */
 export async function GET(request: NextRequest) {
   try {
+    requirePermission(request, "user.view");
     const { searchParams } = new URL(request.url);
     const queryInput = {
       page: searchParams.get("page") ?? undefined,
@@ -30,6 +32,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json(result, { status: 200 });
   } catch (err) {
+    if (err instanceof ForbiddenError) return forbiddenResponse(err.message);
     const message =
       err instanceof Error ? err.message : "Internal server error";
     return NextResponse.json({ error: message }, { status: 500 });
@@ -44,6 +47,7 @@ export async function POST(request: NextRequest) {
   const actor = request.headers.get("x-user-email") ?? "unknown";
 
   try {
+    requirePermission(request, "user.create");
     const body = await request.json();
 
     const parsed = userCreateSchema.safeParse(body);
@@ -68,6 +72,7 @@ export async function POST(request: NextRequest) {
       { status: 201 },
     );
   } catch (err) {
+    if (err instanceof ForbiddenError) return forbiddenResponse(err.message);
     const message =
       err instanceof Error ? err.message : "Internal server error";
     logAdminError("Create User", message, actor);

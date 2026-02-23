@@ -1,7 +1,9 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import { useEffect } from "react";
 import { toast } from "sonner";
+import { usePermissions } from "@/hooks/use-permissions";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PageHeader } from "@/components/page-header";
@@ -11,6 +13,13 @@ import { ProductForm } from "@/features/products/components/product-form";
 export default function CreateProductPage() {
   const router = useRouter();
   const createProduct = useCreateProduct();
+  const { canCreate } = usePermissions();
+
+  useEffect(() => {
+    if (!canCreate("product")) {
+      router.replace("/admin");
+    }
+  }, [canCreate, router]);
 
   return (
     <div className="flex flex-col gap-6">

@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { loginSchema } from "@/lib/validators";
 import { authenticateUser } from "@/features/auth/services/auth-service";
+import { getUserPermissions } from "@/features/auth/services/permission-service";
 import { signToken } from "@/lib/jwt";
 
 export async function POST(request: NextRequest) {
@@ -28,12 +29,20 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    // Resolve permissions
+    const permissions = await getUserPermissions(user.role);
+
     // Sign JWT
-    const token = await signToken({ id: user.id, email: user.email });
+    const token = await signToken({
+      id: user.id,
+      email: user.email,
+      role: user.role,
+      permissions,
+    });
 
     // Set HTTP-only cookie
     const response = NextResponse.json(
-      { data: user, message: "Login successful" },
+      { data: { user, permissions }, message: "Login successful" },
       { status: 200 },
     );
 

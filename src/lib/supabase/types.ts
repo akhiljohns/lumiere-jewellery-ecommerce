@@ -9,6 +9,66 @@
 export interface Database {
   public: {
     Tables: {
+      roles: {
+        Row: {
+          id: string;
+          name: string;
+          description: string | null;
+          is_system: boolean;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          name: string;
+          description?: string | null;
+          is_system?: boolean;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          name?: string;
+          description?: string | null;
+          is_system?: boolean;
+          created_at?: string;
+        };
+      };
+      permissions: {
+        Row: {
+          id: string;
+          name: string;
+          resource: string;
+          action: string;
+          description: string | null;
+        };
+        Insert: {
+          id?: string;
+          name: string;
+          resource: string;
+          action: string;
+          description?: string | null;
+        };
+        Update: {
+          id?: string;
+          name?: string;
+          resource?: string;
+          action?: string;
+          description?: string | null;
+        };
+      };
+      role_permissions: {
+        Row: {
+          role_id: string;
+          permission_id: string;
+        };
+        Insert: {
+          role_id: string;
+          permission_id: string;
+        };
+        Update: {
+          role_id?: string;
+          permission_id?: string;
+        };
+      };
       users: {
         Row: {
           id: string;
@@ -17,7 +77,7 @@ export interface Database {
           full_name: string | null;
           phone: string | null;
           avatar_url: string | null;
-          role: "admin" | "customer";
+          role: string;
           is_active: boolean;
           created_at: string;
           updated_at: string;
@@ -29,7 +89,7 @@ export interface Database {
           full_name?: string | null;
           phone?: string | null;
           avatar_url?: string | null;
-          role?: "admin" | "customer";
+          role?: string;
           is_active?: boolean;
           created_at?: string;
           updated_at?: string;
@@ -41,7 +101,7 @@ export interface Database {
           full_name?: string | null;
           phone?: string | null;
           avatar_url?: string | null;
-          role?: "admin" | "customer";
+          role?: string;
           is_active?: boolean;
           created_at?: string;
           updated_at?: string;
@@ -128,6 +188,16 @@ export interface Database {
 }
 
 // ── Convenience type aliases ──
+export type Role = Database["public"]["Tables"]["roles"]["Row"];
+export type RoleInsert = Database["public"]["Tables"]["roles"]["Insert"];
+
+export type Permission = Database["public"]["Tables"]["permissions"]["Row"];
+export type PermissionInsert =
+  Database["public"]["Tables"]["permissions"]["Insert"];
+
+export type RolePermission =
+  Database["public"]["Tables"]["role_permissions"]["Row"];
+
 export type User = Database["public"]["Tables"]["users"]["Row"];
 export type UserInsert = Database["public"]["Tables"]["users"]["Insert"];
 export type UserUpdate = Database["public"]["Tables"]["users"]["Update"];

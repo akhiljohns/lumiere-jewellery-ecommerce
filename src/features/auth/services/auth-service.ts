@@ -30,7 +30,7 @@ export async function authenticateUser(
 
   if (error || !user) return null;
   if (!user.is_active) return null;
-  if (user.role !== "admin") return null;
+  if (user.role === "customer") return null;
 
   const isValid = await compare(password, user.password_hash);
   if (!isValid) return null;
@@ -63,7 +63,7 @@ export async function createUser(input: {
   password: string;
   full_name?: string | null;
   phone?: string | null;
-  role?: "admin" | "customer";
+  role?: string;
   is_active?: boolean;
 }): Promise<SafeUser> {
   const supabase = createAdminClient();

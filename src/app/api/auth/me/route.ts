@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { verifyToken } from "@/lib/jwt";
 import { getUserById } from "@/features/auth/services/auth-service";
+import { getUserPermissions } from "@/features/auth/services/permission-service";
 
 export async function GET(request: NextRequest) {
   try {
@@ -23,7 +24,9 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: "User not found" }, { status: 401 });
     }
 
-    return NextResponse.json({ data: user }, { status: 200 });
+    const permissions = await getUserPermissions(user.role);
+
+    return NextResponse.json({ data: { user, permissions } }, { status: 200 });
   } catch {
     return NextResponse.json(
       { error: "Internal server error" },
