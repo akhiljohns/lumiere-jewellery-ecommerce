@@ -14,6 +14,7 @@ import {
   SidebarGroupLabel,
   SidebarHeader,
   SidebarMenu,
+  SidebarMenuBadge,
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
@@ -50,22 +51,26 @@ export function AppSidebar({
           <SidebarGroupLabel>Navigation</SidebarGroupLabel>
           <SidebarGroupContent>
             <SidebarMenu>
-              {adminMenuItems.map((item) => {
+              {adminMenuItems.map((item, index) => {
                 const isActive =
                   item.href === "/admin"
                     ? pathname === "/admin"
                     : pathname.startsWith(item.href);
 
                 return (
-                  <SidebarMenuItem key={item.href}>
+                  <SidebarMenuItem key={item.href} className="cursor-pointer">
                     <SidebarMenuButton
                       tooltip={item.title}
                       isActive={isActive}
+                      className="transition-colors duration-150"
                       render={<Link href={item.href} />}
                     >
                       <item.icon />
                       <span>{item.title}</span>
                     </SidebarMenuButton>
+                    <SidebarMenuBadge className="text-[10px] text-sidebar-foreground/40">
+                      ⌃⇧{index + 1}
+                    </SidebarMenuBadge>
                   </SidebarMenuItem>
                 );
               })}

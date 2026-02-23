@@ -3,6 +3,7 @@ import { cookies } from "next/headers";
 import { verifyToken } from "@/lib/jwt";
 import { AppSidebar } from "@/components/app-sidebar";
 import { DarkModeSwitcher } from "@/components/dark-mode-switcher";
+import { GlobalKeyboardHandler } from "@/components/global-keyboard-handler";
 import { SidebarInset, SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import { Separator } from "@/components/ui/separator";
 import {
@@ -32,6 +33,7 @@ export default async function AdminLayout({
 
   return (
     <SidebarProvider>
+      <GlobalKeyboardHandler />
       <AppSidebar user={user} />
       <SidebarInset>
         <header className="flex h-16 shrink-0 items-center gap-2 px-4">
