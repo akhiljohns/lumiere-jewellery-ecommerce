@@ -61,8 +61,8 @@ export function DataTable<TData, TValue>({
   const end = Math.min(page * pageSize, total);
 
   return (
-    <div className="space-y-3">
-      <div className="rounded-md border">
+    <div className="space-y-4">
+      <div className="rounded-lg border">
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
@@ -109,14 +109,15 @@ export function DataTable<TData, TValue>({
       </div>
 
       {total > 0 && (
-        <div className="flex items-center justify-between text-xs text-muted-foreground">
+        <div className="flex items-center justify-between text-sm text-muted-foreground">
           <span>
             Showing {start}–{end} of {total}
           </span>
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-1.5">
             <Button
               variant="outline"
-              size="icon-xs"
+              size="icon"
+              className="cursor-pointer"
               onClick={() => onPageChange(1)}
               disabled={page <= 1}
             >
@@ -124,18 +125,20 @@ export function DataTable<TData, TValue>({
             </Button>
             <Button
               variant="outline"
-              size="icon-xs"
+              size="icon"
+              className="cursor-pointer"
               onClick={() => onPageChange(page - 1)}
               disabled={page <= 1}
             >
               <ChevronLeft />
             </Button>
-            <span className="px-2 tabular-nums">
+            <span className="px-3 text-sm tabular-nums">
               {page} / {pageCount}
             </span>
             <Button
               variant="outline"
-              size="icon-xs"
+              size="icon"
+              className="cursor-pointer"
               onClick={() => onPageChange(page + 1)}
               disabled={page >= pageCount}
             >
@@ -143,7 +146,8 @@ export function DataTable<TData, TValue>({
             </Button>
             <Button
               variant="outline"
-              size="icon-xs"
+              size="icon"
+              className="cursor-pointer"
               onClick={() => onPageChange(pageCount)}
               disabled={page >= pageCount}
             >

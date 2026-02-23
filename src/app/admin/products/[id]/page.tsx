@@ -1,7 +1,8 @@
 "use client";
 
+import { useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { Pencil } from "lucide-react";
+import { ChevronLeft, ChevronRight, Pencil } from "lucide-react";
 import Image from "next/image";
 
 import { Badge } from "@/components/ui/badge";
@@ -19,12 +20,13 @@ import { PageHeader } from "@/components/page-header";
 import { ErrorState } from "@/components/error-state";
 import { DetailField } from "@/components/detail-field";
 import { useGetProduct } from "@/features/products/api/get-product";
-import { formatCurrency, getPrimaryImage } from "@/lib/utils";
+import { formatCurrency } from "@/lib/utils";
 
 export default function ViewProductPage() {
   const { id } = useParams<{ id: string }>();
   const router = useRouter();
   const { data, isLoading, isError, error } = useGetProduct(id);
+  const [selectedIndex, setSelectedIndex] = useState(0);
 
   if (isLoading) return <PageLoader message="Loading product..." />;
 
@@ -40,7 +42,8 @@ export default function ViewProductPage() {
   const product = data?.data;
   if (!product) return null;
 
-  const primaryImage = getPrimaryImage(product.product_images);
+  const images = product.product_images ?? [];
+  const selectedImage = images[selectedIndex] ?? null;
 
   return (
     <div className="flex flex-col gap-6">
@@ -117,38 +120,74 @@ export default function ViewProductPage() {
           <CardHeader>
             <CardTitle>Images</CardTitle>
             <CardDescription>
-              {product.product_images?.length || 0} image(s)
+              {images.length} image(s)
             </CardDescription>
           </CardHeader>
           <CardContent>
-            {product.product_images?.length ? (
+            {images.length ? (
               <div className="space-y-3">
-                {primaryImage && (
-                  <div className="relative aspect-square w-full overflow-hidden rounded-md border">
+                <div className="relative aspect-square w-full overflow-hidden rounded-lg border bg-muted/30">
+                  {selectedImage && (
                     <Image
-                      src={primaryImage.url}
+                      src={selectedImage.url}
                       alt={product.name}
                       fill
-                      className="object-cover"
+                      className="object-cover transition-opacity duration-200"
+                      key={selectedImage.id}
                     />
-                  </div>
-                )}
-                {product.product_images.length > 1 && (
-                  <div className="flex flex-wrap gap-3">
-                    {product.product_images.map((img) => (
-                      <div
+                  )}
+                  {images.length > 1 && (
+                    <>
+                      <Button
+                        variant="secondary"
+                        size="icon-sm"
+                        className="absolute left-2 top-1/2 -translate-y-1/2 bg-background/80 backdrop-blur-sm hover:bg-background shadow-md"
+                        onClick={() =>
+                          setSelectedIndex((i) =>
+                            i === 0 ? images.length - 1 : i - 1,
+                          )
+                        }
+                      >
+                        <ChevronLeft className="size-4" />
+                      </Button>
+                      <Button
+                        variant="secondary"
+                        size="icon-sm"
+                        className="absolute right-2 top-1/2 -translate-y-1/2 bg-background/80 backdrop-blur-sm hover:bg-background shadow-md"
+                        onClick={() =>
+                          setSelectedIndex((i) =>
+                            i === images.length - 1 ? 0 : i + 1,
+                          )
+                        }
+                      >
+                        <ChevronRight className="size-4" />
+                      </Button>
+                      <div className="absolute bottom-2 left-1/2 -translate-x-1/2 bg-background/70 backdrop-blur-sm rounded-full px-2.5 py-0.5 text-xs tabular-nums text-foreground/80">
+                        {selectedIndex + 1} / {images.length}
+                      </div>
+                    </>
+                  )}
+                </div>
+                {images.length > 1 && (
+                  <div className="flex flex-wrap gap-2">
+                    {images.map((img, index) => (
+                      <button
                         key={img.id}
-                        className={`relative size-16 overflow-hidden rounded-md border ${
-                          img.is_primary ? "ring-2 ring-primary" : ""
+                        type="button"
+                        onClick={() => setSelectedIndex(index)}
+                        className={`relative size-16 overflow-hidden rounded-md border-2 transition-all hover:opacity-100 ${
+                          index === selectedIndex
+                            ? "border-primary ring-1 ring-primary/30 opacity-100"
+                            : "border-transparent opacity-60 hover:border-border"
                         }`}
                       >
                         <Image
                           src={img.url}
-                          alt="Product"
+                          alt={`Product image ${index + 1}`}
                           fill
                           className="object-cover"
                         />
-                      </div>
+                      </button>
                     ))}
                   </div>
                 )}

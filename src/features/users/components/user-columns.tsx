@@ -4,7 +4,11 @@ import type { ColumnDef } from "@tanstack/react-table";
 import { Eye, Pencil, Trash2 } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import type { SafeUser } from "@/features/users/types";
 
 interface ColumnActions {
@@ -21,11 +25,9 @@ export function getUserColumns(
       accessorKey: "full_name",
       header: "Name",
       cell: ({ row }) => (
-        <div>
-          <span className="font-medium">
-            {row.original.full_name || "—"}
-          </span>
-        </div>
+        <span className="font-medium text-foreground">
+          {row.original.full_name || "—"}
+        </span>
       ),
     },
     {
@@ -44,7 +46,9 @@ export function getUserColumns(
       accessorKey: "role",
       header: "Role",
       cell: ({ row }) => (
-        <Badge variant={row.original.role === "admin" ? "default" : "secondary"}>
+        <Badge
+          variant={row.original.role === "admin" ? "default" : "secondary"}
+        >
           {row.original.role}
         </Badge>
       ),
@@ -70,31 +74,49 @@ export function getUserColumns(
       cell: ({ row }) => {
         const user = row.original;
         return (
-          <div className="flex items-center gap-1">
-            <Button
-              variant="ghost"
-              size="icon-xs"
-              onClick={() => actions.onView(user.id)}
-              title="View"
-            >
-              <Eye />
-            </Button>
-            <Button
-              variant="ghost"
-              size="icon-xs"
-              onClick={() => actions.onEdit(user.id)}
-              title="Edit"
-            >
-              <Pencil />
-            </Button>
-            <Button
-              variant="destructive"
-              size="icon-xs"
-              onClick={() => actions.onDelete(user)}
-              title="Delete"
-            >
-              <Trash2 />
-            </Button>
+          <div className="flex items-center gap-3">
+            <Tooltip>
+              <TooltipTrigger
+                render={
+                  <span
+                    role="button"
+                    tabIndex={0}
+                    onClick={() => actions.onView(user.id)}
+                  />
+                }
+              >
+                <Eye className="size-[18px] text-muted-foreground cursor-pointer hover:text-foreground hover:scale-110 transition-all duration-200" />
+              </TooltipTrigger>
+              <TooltipContent side="top">View user</TooltipContent>
+            </Tooltip>
+            <Tooltip>
+              <TooltipTrigger
+                render={
+                  <span
+                    role="button"
+                    tabIndex={0}
+                    onClick={() => actions.onEdit(user.id)}
+                  />
+                }
+              >
+                <Pencil className="size-[18px] text-muted-foreground cursor-pointer hover:text-foreground hover:scale-110 transition-all duration-200" />
+              </TooltipTrigger>
+              <TooltipContent side="top">Edit user</TooltipContent>
+            </Tooltip>
+            <Tooltip>
+              <TooltipTrigger
+                render={
+                  <span
+                    role="button"
+                    tabIndex={0}
+                    onClick={() => actions.onDelete(user)}
+                  />
+                }
+              >
+                <Trash2 className="size-[18px] text-destructive/60 cursor-pointer hover:text-destructive hover:scale-110 transition-all duration-200" />
+              </TooltipTrigger>
+              <TooltipContent side="top">Delete user</TooltipContent>
+            </Tooltip>
           </div>
         );
       },
