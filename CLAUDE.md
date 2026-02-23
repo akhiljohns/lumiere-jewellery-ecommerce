@@ -27,7 +27,7 @@ Jewellery e-commerce app built with **Next.js 16 (App Router)** + **TypeScript**
   - Each feature has a `services/` folder with Supabase query functions
   - Services are consumed by API routes, not imported directly by client components
 - **`lib/`** — Shared infrastructure: Supabase clients, JWT, Cloudinary, Zod validators, utilities
-- **`middleware.ts`** — Protects `/admin/*` pages and `/api/admin/*` routes via JWT verification
+- **`proxy.ts`** — Protects `/admin/*` pages and `/api/admin/*` routes via JWT verification
 
 ### Key Patterns
 

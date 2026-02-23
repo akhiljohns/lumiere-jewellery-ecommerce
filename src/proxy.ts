@@ -2,13 +2,13 @@ import { NextRequest, NextResponse } from "next/server";
 import { verifyToken } from "@/lib/jwt";
 
 /**
- * Next.js Edge Middleware
+ * Next.js Edge Proxy
  *
  * Protects:
  *   - /admin/*   pages  → redirects to /login
  *   - /api/admin/* routes → returns 401 JSON
  */
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const token = request.cookies.get("admin-token")?.value;
 
