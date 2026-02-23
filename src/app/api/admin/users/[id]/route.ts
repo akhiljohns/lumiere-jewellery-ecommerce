@@ -5,6 +5,7 @@ import {
   updateUser,
   deleteUser,
 } from "@/features/users/services/user-service";
+import { logAdminAction, logAdminError, diffFields } from "@/lib/discord";
 
 interface RouteParams {
   params: Promise<{ id: string }>;
@@ -36,6 +37,8 @@ export async function GET(_request: NextRequest, { params }: RouteParams) {
  * Update a user.
  */
 export async function PATCH(request: NextRequest, { params }: RouteParams) {
+  const actor = request.headers.get("x-user-email") ?? "unknown";
+
   try {
     const { id } = await params;
     const body = await request.json();
@@ -56,6 +59,23 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
 
     const user = await updateUser(id, parsed.data);
 
+    const changes = diffFields(
+      parsed.data as Record<string, unknown>,
+      existing as Record<string, unknown>,
+      ["password"],
+    );
+
+    const hasPasswordChange = "password" in parsed.data && parsed.data.password;
+
+    logAdminAction("updated", "User", existing.email, actor, [
+      { name: "ID", value: id, inline: true },
+      ...(changes.length > 0 ? changes : []),
+      ...(hasPasswordChange ? [{ name: "password", value: "changed", inline: true }] : []),
+      ...(changes.length === 0 && !hasPasswordChange
+        ? [{ name: "Changes", value: "no field changes detected" }]
+        : []),
+    ]);
+
     return NextResponse.json(
       { data: user, message: "User updated successfully" },
       { status: 200 },
@@ -63,6 +83,7 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
   } catch (err) {
     const message =
       err instanceof Error ? err.message : "Internal server error";
+    logAdminError("Update User", message, actor);
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }
@@ -72,6 +93,8 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
  * Delete a user.
  */
 export async function DELETE(request: NextRequest, { params }: RouteParams) {
+  const actor = request.headers.get("x-user-email") ?? "unknown";
+
   try {
     const { id } = await params;
 
@@ -92,6 +115,12 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
 
     await deleteUser(id);
 
+    logAdminAction("deleted", "User", existing.email, actor, [
+      { name: "ID", value: id, inline: true },
+      { name: "Name", value: existing.full_name ?? "—", inline: true },
+      { name: "Role", value: existing.role, inline: true },
+    ]);
+
     return NextResponse.json(
       { message: "User deleted successfully" },
       { status: 200 },
@@ -99,6 +128,7 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
   } catch (err) {
     const message =
       err instanceof Error ? err.message : "Internal server error";
+    logAdminError("Delete User", message, actor);
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }

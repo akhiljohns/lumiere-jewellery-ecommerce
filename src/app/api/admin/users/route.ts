@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { userCreateSchema, paginationSchema } from "@/lib/validators";
 import { getUsers, createUser } from "@/features/users/services/user-service";
+import { logAdminAction, logAdminError } from "@/lib/discord";
 
 /**
  * GET /api/admin/users
@@ -40,6 +41,8 @@ export async function GET(request: NextRequest) {
  * Create a new user.
  */
 export async function POST(request: NextRequest) {
+  const actor = request.headers.get("x-user-email") ?? "unknown";
+
   try {
     const body = await request.json();
 
@@ -53,6 +56,13 @@ export async function POST(request: NextRequest) {
 
     const user = await createUser(parsed.data);
 
+    logAdminAction("created", "User", parsed.data.email, actor, [
+      { name: "ID", value: user.id, inline: true },
+      { name: "Name", value: parsed.data.full_name ?? "—", inline: true },
+      { name: "Role", value: parsed.data.role ?? "customer", inline: true },
+      { name: "Active", value: parsed.data.is_active !== false ? "Yes" : "No", inline: true },
+    ]);
+
     return NextResponse.json(
       { data: user, message: "User created successfully" },
       { status: 201 },
@@ -60,6 +70,7 @@ export async function POST(request: NextRequest) {
   } catch (err) {
     const message =
       err instanceof Error ? err.message : "Internal server error";
+    logAdminError("Create User", message, actor);
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }

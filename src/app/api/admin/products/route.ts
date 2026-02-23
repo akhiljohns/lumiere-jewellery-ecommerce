@@ -4,6 +4,7 @@ import {
   getProducts,
   createProduct,
 } from "@/features/products/services/product-service";
+import { logAdminAction, logAdminError } from "@/lib/discord";
 
 /**
  * GET /api/admin/products
@@ -44,6 +45,8 @@ export async function GET(request: NextRequest) {
  * Create a new product.
  */
 export async function POST(request: NextRequest) {
+  const actor = request.headers.get("x-user-email") ?? "unknown";
+
   try {
     const body = await request.json();
 
@@ -57,6 +60,14 @@ export async function POST(request: NextRequest) {
 
     const product = await createProduct(parsed.data);
 
+    logAdminAction("created", "Product", parsed.data.name, actor, [
+      { name: "ID", value: product.id, inline: true },
+      { name: "Category", value: parsed.data.category, inline: true },
+      { name: "Price", value: `₹${parsed.data.price}`, inline: true },
+      { name: "Stock", value: String(parsed.data.stock ?? 0), inline: true },
+      { name: "Active", value: parsed.data.is_active !== false ? "Yes" : "No", inline: true },
+    ]);
+
     return NextResponse.json(
       { data: product, message: "Product created successfully" },
       { status: 201 },
@@ -64,6 +75,7 @@ export async function POST(request: NextRequest) {
   } catch (err) {
     const message =
       err instanceof Error ? err.message : "Internal server error";
+    logAdminError("Create Product", message, actor);
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }
