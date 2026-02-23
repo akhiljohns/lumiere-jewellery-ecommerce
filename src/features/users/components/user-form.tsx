@@ -8,6 +8,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
   Field,
   FieldLabel,
   FieldError,
@@ -142,23 +149,23 @@ export function UserForm({
         </div>
 
         <Field>
-          <FieldLabel htmlFor="role">Role *</FieldLabel>
+          <FieldLabel>Role *</FieldLabel>
           <Controller
             control={control}
             name="role"
             render={({ field }) => (
-              <select
-                id="role"
-                className="bg-input/20 dark:bg-input/30 border-input hover:border-ring/50 focus-visible:border-ring focus-visible:ring-ring/30 h-7 rounded-md border px-2 text-sm outline-none focus-visible:ring-2 w-full max-w-xs transition-colors"
-                value={field.value}
-                onChange={field.onChange}
-              >
-                {ROLES.map((r) => (
-                  <option key={r.value} value={r.value}>
-                    {r.label}
-                  </option>
-                ))}
-              </select>
+              <Select value={field.value} onValueChange={field.onChange}>
+                <SelectTrigger className="w-full max-w-xs">
+                  <SelectValue placeholder="Select role" />
+                </SelectTrigger>
+                <SelectContent>
+                  {ROLES.map((r) => (
+                    <SelectItem key={r.value} value={r.value}>
+                      {r.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
             )}
           />
           {errors.role && <FieldError>{errors.role.message}</FieldError>}

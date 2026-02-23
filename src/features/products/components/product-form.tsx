@@ -12,6 +12,13 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
   Field,
   FieldLabel,
   FieldError,
@@ -182,25 +189,23 @@ export function ProductForm({
           </Field>
 
           <Field>
-            <FieldLabel htmlFor="category">Category *</FieldLabel>
+            <FieldLabel>Category *</FieldLabel>
             <Controller
               control={control}
               name="category"
               render={({ field }) => (
-                <select
-                  id="category"
-                  className="bg-input/20 dark:bg-input/30 border-input hover:border-ring/50 focus-visible:border-ring focus-visible:ring-ring/30 h-7 rounded-md border px-2 text-sm outline-none focus-visible:ring-2 w-full transition-colors"
-                  value={field.value}
-                  onChange={field.onChange}
-                  aria-invalid={!!errors.category}
-                >
-                  <option value="">Select category</option>
-                  {CATEGORIES.map((cat) => (
-                    <option key={cat} value={cat}>
-                      {cat}
-                    </option>
-                  ))}
-                </select>
+                <Select value={field.value} onValueChange={field.onChange}>
+                  <SelectTrigger className="w-full" aria-invalid={!!errors.category}>
+                    <SelectValue placeholder="Select category" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {CATEGORIES.map((cat) => (
+                      <SelectItem key={cat} value={cat}>
+                        {cat}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               )}
             />
             {errors.category && (
