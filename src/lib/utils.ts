@@ -1,5 +1,6 @@
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
+import type { ProductImage } from "@/lib/supabase/types";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -35,4 +36,10 @@ export function buildPaginationMeta(
     total,
     totalPages: Math.ceil(total / limit),
   };
+}
+
+export function getPrimaryImage(
+  images: ProductImage[] | undefined | null,
+): ProductImage | undefined {
+  return images?.find((img) => img.is_primary) ?? images?.[0];
 }
