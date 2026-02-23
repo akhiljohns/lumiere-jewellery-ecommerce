@@ -14,28 +14,24 @@ export default function Home() {
           <h1 className="text-3xl font-bold tracking-tight text-foreground sm:text-4xl">
             Jewellery Store
           </h1>
-          <p className="text-muted-foreground text-base leading-relaxed">
+          <p className="text-base leading-relaxed text-muted-foreground">
             Discover exquisite handcrafted jewellery. Timeless designs
             crafted with care and precision.
           </p>
         </div>
 
         <div className="flex flex-col gap-3 sm:flex-row">
-          <Button asChild size="lg">
-            <Link href="/admin">
-              <ShieldCheck className="size-4" />
-              Admin Dashboard
-            </Link>
+          <Button size="lg" render={<Link href="/admin" />}>
+            <ShieldCheck className="size-4" />
+            Admin Dashboard
           </Button>
-          <Button asChild variant="outline" size="lg">
-            <Link href="/login">
-              Sign in
-              <ArrowRight className="size-4" />
-            </Link>
+          <Button variant="outline" size="lg" render={<Link href="/login" />}>
+            Sign in
+            <ArrowRight className="size-4" />
           </Button>
         </div>
 
-        <p className="text-muted-foreground text-xs">
+        <p className="text-xs text-muted-foreground">
           Storefront coming soon. Use the admin panel to manage products.
         </p>
       </main>
