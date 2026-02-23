@@ -1,8 +1,10 @@
 import type { Metadata } from "next";
 import { cookies } from "next/headers";
-import { Gem } from "lucide-react";
+import { Gem, LogOut } from "lucide-react";
+import Link from "next/link";
 import { verifyToken } from "@/lib/jwt";
 import { AdminNav } from "@/features/admin/components/admin-nav";
+import { Separator } from "@/components/ui/separator";
 
 export const metadata: Metadata = {
   title: "Admin Dashboard | Jewellery Store",
@@ -18,15 +20,18 @@ export default async function AdminLayout({
   const payload = token ? await verifyToken(token) : null;
 
   return (
-    <div className="flex min-h-svh">
+    <div className="flex min-h-svh bg-muted">
       {/* Sidebar */}
-      <aside className="bg-card border-r w-60 flex flex-col shrink-0">
-        <div className="flex items-center gap-2 px-5 py-4 border-b">
-          <div className="bg-primary text-primary-foreground flex size-7 items-center justify-center rounded-md">
+      <aside className="flex w-60 shrink-0 flex-col border-r border-border bg-card">
+        <div className="flex items-center gap-2 px-5 py-4">
+          <div className="flex size-7 items-center justify-center rounded-md bg-primary text-primary-foreground">
             <Gem className="size-3.5" />
           </div>
-          <span className="font-semibold tracking-tight">Jewellery Admin</span>
+          <span className="font-semibold tracking-tight text-foreground">
+            Jewellery Admin
+          </span>
         </div>
+        <Separator />
         <nav className="flex-1 px-3 py-4">
           <AdminNav
             items={[
@@ -48,10 +53,18 @@ export default async function AdminLayout({
             ]}
           />
         </nav>
-        <div className="border-t px-4 py-3">
-          <p className="text-muted-foreground text-xs truncate">
+        <Separator />
+        <div className="flex items-center justify-between px-4 py-3">
+          <p className="text-xs text-muted-foreground truncate">
             {payload?.email ?? "Admin"}
           </p>
+          <Link
+            href="/api/auth/logout"
+            className="text-muted-foreground hover:text-foreground transition-colors"
+            title="Logout"
+          >
+            <LogOut className="size-3.5" />
+          </Link>
         </div>
       </aside>
 

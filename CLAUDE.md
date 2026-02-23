@@ -69,6 +69,34 @@ Required in `.env.local` (see `.env.local.example`):
 - `JWT_SECRET`
 - `ADMIN_EMAIL`, `ADMIN_PASSWORD` (for seed script)
 
+## UI Theme & Styling Rules (STRICT)
+
+The project uses **shadcn/ui Mira style** with **amber primary**, **gray base color**, and **Inter font**.
+
+### Mandatory Rules
+
+1. **Colors**: ONLY use shadcn CSS variable colors via Tailwind classes. NEVER use hardcoded hex values, OKLCH literals, or Tailwind color scales (zinc-*, slate-*, gray-*, stone-*, neutral-*, red-*, blue-*, etc.) in components or pages. The only allowed color classes are:
+   - `bg-background`, `text-foreground` — page/section backgrounds and text
+   - `bg-card`, `text-card-foreground` — card containers
+   - `bg-primary`, `text-primary-foreground` — primary actions and accents (amber)
+   - `bg-secondary`, `text-secondary-foreground` — secondary elements
+   - `bg-muted`, `text-muted-foreground` — muted/subtle elements
+   - `bg-accent`, `text-accent-foreground` — accents (same as primary in this theme)
+   - `bg-destructive`, `text-destructive` — error/danger states
+   - `border-border`, `border-input` — borders
+   - `ring-ring` — focus rings
+   - Opacity modifiers are allowed (e.g., `bg-primary/10`, `text-muted-foreground/80`)
+
+2. **Icons**: ONLY use `lucide-react` icons. Never use other icon libraries (heroicons, react-icons, fontawesome, etc.).
+
+3. **Font**: Inter is the sole typeface, loaded via `next/font/google` and set as `--font-inter`. Use `font-sans` to apply it. Never import or reference Geist or other fonts.
+
+4. **Components**: Always prefer shadcn/ui components (`@/components/ui/*`). When adding new components, use `npx shadcn@latest add <component>`.
+
+5. **shadcn config**: Style is `base-mira`, base color is `gray`, icon library is `lucide`. See `components.json`.
+
+6. **Dark mode**: Supported via `.dark` class. All theme variables have dark mode counterparts. Use the `dark:` variant only when the CSS variable approach doesn't automatically handle it (rare).
+
 ## Implementation Status
 
 Phases 0–3 (foundation, auth API, product CRUD API, user CRUD API) are complete. Admin UI pages and storefront are not yet built. Client-side libraries (Zustand, TanStack React Query, Framer Motion, shadcn/ui) are installed but unused.

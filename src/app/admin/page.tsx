@@ -77,8 +77,10 @@ export default async function AdminDashboardPage() {
   return (
     <div className="flex flex-col gap-6">
       <div>
-        <h1 className="text-2xl font-bold tracking-tight">Dashboard</h1>
-        <p className="text-muted-foreground text-sm">
+        <h1 className="text-2xl font-bold tracking-tight text-foreground">
+          Dashboard
+        </h1>
+        <p className="text-sm text-muted-foreground">
           Overview of your jewellery store
         </p>
       </div>
@@ -91,11 +93,15 @@ export default async function AdminDashboardPage() {
               <CardTitle className="text-sm font-medium">
                 {stat.title}
               </CardTitle>
-              <stat.icon className="text-muted-foreground size-4" />
+              <stat.icon className="size-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{stat.value}</div>
-              <p className="text-muted-foreground text-xs">{stat.description}</p>
+              <div className="text-2xl font-bold text-foreground">
+                {stat.value}
+              </div>
+              <p className="text-xs text-muted-foreground">
+                {stat.description}
+              </p>
             </CardContent>
           </Card>
         ))}
@@ -113,7 +119,7 @@ export default async function AdminDashboardPage() {
           </CardHeader>
           <CardContent>
             {recentProducts.length === 0 ? (
-              <p className="text-muted-foreground text-sm py-4 text-center">
+              <p className="py-4 text-center text-sm text-muted-foreground">
                 No products yet
               </p>
             ) : (
@@ -129,7 +135,7 @@ export default async function AdminDashboardPage() {
                 <TableBody>
                   {recentProducts.map((product) => (
                     <TableRow key={product.id}>
-                      <TableCell className="font-medium max-w-[140px] truncate">
+                      <TableCell className="max-w-[140px] truncate font-medium">
                         {product.name}
                       </TableCell>
                       <TableCell>{formatCurrency(product.price)}</TableCell>
@@ -159,7 +165,7 @@ export default async function AdminDashboardPage() {
           </CardHeader>
           <CardContent>
             {recentUsers.length === 0 ? (
-              <p className="text-muted-foreground text-sm py-4 text-center">
+              <p className="py-4 text-center text-sm text-muted-foreground">
                 No users yet
               </p>
             ) : (
