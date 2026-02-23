@@ -1,0 +1,36 @@
+"use client"
+
+import { Switch as SwitchPrimitive } from "@base-ui/react/switch"
+
+import { cn } from "@/lib/utils"
+
+function Switch({
+  className,
+  size = "default",
+  thumbContent,
+  ...props
+}: SwitchPrimitive.Root.Props & {
+  size?: "sm" | "default" | "lg"
+  thumbContent?: React.ReactNode
+}) {
+  return (
+    <SwitchPrimitive.Root
+      data-slot="switch"
+      data-size={size}
+      className={cn(
+        "data-checked:bg-primary data-unchecked:bg-input focus-visible:border-ring focus-visible:ring-ring/30 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive dark:aria-invalid:border-destructive/50 dark:data-unchecked:bg-input/80 shrink-0 rounded-full border border-transparent focus-visible:ring-2 aria-invalid:ring-2 data-[size=default]:h-[16.6px] data-[size=default]:w-7 data-[size=sm]:h-3.5 data-[size=sm]:w-6 data-[size=lg]:h-5 data-[size=lg]:w-9 peer group/switch relative inline-flex items-center transition-all outline-none after:absolute after:-inset-x-3 after:-inset-y-2 data-disabled:cursor-not-allowed data-disabled:opacity-50",
+        className
+      )}
+      {...props}
+    >
+      <SwitchPrimitive.Thumb
+        data-slot="switch-thumb"
+        className="bg-background dark:data-unchecked:bg-foreground dark:data-checked:bg-primary-foreground rounded-full group-data-[size=default]/switch:size-3.5 group-data-[size=sm]/switch:size-3 group-data-[size=lg]/switch:size-4 group-data-[size=default]/switch:data-checked:translate-x-[calc(100%-2px)] group-data-[size=sm]/switch:data-checked:translate-x-[calc(100%-2px)] group-data-[size=lg]/switch:data-checked:translate-x-[calc(100%-2px)] data-unchecked:translate-x-0 pointer-events-none flex items-center justify-center ring-0 transition-transform"
+      >
+        {thumbContent}
+      </SwitchPrimitive.Thumb>
+    </SwitchPrimitive.Root>
+  )
+}
+
+export { Switch }

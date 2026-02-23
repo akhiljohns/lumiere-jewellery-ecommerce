@@ -13,13 +13,18 @@ export const metadata: Metadata = {
   description: "Premium jewellery e-commerce store",
 };
 
+const themeScript = `(function(){try{var t=localStorage.getItem("color-theme");if(t&&JSON.parse(t)==="dark"){document.documentElement.classList.add("dark")}}catch(e){}})()`;
+
 export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: themeScript }} />
+      </head>
       <body className={`${inter.variable} font-sans antialiased`}>
         <TooltipProvider>{children}</TooltipProvider>
       </body>
