@@ -48,9 +48,9 @@ export function DarkModeSwitcher() {
             className="border-2 border-border hover:border-muted-foreground/40"
             thumbContent={
               isDark ? (
-                <Moon className="size-3 text-blue-400" />
+                <Moon className="size-3 text-muted-foreground" />
               ) : (
-                <Sun className="size-3 text-amber-500" />
+                <Sun className="size-3 text-primary" />
               )
             }
           />
