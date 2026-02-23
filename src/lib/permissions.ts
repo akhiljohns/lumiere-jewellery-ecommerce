@@ -61,6 +61,22 @@ export const ROLE_PERMISSIONS: Record<string, Permission[]> = {
   ],
 };
 
+/**
+ * Numeric rank for each known role.
+ * A user can only edit roles whose rank is strictly less than their own.
+ * Custom / unknown roles receive rank 10.
+ */
+export const ROLE_RANK: Record<string, number> = {
+  super_admin: 100,
+  admin: 80,
+  product_manager: 50,
+  viewer: 20,
+};
+
+export function getRoleRank(role: string): number {
+  return ROLE_RANK[role] ?? 10;
+}
+
 /** Group permissions by resource for UI display (roles CRUD form) */
 export const PERMISSIONS_BY_RESOURCE: Record<string, Permission[]> = {
   product: ["product.view", "product.create", "product.edit", "product.delete"],

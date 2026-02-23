@@ -10,10 +10,12 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import type { RoleWithPermissions } from "@/features/roles/types";
+import { getRoleRank, SUPER_ADMIN_ROLE } from "@/lib/permissions";
 
 interface ColumnActions {
   onEdit?: (id: string) => void;
   onDelete?: (role: RoleWithPermissions) => void;
+  currentUserRole?: string;
 }
 
 export function getRoleColumns(
@@ -76,9 +78,14 @@ export function getRoleColumns(
       header: "Actions",
       cell: ({ row }) => {
         const role = row.original;
+        const userRole = actions.currentUserRole ?? "";
+        const canEdit =
+          role.name !== SUPER_ADMIN_ROLE &&
+          (userRole === SUPER_ADMIN_ROLE ||
+            getRoleRank(userRole) > getRoleRank(role.name));
         return (
           <div className="flex items-center gap-3">
-            {actions.onEdit && (
+            {actions.onEdit && canEdit && (
               <Tooltip>
                 <TooltipTrigger
                   render={

@@ -12,10 +12,12 @@ import { useGetRoles } from "@/features/roles/api/get-roles";
 import { useDeleteRole } from "@/features/roles/api/delete-role";
 import { getRoleColumns } from "@/features/roles/components/role-columns";
 import type { RoleWithPermissions } from "@/features/roles/types";
+import { useAuthStore } from "@/stores/auth-store";
 
 export default function RolesPage() {
   const router = useRouter();
   const [deleteTarget, setDeleteTarget] = useState<RoleWithPermissions | null>(null);
+  const currentUserRole = useAuthStore((s) => s.user?.role);
 
   const { data, isLoading } = useGetRoles();
   const deleteRole = useDeleteRole();
@@ -25,8 +27,9 @@ export default function RolesPage() {
       getRoleColumns({
         onEdit: (id) => router.push(`/admin/roles/${id}/edit`),
         onDelete: (role) => setDeleteTarget(role),
+        currentUserRole,
       }),
-    [router],
+    [router, currentUserRole],
   );
 
   const roles = data?.data ?? [];
