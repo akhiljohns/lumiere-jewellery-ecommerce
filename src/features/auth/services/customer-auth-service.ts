@@ -17,9 +17,10 @@ export class EmailNotVerifiedError extends Error {
 /** Token expiry durations in milliseconds. */
 const VERIFICATION_EXPIRY_MS = 24 * 60 * 60 * 1000; // 24 hours
 const RESET_EXPIRY_MS = 60 * 60 * 1000; // 1 hour
+const CHECKOUT_RESET_EXPIRY_MS = 24 * 60 * 60 * 1000; // 24 hours (longer for initial setup)
 
 /** Sensitive fields stripped from customer responses. */
-type SafeCustomer = Omit<
+export type SafeCustomer = Omit<
   User,
   | "password_hash"
   | "verification_token"
@@ -297,6 +298,58 @@ export async function getCustomerById(
   if (error || !user) return null;
 
   return sanitize(user);
+}
+
+/**
+ * Register a customer for guest checkout.
+ * Creates account with random password, marks email as verified,
+ * and sends a password reset email so they can set their own password.
+ */
+export async function registerCustomerForCheckout(input: {
+  email: string;
+  full_name?: string | null;
+  phone?: string | null;
+}): Promise<SafeCustomer> {
+  const supabase = createAdminClient();
+  const randomPassword = crypto.randomBytes(32).toString("hex");
+  const passwordHash = await hash(randomPassword, 12);
+  const resetToken = generateToken();
+  const resetExpires = new Date(
+    Date.now() + CHECKOUT_RESET_EXPIRY_MS,
+  ).toISOString();
+
+  const { data, error } = await supabase
+    .from("users")
+    .insert({
+      email: input.email,
+      password_hash: passwordHash,
+      full_name: input.full_name ?? null,
+      phone: input.phone ?? null,
+      role: "customer",
+      is_active: true,
+      email_verified: true,
+      reset_token: resetToken,
+      reset_token_expires: resetExpires,
+    })
+    .select()
+    .single();
+
+  if (error) {
+    if (error.code === "23505") {
+      throw new Error("A user with this email already exists");
+    }
+    throw new Error(error.message);
+  }
+
+  sendPasswordResetEmail(
+    input.email,
+    input.full_name ?? null,
+    resetToken,
+  ).catch((err) =>
+    console.error("[EMAIL] Failed to send password reset email:", err.message),
+  );
+
+  return sanitize(data);
 }
 
 /**
