@@ -1,6 +1,9 @@
 -- ================================================
--- Jewellery E-Commerce — Database Schema
--- Run this in the Supabase SQL Editor to create tables
+-- Jewellery E-Commerce — Database Schema (REFERENCE ONLY)
+-- This file is for documentation purposes only.
+-- The authoritative schema is managed via Supabase CLI migrations
+-- in supabase/migrations/. Do NOT run this file directly.
+-- To apply schema changes, use: npm run db:migrate
 -- ================================================
 
 -- ── USERS TABLE ──────────────────────────────────
