@@ -35,14 +35,17 @@ Jewellery e-commerce app built with **Next.js 16 (App Router)** + **TypeScript**
 ### Source Layout (`src/`)
 
 - **`app/api/`** — REST API routes (Next.js Route Handlers)
-  - `auth/` — Public: login (JWT cookie), logout, me
-  - `admin/products/`, `admin/categories/`, and `admin/users/` — Protected CRUD endpoints
+  - `auth/` — Admin + customer auth (login, register, forgot/reset password, email verification)
+  - `admin/` — Protected admin endpoints (products, categories, users, roles, orders, stats, search, AI)
+  - `customer/` — Protected customer endpoints (cart, checkout, orders, addresses, wishlist, profile)
+  - `products/`, `categories/` — Public storefront endpoints (no auth)
+  - `webhooks/razorpay/` — Payment webhook handler
   - `upload/image/` — Cloudinary upload/delete proxy
 - **`features/`** — Domain logic organized by feature
   - Each feature has a `services/` folder with Supabase query functions
-  - Services are consumed by API routes, not imported directly by client components
-- **`lib/`** — Shared infrastructure: Supabase clients, JWT, Cloudinary, Zod validators, utilities
-- **`proxy.ts`** — Protects `/admin/*` pages and `/api/admin/*` routes via JWT verification
+  - Features: products, categories, users, roles, auth, cart, orders, wishlist, dashboard, storefront, admin
+- **`lib/`** — Shared infrastructure: Supabase clients, JWT, Cloudinary, Zod validators, AI, rate limiting, Razorpay, email, Discord, utilities
+- **`proxy.ts`** — Middleware protecting `/admin/*`, `/api/admin/*`, `/api/customer/*`, `/api/auth/*` with JWT verification and rate limiting
 
 ### Key Patterns
 
@@ -62,10 +65,15 @@ Jewellery e-commerce app built with **Next.js 16 (App Router)** + **TypeScript**
 
 ### Database Tables (Supabase/PostgreSQL)
 
-- **users** — email (unique), password_hash, full_name, phone, avatar_url, role (admin|customer), is_active
-- **categories** — name, slug (unique), parent_id (self-FK, SET NULL), image_url, sort_order, is_active
-- **products** — name, slug (unique), description, price, compare_price, category_id (FK→categories, SET NULL), material, weight, stock, is_active
+- **users** — email, password_hash, full_name, phone, avatar_url, role, is_active, email_verified, verification/reset tokens
+- **roles** / **permissions** / **role_permissions** — RBAC with granular permission system
+- **categories** — name, slug, parent_id (self-FK hierarchy), image_url, sort_order, is_active
+- **products** — name, slug, description, price, compare_price, category_id, material, weight, stock, is_active, is_featured, search_vector (tsvector + GIN index)
 - **product_images** — product_id (FK, cascade), url, public_id, is_primary, sort_order
+- **carts** / **cart_items** — one cart per customer, stock-validated items
+- **addresses** — customer shipping/billing addresses with default flag
+- **orders** / **order_items** — full order lifecycle with status enum, payment tracking, price snapshots
+- **wishlists** — customer product wishlists with unique constraint
 
 ### Path Alias
 
@@ -87,6 +95,9 @@ Required in `.env.local` (see `.env.local.example`):
 - `SMTP_USER`, `SMTP_PASS` (Gmail App Password for transactional emails)
 - `SMTP_FROM_NAME` (sender display name, default: "Jewellery Store")
 - `NEXT_PUBLIC_APP_URL` (base URL for email links, default: `http://localhost:3000`)
+- `RAZORPAY_KEY_ID`, `RAZORPAY_KEY_SECRET`, `RAZORPAY_WEBHOOK_SECRET`, `NEXT_PUBLIC_RAZORPAY_KEY_ID`
+- `DISCORD_WEBHOOK_URL` (admin action notifications)
+- `GEMINI_API_KEY` (AI description/alt-text generation)
 
 ## UI Theme & Styling Rules (STRICT)
 
@@ -118,4 +129,25 @@ The project uses **shadcn/ui Mira style** with **amber primary**, **gray base co
 
 ## Implementation Status
 
-Phases 0–3 (foundation, auth API, product CRUD API, user CRUD API) are complete. Admin UI pages and storefront are not yet built. Client-side libraries (Zustand, TanStack React Query, Framer Motion, shadcn/ui) are installed but unused.
+### Completed
+
+**Phase 0–3** — Foundation, admin auth, product CRUD, user CRUD, admin UI pages.
+
+**Phase A — API & Business Logic:**
+- Categories entity with hierarchy (TASK-A01)
+- Customer authentication with email verification and password recovery (TASK-A02)
+- Cart API with stock validation and guest-to-user merge (TASK-A03)
+- Orders & checkout with Razorpay integration and COD (TASK-A04)
+- Wishlist API (TASK-A05)
+- Dashboard stats endpoint with aggregate SQL (TASK-A06)
+- Full-text search with tsvector and GIN index (TASK-A07)
+- Public storefront API — products, categories, featured, search (TASK-A08)
+- AI product description and image alt text generation via Gemini (TASK-A10)
+
+**Phase B — Optimizations:**
+- IP-based rate limiting across all API tiers (TASK-B01)
+
+### Not Started
+- Phase A: Audit log persistence (A09), AI categorization (A11), visual search (A12), chatbot RAG (A13), inventory alerts (A14), pricing suggestions (A15)
+- Phase B: CSRF protection, input sanitization, env validation, error standardization, image optimization, caching, bundle audit, migrations strategy, testing, accessibility
+- Phase C: All UI — storefront pages, TanStack Query, Zustand stores, Framer Motion animations, admin enhancements
