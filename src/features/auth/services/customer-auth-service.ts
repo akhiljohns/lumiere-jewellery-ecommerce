@@ -2,6 +2,10 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { compare, hash } from "bcryptjs";
 import crypto from "crypto";
 import type { User } from "@/lib/supabase/types";
+import {
+  sendVerificationEmail,
+  sendPasswordResetEmail,
+} from "@/lib/email";
 
 /** Token expiry durations in milliseconds. */
 const VERIFICATION_EXPIRY_MS = 24 * 60 * 60 * 1000; // 24 hours
@@ -72,9 +76,8 @@ export async function registerCustomer(input: {
     throw new Error(error.message);
   }
 
-  // Log verification URL for dev testing (no email provider yet)
-  console.log(
-    `[CUSTOMER AUTH] Verification URL for ${input.email}: /api/auth/verify-email?token=${verificationToken}`,
+  sendVerificationEmail(input.email, input.full_name ?? null, verificationToken).catch(
+    (err) => console.error("[EMAIL] Failed to send verification email:", err.message),
   );
 
   return sanitize(data);
@@ -178,8 +181,8 @@ export async function resendVerification(
 
   if (updateError) return false;
 
-  console.log(
-    `[CUSTOMER AUTH] Verification URL for ${email}: /api/auth/verify-email?token=${verificationToken}`,
+  sendVerificationEmail(email, null, verificationToken).catch((err) =>
+    console.error("[EMAIL] Failed to resend verification email:", err.message),
   );
 
   return true;
@@ -213,8 +216,14 @@ export async function initiatePasswordReset(email: string): Promise<boolean> {
 
   if (updateError) return true;
 
-  console.log(
-    `[CUSTOMER AUTH] Password reset URL for ${email}: /api/auth/reset-password?token=${resetToken}`,
+  const { data: fullUser } = await supabase
+    .from("users")
+    .select("full_name")
+    .eq("id", user.id)
+    .single();
+
+  sendPasswordResetEmail(email, fullUser?.full_name ?? null, resetToken).catch(
+    (err) => console.error("[EMAIL] Failed to send password reset email:", err.message),
   );
 
   return true;

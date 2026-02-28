@@ -84,6 +84,9 @@ Required in `.env.local` (see `.env.local.example`):
 - `NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME`, `NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET`
 - `JWT_SECRET`
 - `ADMIN_EMAIL`, `ADMIN_PASSWORD` (for seed script)
+- `SMTP_USER`, `SMTP_PASS` (Gmail App Password for transactional emails)
+- `SMTP_FROM_NAME` (sender display name, default: "Jewellery Store")
+- `NEXT_PUBLIC_APP_URL` (base URL for email links, default: `http://localhost:3000`)
 
 ## UI Theme & Styling Rules (STRICT)
 
