@@ -2,6 +2,11 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Rules
+
+- **Never add `Co-Authored-By` footer** to any git commit message.
+- **Use reusable global components**: Always prefer shared components from `components/` for loaders, buttons, badges, skeletons, and other common UI elements. Never inline one-off loading spinners or skeleton markup in pages — create or extend a reusable component in `components/` instead (e.g. `PageLoader`, `FormSkeleton`, `DetailSkeleton`, `TableSkeleton`). Skeletons are the preferred loading pattern over spinners for page and section loading states.
+
 ## Commands
 
 ```bash
