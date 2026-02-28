@@ -121,38 +121,38 @@
                     "priority": "P0",
                     "impact": "very_high",
                     "effort": "medium",
-                    "status": "not_started",
+                    "status": "done",
                     "description": "Core shopping cart functionality: add/remove items, quantity management, guest carts, and cart merging on login.",
                     "subtasks": [
                         {
                             "id": "TASK-A03-A",
                             "title": "Create carts and cart_items tables (support both guest and authenticated carts)",
-                            "status": "not_started"
+                            "status": "done"
                         },
                         {
                             "id": "TASK-A03-B",
                             "title": "Create cart Zod validators",
-                            "status": "not_started"
+                            "status": "done"
                         },
                         {
                             "id": "TASK-A03-C",
                             "title": "Create cart service (add item, update quantity, remove item, clear cart, get cart with product details)",
-                            "status": "not_started"
+                            "status": "done"
                         },
                         {
                             "id": "TASK-A03-D",
                             "title": "Create cart API routes (GET, POST add, PATCH update quantity, DELETE item, DELETE clear)",
-                            "status": "not_started"
+                            "status": "done"
                         },
                         {
                             "id": "TASK-A03-E",
                             "title": "Implement stock validation on add-to-cart (check available quantity)",
-                            "status": "not_started"
+                            "status": "done"
                         },
                         {
                             "id": "TASK-A03-F",
                             "title": "Implement guest-to-user cart merge on login/register",
-                            "status": "not_started"
+                            "status": "done"
                         }
                     ]
                 },
