@@ -16,7 +16,7 @@ async function fetchProducts(
   if (params.search) searchParams.set("search", params.search);
   if (params.sort) searchParams.set("sort", params.sort);
   if (params.order) searchParams.set("order", params.order);
-  if (params.category) searchParams.set("category", params.category);
+  if (params.category_id) searchParams.set("category_id", params.category_id);
 
   return fetchApi<PaginatedProducts>(`/api/admin/products?${searchParams}`);
 }

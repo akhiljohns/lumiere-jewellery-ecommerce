@@ -26,6 +26,7 @@ import {
 } from "@/components/ui/field";
 import { productCreateSchema } from "@/lib/validators";
 import type { ProductCreateInput } from "@/lib/validators";
+import { useGetCategories } from "@/features/categories/api/get-categories";
 
 // Explicit form type to work around Zod v4 + hookform resolver type mismatch
 type ProductFormValues = {
@@ -33,7 +34,7 @@ type ProductFormValues = {
   description?: string;
   price: number;
   compare_price?: number | null;
-  category: string;
+  category_id?: string | null;
   material?: string | null;
   weight?: string | null;
   stock: number;
@@ -55,24 +56,14 @@ interface ProductFormProps {
   submitLabel: string;
 }
 
-const CATEGORIES = [
-  "Rings",
-  "Necklaces",
-  "Earrings",
-  "Bracelets",
-  "Bangles",
-  "Pendants",
-  "Chains",
-  "Anklets",
-  "Other",
-];
-
 export function ProductForm({
   defaultValues,
   onSubmit,
   isSubmitting,
   submitLabel,
 }: ProductFormProps) {
+  const { data: categoriesData } = useGetCategories({ limit: 100, sort: "name", order: "asc" });
+  const categories = categoriesData?.data ?? [];
   const [images, setImages] = useState<ProductImage[]>(
     defaultValues?.images ?? [],
   );
@@ -92,7 +83,7 @@ export function ProductForm({
       description: "",
       price: 0,
       compare_price: null,
-      category: "",
+      category_id: null,
       material: "",
       weight: "",
       stock: 0,
@@ -189,27 +180,30 @@ export function ProductForm({
           </Field>
 
           <Field>
-            <FieldLabel>Category *</FieldLabel>
+            <FieldLabel>Category</FieldLabel>
             <Controller
               control={control}
-              name="category"
+              name="category_id"
               render={({ field }) => (
-                <Select value={field.value} onValueChange={field.onChange}>
-                  <SelectTrigger className="w-full" aria-invalid={!!errors.category}>
+                <Select
+                  value={field.value ?? ""}
+                  onValueChange={(v) => field.onChange(v || null)}
+                >
+                  <SelectTrigger className="w-full" aria-invalid={!!errors.category_id}>
                     <SelectValue placeholder="Select category" />
                   </SelectTrigger>
                   <SelectContent>
-                    {CATEGORIES.map((cat) => (
-                      <SelectItem key={cat} value={cat}>
-                        {cat}
+                    {categories.map((cat) => (
+                      <SelectItem key={cat.id} value={cat.id}>
+                        {cat.name}
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               )}
             />
-            {errors.category && (
-              <FieldError>{errors.category.message}</FieldError>
+            {errors.category_id && (
+              <FieldError>{errors.category_id.message}</FieldError>
             )}
           </Field>
         </div>

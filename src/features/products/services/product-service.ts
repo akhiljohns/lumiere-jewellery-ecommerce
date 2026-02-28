@@ -5,6 +5,7 @@ import type {
   ProductInsert,
   ProductImage,
 } from "@/lib/supabase/types";
+import type { Category } from "@/lib/supabase/types";
 import type {
   ProductCreateInput,
   ProductUpdateInput,
@@ -13,7 +14,10 @@ import type {
 
 // ── Types ──────────────────────────────────────────
 
-export type ProductWithImages = Product & { product_images: ProductImage[] };
+export type ProductWithImages = Product & {
+  product_images: ProductImage[];
+  categories: Category | null;
+};
 
 export interface PaginatedProducts {
   data: ProductWithImages[];
@@ -26,19 +30,19 @@ export async function getProducts(
   query: ProductQueryInput,
 ): Promise<PaginatedProducts> {
   const supabase = createAdminClient();
-  const { page, limit, search, sort, order, category } = query;
+  const { page, limit, search, sort, order, category_id } = query;
   const offset = (page - 1) * limit;
 
   let queryBuilder = supabase
     .from("products")
-    .select("*, product_images(*)", { count: "exact" });
+    .select("*, product_images(*), categories(*)", { count: "exact" });
 
   if (search) {
     queryBuilder = queryBuilder.ilike("name", `%${search}%`);
   }
 
-  if (category) {
-    queryBuilder = queryBuilder.eq("category", category);
+  if (category_id) {
+    queryBuilder = queryBuilder.eq("category_id", category_id);
   }
 
   queryBuilder = queryBuilder
@@ -64,7 +68,7 @@ export async function getProductById(
 
   const { data, error } = await supabase
     .from("products")
-    .select("*, product_images(*)")
+    .select("*, product_images(*), categories(*)")
     .eq("id", id)
     .single();
 
@@ -97,6 +101,7 @@ export async function createProduct(
     ...productData,
     slug,
     compare_price: productData.compare_price ?? null,
+    category_id: productData.category_id ?? null,
     material: productData.material ?? null,
     weight: productData.weight ?? null,
   };
@@ -201,19 +206,3 @@ export async function deleteProduct(id: string): Promise<void> {
   if (error) throw new Error(error.message);
 }
 
-// ── Categories ────────────────────────────────────
-
-export async function getCategories(): Promise<string[]> {
-  const supabase = createAdminClient();
-
-  const { data, error } = await supabase
-    .from("products")
-    .select("category")
-    .order("category");
-
-  if (error) throw new Error(error.message);
-
-  // Deduplicate
-  const unique = [...new Set((data ?? []).map((d) => d.category))];
-  return unique;
-}

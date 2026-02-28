@@ -114,7 +114,7 @@ export async function DELETE(_request: NextRequest, { params }: RouteParams) {
 
     logAdminAction("deleted", "Product", existing.name, actor, [
       { name: "ID", value: id, inline: true },
-      { name: "Category", value: existing.category, inline: true },
+      { name: "Category", value: existing.categories?.name ?? "none", inline: true },
       { name: "Price", value: `₹${existing.price}`, inline: true },
     ]);
 

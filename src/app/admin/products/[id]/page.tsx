@@ -71,7 +71,7 @@ export default function ViewProductPage() {
             <div className="grid gap-4 sm:grid-cols-2">
               <DetailField label="Name" value={product.name} />
               <DetailField label="Slug" value={product.slug} />
-              <DetailField label="Category" value={product.category} />
+              <DetailField label="Category" value={product.categories?.name ?? "—"} />
               <DetailField
                 label="Status"
                 value={

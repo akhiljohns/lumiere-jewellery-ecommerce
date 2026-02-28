@@ -21,7 +21,7 @@ export async function GET(request: NextRequest) {
       search: searchParams.get("search") ?? undefined,
       sort: searchParams.get("sort") ?? undefined,
       order: searchParams.get("order") ?? undefined,
-      category: searchParams.get("category") ?? undefined,
+      category_id: searchParams.get("category_id") ?? undefined,
     };
 
     const parsed = productQuerySchema.safeParse(queryInput);
@@ -66,7 +66,7 @@ export async function POST(request: NextRequest) {
 
     logAdminAction("created", "Product", parsed.data.name, actor, [
       { name: "ID", value: product.id, inline: true },
-      { name: "Category", value: parsed.data.category, inline: true },
+      { name: "Category", value: product.categories?.name ?? "none", inline: true },
       { name: "Price", value: `₹${parsed.data.price}`, inline: true },
       { name: "Stock", value: String(parsed.data.stock ?? 0), inline: true },
       { name: "Active", value: parsed.data.is_active !== false ? "Yes" : "No", inline: true },

@@ -1,6 +1,9 @@
-import type { Product, ProductImage } from "@/lib/supabase/types";
+import type { Product, ProductImage, Category } from "@/lib/supabase/types";
 
-export type ProductWithImages = Product & { product_images: ProductImage[] };
+export type ProductWithImages = Product & {
+  product_images: ProductImage[];
+  categories: Category | null;
+};
 
 export interface PaginatedResponse<T> {
   data: T[];
@@ -20,5 +23,5 @@ export interface ProductQueryParams {
   search?: string;
   sort?: string;
   order?: "asc" | "desc";
-  category?: string;
+  category_id?: string;
 }

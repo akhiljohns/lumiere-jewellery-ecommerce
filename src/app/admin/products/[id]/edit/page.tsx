@@ -46,7 +46,7 @@ export default function EditProductPage() {
     description: product.description ?? "",
     price: product.price,
     compare_price: product.compare_price,
-    category: product.category,
+    category_id: product.category_id,
     material: product.material ?? "",
     weight: product.weight ?? "",
     stock: product.stock,

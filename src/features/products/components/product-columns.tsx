@@ -53,10 +53,12 @@ export function getProductColumns(
       ),
     },
     {
-      accessorKey: "category",
+      id: "category",
       header: "Category",
       cell: ({ row }) => (
-        <Badge variant="secondary">{row.original.category}</Badge>
+        <Badge variant="secondary">
+          {row.original.categories?.name ?? "—"}
+        </Badge>
       ),
     },
     {
