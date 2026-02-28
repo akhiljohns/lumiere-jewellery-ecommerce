@@ -1,17 +1,15 @@
 /**
  * Admin Seed Script
  *
- * 1. Runs the database migration (creates tables if they don't exist)
- * 2. Seeds permissions, roles, role_permissions
- * 3. Upserts the master admin user with super_admin role
+ * Seeds permissions, roles, role_permissions, and the master admin user.
+ * Tables must already exist (run `npm run db:migrate` first).
  *
  * Usage:
  *   npx tsx src/lib/seed-admin.ts
  *
  * Requires in .env.local:
  *   NEXT_PUBLIC_SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY,
- *   ADMIN_EMAIL, ADMIN_PASSWORD,
- *   DATABASE_URL  ← Supabase → Settings → Database → Connection string (URI)
+ *   ADMIN_EMAIL, ADMIN_PASSWORD
  */
 
 import { config } from "dotenv";
@@ -19,7 +17,6 @@ config({ path: ".env.local" });
 
 import { createClient } from "@supabase/supabase-js";
 import { hash } from "bcryptjs";
-import { migrate } from "./migrate";
 import { ALL_PERMISSIONS, ROLE_PERMISSIONS } from "./permissions";
 
 async function seedAdmin() {
@@ -39,12 +36,8 @@ async function seedAdmin() {
     auth: { autoRefreshToken: false, persistSession: false },
   });
 
-  // ── 0. Run migration first ────────────────────────
-  console.log("Running migrations...");
-  await migrate();
-
   // ── 1. Seed permissions ───────────────────────────
-  console.log("\nSeeding permissions...");
+  console.log("Seeding permissions...");
   const permissionRows = ALL_PERMISSIONS.map((name) => {
     const [resource, action] = name.split(".");
     return { name, resource, action };
@@ -175,7 +168,6 @@ async function seedAdmin() {
   console.log(`   Email: ${data.email}`);
   console.log(`   ID:    ${data.id}`);
   console.log(`   Role:  ${data.role}`);
-  console.log("\n   Log out and log back in for the new role to take effect.");
 }
 
 seedAdmin();
