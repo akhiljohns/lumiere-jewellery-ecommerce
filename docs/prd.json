@@ -839,33 +839,35 @@
                     "priority": "P0",
                     "impact": "very_high",
                     "effort": "high",
-                    "status": "not_started",
+                    "status": "done",
+                    "completedAt": "2026-02-28",
+                    "summary": "Built storefront homepage with (storefront) route group, hero section with gradient overlay and CTA, featured products Framer Motion carousel, category grid with glassmorphism cards, sticky navbar with search/cart/user menu, and 3-column footer. SSR via storefront-service.ts for SEO.",
                     "description": "Build the customer-facing homepage with hero, featured products, and category grid.",
                     "subtasks": [
                         {
                             "id": "TASK-C03-A",
                             "title": "Hero section with lifestyle image, amber-gold gradient overlay, and CTA",
-                            "status": "not_started"
+                            "status": "done"
                         },
                         {
                             "id": "TASK-C03-B",
                             "title": "Featured / trending products carousel powered by Framer Motion",
-                            "status": "not_started"
+                            "status": "done"
                         },
                         {
                             "id": "TASK-C03-C",
                             "title": "Category grid with hover zoom and glassmorphism cards",
-                            "status": "not_started"
+                            "status": "done"
                         },
                         {
                             "id": "TASK-C03-D",
                             "title": "Footer with store info, links, and social media",
-                            "status": "not_started"
+                            "status": "done"
                         },
                         {
                             "id": "TASK-C03-E",
                             "title": "Storefront navbar with logo, search, cart icon (with count badge), and user menu",
-                            "status": "not_started"
+                            "status": "done"
                         }
                     ]
                 },
@@ -875,33 +877,35 @@
                     "priority": "P0",
                     "impact": "very_high",
                     "effort": "medium",
-                    "status": "not_started",
+                    "status": "done",
+                    "completedAt": "2026-02-28",
+                    "summary": "Built product listing page at /products with nuqs URL-state filters (category, material, price range), sort controls (newest/price/name), responsive product grid with stagger animations, pagination with ellipsis, quick-view modal with add-to-cart, and mobile Sheet filter sidebar.",
                     "description": "Product catalog page with filters, sorting, pagination, and grid/list view toggle.",
                     "subtasks": [
                         {
                             "id": "TASK-C04-A",
                             "title": "Product grid with cards (image, name, price, compare price, wishlist button)",
-                            "status": "not_started"
+                            "status": "done"
                         },
                         {
                             "id": "TASK-C04-B",
                             "title": "Filter sidebar (category, material, price range, in-stock only)",
-                            "status": "not_started"
+                            "status": "done"
                         },
                         {
                             "id": "TASK-C04-C",
                             "title": "Sort controls (price low/high, newest, name A-Z)",
-                            "status": "not_started"
+                            "status": "done"
                         },
                         {
                             "id": "TASK-C04-D",
                             "title": "Pagination with URL query params (nuqs)",
-                            "status": "not_started"
+                            "status": "done"
                         },
                         {
                             "id": "TASK-C04-E",
                             "title": "Quick-view modal for browsing without leaving the listing page",
-                            "status": "not_started"
+                            "status": "done"
                         }
                     ]
                 },
@@ -911,33 +915,35 @@
                     "priority": "P0",
                     "impact": "very_high",
                     "effort": "medium",
-                    "status": "not_started",
+                    "status": "done",
+                    "completedAt": "2026-02-28",
+                    "summary": "Built product detail page at /products/[slug] with SSR via getProductBySlug, cursor-tracking zoom-on-hover image gallery with thumbnail strip, product info section (name, price, discount badge, description, material, weight, stock), quantity selector with stock clamping and add-to-cart, breadcrumbs nav, related products grid, and SEO metadata with generateMetadata.",
                     "description": "Individual product page with image gallery, details, reviews, and add-to-cart.",
                     "subtasks": [
                         {
                             "id": "TASK-C05-A",
                             "title": "Image gallery with zoom-on-hover and thumbnail navigation",
-                            "status": "not_started"
+                            "status": "done"
                         },
                         {
                             "id": "TASK-C05-B",
                             "title": "Product info section (name, price, compare price, description, material, weight, stock status)",
-                            "status": "not_started"
+                            "status": "done"
                         },
                         {
                             "id": "TASK-C05-C",
                             "title": "Add to cart button with quantity selector and stock validation",
-                            "status": "not_started"
+                            "status": "done"
                         },
                         {
                             "id": "TASK-C05-D",
                             "title": "Breadcrumbs navigation",
-                            "status": "not_started"
+                            "status": "done"
                         },
                         {
                             "id": "TASK-C05-E",
                             "title": "Related products section",
-                            "status": "not_started"
+                            "status": "done"
                         }
                     ]
                 },
