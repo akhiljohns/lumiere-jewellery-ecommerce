@@ -3,10 +3,16 @@
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 
+import dynamic from "next/dynamic";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { FormSkeleton } from "@/components/page-loader";
 import { PageHeader } from "@/components/page-header";
 import { useCreateRole } from "@/features/roles/api/create-role";
-import { RoleForm } from "@/features/roles/components/role-form";
+
+const RoleForm = dynamic(
+  () => import("@/features/roles/components/role-form").then((m) => m.RoleForm),
+  { ssr: false, loading: () => <FormSkeleton /> },
+);
 
 export default function CreateRolePage() {
   const router = useRouter();

@@ -35,7 +35,12 @@ export async function GET(request: NextRequest) {
 
     const result = await searchProducts(parsed.data);
 
-    return NextResponse.json(result, { status: 200 });
+    return NextResponse.json(result, {
+      status: 200,
+      headers: {
+        "Cache-Control": "s-maxage=30, stale-while-revalidate=120",
+      },
+    });
   } catch (err) {
     const message =
       err instanceof Error ? err.message : "Internal server error";

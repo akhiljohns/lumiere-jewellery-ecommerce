@@ -5,14 +5,19 @@ import { useEffect } from "react";
 import { toast } from "sonner";
 import { usePermissions } from "@/hooks/use-permissions";
 
+import dynamic from "next/dynamic";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { FormSkeleton } from "@/components/page-loader";
 import { PageHeader } from "@/components/page-header";
 import { ErrorState } from "@/components/error-state";
 import { useGetCategory } from "@/features/categories/api/get-category";
 import { useUpdateCategory } from "@/features/categories/api/update-category";
-import { CategoryForm } from "@/features/categories/components/category-form";
 import type { CategoryCreateInput } from "@/lib/validators";
+
+const CategoryForm = dynamic(
+  () => import("@/features/categories/components/category-form").then((m) => m.CategoryForm),
+  { ssr: false, loading: () => <FormSkeleton fields={4} /> },
+);
 
 export default function EditCategoryPage() {
   const { id } = useParams<{ id: string }>();

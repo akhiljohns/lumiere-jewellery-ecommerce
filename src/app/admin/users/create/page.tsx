@@ -5,10 +5,16 @@ import { useEffect } from "react";
 import { toast } from "sonner";
 import { usePermissions } from "@/hooks/use-permissions";
 
+import dynamic from "next/dynamic";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { FormSkeleton } from "@/components/page-loader";
 import { PageHeader } from "@/components/page-header";
 import { useCreateUser } from "@/features/users/api/create-user";
-import { UserForm } from "@/features/users/components/user-form";
+
+const UserForm = dynamic(
+  () => import("@/features/users/components/user-form").then((m) => m.UserForm),
+  { ssr: false, loading: () => <FormSkeleton /> },
+);
 
 export default function CreateUserPage() {
   const router = useRouter();

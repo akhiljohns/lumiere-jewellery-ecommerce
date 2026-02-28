@@ -5,14 +5,19 @@ import { useEffect } from "react";
 import { toast } from "sonner";
 import { usePermissions } from "@/hooks/use-permissions";
 
+import dynamic from "next/dynamic";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { FormSkeleton } from "@/components/page-loader";
 import { PageHeader } from "@/components/page-header";
 import { ErrorState } from "@/components/error-state";
 import { useGetUser } from "@/features/users/api/get-user";
 import { useUpdateUser } from "@/features/users/api/update-user";
-import { UserForm } from "@/features/users/components/user-form";
 import type { UserCreateInput } from "@/lib/validators";
+
+const UserForm = dynamic(
+  () => import("@/features/users/components/user-form").then((m) => m.UserForm),
+  { ssr: false, loading: () => <FormSkeleton fields={5} /> },
+);
 
 export default function EditUserPage() {
   const { id } = useParams<{ id: string }>();

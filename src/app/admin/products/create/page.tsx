@@ -5,10 +5,16 @@ import { useEffect } from "react";
 import { toast } from "sonner";
 import { usePermissions } from "@/hooks/use-permissions";
 
+import dynamic from "next/dynamic";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { FormSkeleton } from "@/components/page-loader";
 import { PageHeader } from "@/components/page-header";
 import { useCreateProduct } from "@/features/products/api/create-product";
-import { ProductForm } from "@/features/products/components/product-form";
+
+const ProductForm = dynamic(
+  () => import("@/features/products/components/product-form").then((m) => m.ProductForm),
+  { ssr: false, loading: () => <FormSkeleton /> },
+);
 
 export default function CreateProductPage() {
   const router = useRouter();

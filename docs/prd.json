@@ -628,23 +628,23 @@
                     "priority": "P2",
                     "impact": "medium",
                     "effort": "low",
-                    "status": "not_started",
+                    "status": "done",
                     "description": "Add Cache-Control headers for public endpoints and use Next.js caching with on-demand revalidation.",
                     "subtasks": [
                         {
                             "id": "TASK-B07-A",
                             "title": "Add Cache-Control headers for public product listing and category endpoints",
-                            "status": "not_started"
+                            "status": "done"
                         },
                         {
                             "id": "TASK-B07-B",
                             "title": "Implement unstable_cache or fetch cache for frequently-hit product data",
-                            "status": "not_started"
+                            "status": "done"
                         },
                         {
                             "id": "TASK-B07-C",
                             "title": "Implement revalidateTag for on-demand cache invalidation on product/category update",
-                            "status": "not_started"
+                            "status": "done"
                         }
                     ]
                 },
@@ -654,18 +654,18 @@
                     "priority": "P2",
                     "impact": "low",
                     "effort": "low",
-                    "status": "not_started",
+                    "status": "done",
                     "description": "Audit unused imports, consolidate UI libraries, and lazy-load heavy admin components.",
                     "subtasks": [
                         {
                             "id": "TASK-B08-A",
                             "title": "Audit and remove duplicate UI libraries (@base-ui/react vs radix-ui — pick one)",
-                            "status": "not_started"
+                            "status": "done"
                         },
                         {
                             "id": "TASK-B08-B",
                             "title": "Use next/dynamic for heavy admin-only components (product form, image uploader)",
-                            "status": "not_started"
+                            "status": "done"
                         }
                     ]
                 },

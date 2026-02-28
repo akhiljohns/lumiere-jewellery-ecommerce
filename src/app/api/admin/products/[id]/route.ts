@@ -7,6 +7,7 @@ import {
 } from "@/features/products/services/product-service";
 import { logAdminAction, logAdminError, diffFields } from "@/lib/discord";
 import { requirePermission, ForbiddenError, forbiddenResponse } from "@/lib/api-auth";
+import { revalidateProductCache } from "@/lib/cache";
 
 interface RouteParams {
   params: Promise<{ id: string }>;
@@ -62,6 +63,7 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
     }
 
     const product = await updateProduct(id, parsed.data);
+    revalidateProductCache();
 
     const changes = diffFields(
       parsed.data as Record<string, unknown>,
@@ -111,6 +113,7 @@ export async function DELETE(_request: NextRequest, { params }: RouteParams) {
     }
 
     await deleteProduct(id);
+    revalidateProductCache();
 
     logAdminAction("deleted", "Product", existing.name, actor, [
       { name: "ID", value: id, inline: true },

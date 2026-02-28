@@ -13,7 +13,12 @@ export async function GET(request: NextRequest) {
     if (!rl.success) return rateLimitResponse(rl);
     const categories = await getPublicCategories();
 
-    return NextResponse.json({ data: categories }, { status: 200 });
+    return NextResponse.json({ data: categories }, {
+      status: 200,
+      headers: {
+        "Cache-Control": "s-maxage=300, stale-while-revalidate=600",
+      },
+    });
   } catch (err) {
     const message =
       err instanceof Error ? err.message : "Internal server error";

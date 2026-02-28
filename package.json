@@ -35,7 +35,6 @@
     "next-cloudinary": "^6.17.5",
     "nodemailer": "^8.0.1",
     "nuqs": "^2.8.8",
-    "radix-ui": "^1.4.3",
     "razorpay": "^2.9.6",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",

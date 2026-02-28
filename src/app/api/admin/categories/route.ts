@@ -10,6 +10,7 @@ import {
   ForbiddenError,
   forbiddenResponse,
 } from "@/lib/api-auth";
+import { revalidateCategoryCache } from "@/lib/cache";
 
 /**
  * GET /api/admin/categories
@@ -68,6 +69,7 @@ export async function POST(request: NextRequest) {
     }
 
     const category = await createCategory(parsed.data);
+    revalidateCategoryCache();
 
     logAdminAction("created", "Category", parsed.data.name, actor, [
       { name: "ID", value: category.id, inline: true },

@@ -5,14 +5,19 @@ import { useEffect } from "react";
 import { toast } from "sonner";
 import { usePermissions } from "@/hooks/use-permissions";
 
+import dynamic from "next/dynamic";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { FormSkeleton } from "@/components/page-loader";
 import { PageHeader } from "@/components/page-header";
 import { ErrorState } from "@/components/error-state";
 import { useGetProduct } from "@/features/products/api/get-product";
 import { useUpdateProduct } from "@/features/products/api/update-product";
-import { ProductForm } from "@/features/products/components/product-form";
 import type { ProductCreateInput } from "@/lib/validators";
+
+const ProductForm = dynamic(
+  () => import("@/features/products/components/product-form").then((m) => m.ProductForm),
+  { ssr: false, loading: () => <FormSkeleton fields={8} /> },
+);
 
 export default function EditProductPage() {
   const { id } = useParams<{ id: string }>();

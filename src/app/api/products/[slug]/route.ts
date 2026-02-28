@@ -26,7 +26,12 @@ export async function GET(
 
     return NextResponse.json(
       { data: result.product, related: result.related },
-      { status: 200 },
+      {
+        status: 200,
+        headers: {
+          "Cache-Control": "s-maxage=60, stale-while-revalidate=300",
+        },
+      },
     );
   } catch (err) {
     const message =

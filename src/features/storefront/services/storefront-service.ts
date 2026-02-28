@@ -1,5 +1,6 @@
 import { createAdminClient } from "@/lib/supabase/admin";
 import { buildPaginationMeta } from "@/lib/utils";
+import { cached, CACHE_TAGS } from "@/lib/cache";
 import type {
   Product,
   ProductImage,
@@ -28,7 +29,7 @@ export type CategoryWithCount = Category & {
 
 // ── Public Product List ────────────────────────────
 
-export async function getPublicProducts(
+async function _getPublicProducts(
   query: PublicProductQueryInput,
 ): Promise<PaginatedPublicProducts> {
   const supabase = createAdminClient();
@@ -113,9 +114,15 @@ export async function getPublicProducts(
   };
 }
 
+export const getPublicProducts = cached(
+  _getPublicProducts,
+  ["public-products"],
+  { tags: [CACHE_TAGS.products], revalidate: 60 },
+);
+
 // ── Product Detail by Slug ─────────────────────────
 
-export async function getProductBySlug(
+async function _getProductBySlug(
   slug: string,
 ): Promise<{ product: PublicProduct; related: PublicProduct[] } | null> {
   const supabase = createAdminClient();
@@ -149,9 +156,15 @@ export async function getProductBySlug(
   return { product, related };
 }
 
+export const getProductBySlug = cached(
+  _getProductBySlug,
+  ["product-by-slug"],
+  { tags: [CACHE_TAGS.products], revalidate: 60 },
+);
+
 // ── Featured Products ──────────────────────────────
 
-export async function getFeaturedProducts(
+async function _getFeaturedProducts(
   limit: number = 8,
 ): Promise<PublicProduct[]> {
   const supabase = createAdminClient();
@@ -189,9 +202,15 @@ export async function getFeaturedProducts(
   return (featured as PublicProduct[]) ?? [];
 }
 
+export const getFeaturedProducts = cached(
+  _getFeaturedProducts,
+  ["featured-products"],
+  { tags: [CACHE_TAGS.products, CACHE_TAGS.featuredProducts], revalidate: 120 },
+);
+
 // ── Public Categories with Product Counts ──────────
 
-export async function getPublicCategories(): Promise<CategoryWithCount[]> {
+async function _getPublicCategories(): Promise<CategoryWithCount[]> {
   const supabase = createAdminClient();
 
   // Get active categories
@@ -243,9 +262,15 @@ export async function getPublicCategories(): Promise<CategoryWithCount[]> {
   }));
 }
 
+export const getPublicCategories = cached(
+  _getPublicCategories,
+  ["public-categories"],
+  { tags: [CACHE_TAGS.categories], revalidate: 300 },
+);
+
 // ── Full-Text Search ───────────────────────────────
 
-export async function searchProducts(
+async function _searchProducts(
   query: SearchQueryInput,
 ): Promise<PaginatedPublicProducts> {
   const supabase = createAdminClient();
@@ -291,3 +316,9 @@ export async function searchProducts(
     pagination: buildPaginationMeta(page, limit, count ?? 0),
   };
 }
+
+export const searchProducts = cached(
+  _searchProducts,
+  ["search-products"],
+  { tags: [CACHE_TAGS.products], revalidate: 30 },
+);

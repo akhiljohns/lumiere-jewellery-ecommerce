@@ -5,10 +5,16 @@ import { useEffect } from "react";
 import { toast } from "sonner";
 import { usePermissions } from "@/hooks/use-permissions";
 
+import dynamic from "next/dynamic";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { FormSkeleton } from "@/components/page-loader";
 import { PageHeader } from "@/components/page-header";
 import { useCreateCategory } from "@/features/categories/api/create-category";
-import { CategoryForm } from "@/features/categories/components/category-form";
+
+const CategoryForm = dynamic(
+  () => import("@/features/categories/components/category-form").then((m) => m.CategoryForm),
+  { ssr: false, loading: () => <FormSkeleton /> },
+);
 
 export default function CreateCategoryPage() {
   const router = useRouter();

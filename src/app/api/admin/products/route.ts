@@ -6,6 +6,7 @@ import {
 } from "@/features/products/services/product-service";
 import { logAdminAction, logAdminError } from "@/lib/discord";
 import { requirePermission, ForbiddenError, forbiddenResponse } from "@/lib/api-auth";
+import { revalidateProductCache } from "@/lib/cache";
 
 /**
  * GET /api/admin/products
@@ -63,6 +64,8 @@ export async function POST(request: NextRequest) {
     }
 
     const product = await createProduct(parsed.data);
+
+    revalidateProductCache();
 
     logAdminAction("created", "Product", parsed.data.name, actor, [
       { name: "ID", value: product.id, inline: true },

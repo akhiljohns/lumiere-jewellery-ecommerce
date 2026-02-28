@@ -4,15 +4,20 @@ import { useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { toast } from "sonner";
 
+import dynamic from "next/dynamic";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { FormSkeleton } from "@/components/page-loader";
 import { PageHeader } from "@/components/page-header";
 import { ErrorState } from "@/components/error-state";
 import { useGetRole } from "@/features/roles/api/get-role";
 import { useUpdateRole } from "@/features/roles/api/update-role";
-import { RoleForm } from "@/features/roles/components/role-form";
 import { useAuthStore } from "@/stores/auth-store";
 import { getRoleRank, SUPER_ADMIN_ROLE } from "@/lib/permissions";
+
+const RoleForm = dynamic(
+  () => import("@/features/roles/components/role-form").then((m) => m.RoleForm),
+  { ssr: false, loading: () => <FormSkeleton fields={3} /> },
+);
 
 export default function EditRolePage() {
   const { id } = useParams<{ id: string }>();

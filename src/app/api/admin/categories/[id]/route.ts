@@ -11,6 +11,7 @@ import {
   ForbiddenError,
   forbiddenResponse,
 } from "@/lib/api-auth";
+import { revalidateCategoryCache } from "@/lib/cache";
 
 interface RouteParams {
   params: Promise<{ id: string }>;
@@ -72,6 +73,7 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
     }
 
     const category = await updateCategory(id, parsed.data);
+    revalidateCategoryCache();
 
     const changes = diffFields(
       parsed.data as Record<string, unknown>,
@@ -120,6 +122,7 @@ export async function DELETE(_request: NextRequest, { params }: RouteParams) {
     }
 
     await deleteCategory(id);
+    revalidateCategoryCache();
 
     logAdminAction("deleted", "Category", existing.name, actor, [
       { name: "ID", value: id, inline: true },

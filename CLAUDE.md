@@ -151,8 +151,10 @@ The project uses **shadcn/ui Mira style** with **amber primary**, **gray base co
 - Input sanitization (HTML tag stripping) and CSP + security headers (TASK-B03)
 - Environment variable validation with Zod at build time (TASK-B04)
 - Image optimization with next-cloudinary CldImage, AVIF/WebP, responsive sizes (TASK-B06)
+- API response caching — Cache-Control headers on public endpoints, `unstable_cache` with tag-based revalidation on storefront service, on-demand `revalidateTag` in admin mutations (TASK-B07)
+- Bundle size optimization — removed `radix-ui` (replaced with native implementations), `next/dynamic` lazy-loading for admin form pages, `optimizePackageImports` for lucide-react/tanstack/framer-motion (TASK-B08)
 
 ### Not Started
 - Phase A: Audit log persistence (A09), visual search (A12), chatbot RAG (A13), inventory alerts (A14), pricing suggestions (A15)
-- Phase B: Error standardization, caching, bundle audit, migrations strategy, testing, accessibility
+- Phase B: Error standardization, migrations strategy, testing, accessibility
 - Phase C: All UI — storefront pages, TanStack Query, Zustand stores, Framer Motion animations, admin enhancements
