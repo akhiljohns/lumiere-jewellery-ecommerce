@@ -118,9 +118,10 @@ export function UserForm({
               type="email"
               placeholder="user@example.com"
               aria-invalid={!!errors.email}
+              aria-describedby={errors.email ? "email-error" : undefined}
               {...register("email")}
             />
-            {errors.email && <FieldError>{errors.email.message}</FieldError>}
+            {errors.email && <FieldError id="email-error">{errors.email.message}</FieldError>}
           </Field>
 
           <Field>
@@ -132,10 +133,11 @@ export function UserForm({
               type="password"
               placeholder={isEdit ? "••••••••" : "Min 6 characters"}
               aria-invalid={!!errors.password}
+              aria-describedby={errors.password ? "password-error" : undefined}
               {...register("password")}
             />
             {errors.password && (
-              <FieldError>{errors.password.message}</FieldError>
+              <FieldError id="password-error">{errors.password.message}</FieldError>
             )}
           </Field>
         </div>
@@ -168,7 +170,7 @@ export function UserForm({
               name="role"
               render={({ field }) => (
                 <Select value={field.value} onValueChange={field.onChange}>
-                  <SelectTrigger className="w-full">
+                  <SelectTrigger className="w-full" aria-describedby={errors.role ? "role-error" : undefined}>
                     <SelectValue placeholder="Select role" />
                   </SelectTrigger>
                   <SelectContent>
@@ -181,7 +183,7 @@ export function UserForm({
                 </Select>
               )}
             />
-            {errors.role && <FieldError>{errors.role.message}</FieldError>}
+            {errors.role && <FieldError id="role-error">{errors.role.message}</FieldError>}
           </Field>
         </div>
 

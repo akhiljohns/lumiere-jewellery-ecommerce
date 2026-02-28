@@ -91,9 +91,10 @@ export function CategoryForm({
             id="name"
             placeholder="e.g. Rings, Necklaces, Earrings"
             aria-invalid={!!errors.name}
+            aria-describedby={errors.name ? "name-error" : undefined}
             {...register("name")}
           />
-          {errors.name && <FieldError>{errors.name.message}</FieldError>}
+          {errors.name && <FieldError id="name-error">{errors.name.message}</FieldError>}
         </Field>
 
         <div className="grid gap-6 sm:grid-cols-2">
@@ -113,6 +114,7 @@ export function CategoryForm({
                     <SelectTrigger
                       className="w-full"
                       aria-invalid={!!errors.parent_id}
+                      aria-describedby={errors.parent_id ? "parent_id-error" : undefined}
                     >
                       <SelectValue placeholder="None (top-level)" />
                     </SelectTrigger>
@@ -129,7 +131,7 @@ export function CategoryForm({
               />
             )}
             {errors.parent_id && (
-              <FieldError>{errors.parent_id.message}</FieldError>
+              <FieldError id="parent_id-error">{errors.parent_id.message}</FieldError>
             )}
           </Field>
 
@@ -141,10 +143,11 @@ export function CategoryForm({
               min="0"
               placeholder="0"
               aria-invalid={!!errors.sort_order}
+              aria-describedby={errors.sort_order ? "sort_order-error" : undefined}
               {...register("sort_order", { valueAsNumber: true })}
             />
             {errors.sort_order && (
-              <FieldError>{errors.sort_order.message}</FieldError>
+              <FieldError id="sort_order-error">{errors.sort_order.message}</FieldError>
             )}
           </Field>
         </div>
@@ -155,10 +158,11 @@ export function CategoryForm({
             id="image_url"
             placeholder="https://example.com/image.jpg"
             aria-invalid={!!errors.image_url}
+            aria-describedby={errors.image_url ? "image_url-error" : undefined}
             {...register("image_url")}
           />
           {errors.image_url && (
-            <FieldError>{errors.image_url.message}</FieldError>
+            <FieldError id="image_url-error">{errors.image_url.message}</FieldError>
           )}
         </Field>
 

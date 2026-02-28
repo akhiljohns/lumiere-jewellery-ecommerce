@@ -131,14 +131,15 @@ export function RoleForm({
               placeholder="e.g. product_manager"
               disabled={isSystemRole}
               aria-invalid={!!errors.name}
+              aria-describedby={errors.name ? "name-error" : isSystemRole ? "name-desc" : undefined}
               {...register("name", { required: "Role name is required" })}
             />
             {isSystemRole && (
-              <p className="text-xs text-muted-foreground mt-1">
+              <p id="name-desc" className="text-xs text-muted-foreground mt-1">
                 System role names cannot be changed.
               </p>
             )}
-            {errors.name && <FieldError>{errors.name.message}</FieldError>}
+            {errors.name && <FieldError id="name-error">{errors.name.message}</FieldError>}
           </Field>
 
           <Field>

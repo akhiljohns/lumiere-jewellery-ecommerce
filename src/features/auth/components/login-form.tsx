@@ -119,12 +119,13 @@ export function LoginForm({
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   aria-invalid={!!fieldErrors.email}
+                  aria-describedby={fieldErrors.email ? "email-error" : undefined}
                   disabled={isLoading}
                   autoComplete="email"
                   required
                 />
                 {fieldErrors.email && (
-                  <FieldError>{fieldErrors.email}</FieldError>
+                  <FieldError id="email-error">{fieldErrors.email}</FieldError>
                 )}
               </Field>
               <Field>
@@ -135,12 +136,13 @@ export function LoginForm({
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   aria-invalid={!!fieldErrors.password}
+                  aria-describedby={fieldErrors.password ? "password-error" : undefined}
                   disabled={isLoading}
                   autoComplete="current-password"
                   required
                 />
                 {fieldErrors.password && (
-                  <FieldError>{fieldErrors.password}</FieldError>
+                  <FieldError id="password-error">{fieldErrors.password}</FieldError>
                 )}
               </Field>
               <Field>

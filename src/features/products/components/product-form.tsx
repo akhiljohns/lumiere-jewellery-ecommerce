@@ -176,9 +176,10 @@ export function ProductForm({
               id="name"
               placeholder="e.g. Diamond Ring"
               aria-invalid={!!errors.name}
+              aria-describedby={errors.name ? "name-error" : undefined}
               {...register("name")}
             />
-            {errors.name && <FieldError>{errors.name.message}</FieldError>}
+            {errors.name && <FieldError id="name-error">{errors.name.message}</FieldError>}
           </Field>
 
           <Field>
@@ -191,7 +192,7 @@ export function ProductForm({
                   value={field.value ?? ""}
                   onValueChange={(v) => field.onChange(v || null)}
                 >
-                  <SelectTrigger className="w-full" aria-invalid={!!errors.category_id}>
+                  <SelectTrigger className="w-full" aria-invalid={!!errors.category_id} aria-describedby={errors.category_id ? "category_id-error" : undefined}>
                     <SelectValue placeholder="Select category" />
                   </SelectTrigger>
                   <SelectContent>
@@ -205,7 +206,7 @@ export function ProductForm({
               )}
             />
             {errors.category_id && (
-              <FieldError>{errors.category_id.message}</FieldError>
+              <FieldError id="category_id-error">{errors.category_id.message}</FieldError>
             )}
           </Field>
         </div>
@@ -230,9 +231,10 @@ export function ProductForm({
               min="0"
               placeholder="0.00"
               aria-invalid={!!errors.price}
+              aria-describedby={errors.price ? "price-error" : undefined}
               {...register("price", { valueAsNumber: true })}
             />
-            {errors.price && <FieldError>{errors.price.message}</FieldError>}
+            {errors.price && <FieldError id="price-error">{errors.price.message}</FieldError>}
           </Field>
 
           <Field>
@@ -255,9 +257,10 @@ export function ProductForm({
               min="0"
               placeholder="0"
               aria-invalid={!!errors.stock}
+              aria-describedby={errors.stock ? "stock-error" : undefined}
               {...register("stock", { valueAsNumber: true })}
             />
-            {errors.stock && <FieldError>{errors.stock.message}</FieldError>}
+            {errors.stock && <FieldError id="stock-error">{errors.stock.message}</FieldError>}
           </Field>
         </div>
 
