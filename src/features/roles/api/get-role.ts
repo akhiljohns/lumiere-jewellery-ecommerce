@@ -1,11 +1,12 @@
 import { queryOptions, useQuery } from "@tanstack/react-query";
 import type { RoleWithPermissions } from "@/features/roles/types";
 import { fetchApi } from "@/lib/api-client";
+import { adminRole } from "@/lib/api-routes";
 
 export const ROLE_QUERY_KEY = "role";
 
 async function fetchRole(id: string): Promise<{ data: RoleWithPermissions }> {
-  return fetchApi<{ data: RoleWithPermissions }>(`/api/admin/roles/${id}`);
+  return fetchApi<{ data: RoleWithPermissions }>(adminRole(id));
 }
 
 export function getRoleQueryOptions(id: string) {

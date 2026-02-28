@@ -1,5 +1,6 @@
 import { useMutation } from "@tanstack/react-query";
 import { fetchApi } from "@/lib/api-client";
+import { CUSTOMER_CART_SYNC } from "@/lib/api-routes";
 import { useCartStore } from "@/stores/cart-store";
 import type { CartWithItems, CartWarning } from "@/features/cart/services/cart-service";
 
@@ -28,7 +29,7 @@ export function useSyncCartOnLogin() {
       }
 
       const result = await fetchApi<SyncCartResponse>(
-        "/api/customer/cart/sync",
+        CUSTOMER_CART_SYNC,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },

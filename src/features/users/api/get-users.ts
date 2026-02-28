@@ -1,6 +1,7 @@
 import { queryOptions, useQuery } from "@tanstack/react-query";
 import type { PaginatedUsers, UserQueryParams } from "@/features/users/types";
 import { fetchApi } from "@/lib/api-client";
+import { ADMIN_USERS } from "@/lib/api-routes";
 
 export const USERS_QUERY_KEY = "users";
 
@@ -13,7 +14,7 @@ async function fetchUsers(params: UserQueryParams): Promise<PaginatedUsers> {
   if (params.order) searchParams.set("order", params.order);
   if (params.verified) searchParams.set("verified", params.verified);
 
-  return fetchApi<PaginatedUsers>(`/api/admin/users?${searchParams}`);
+  return fetchApi<PaginatedUsers>(`${ADMIN_USERS}?${searchParams}`);
 }
 
 export function getUsersQueryOptions(params: UserQueryParams) {

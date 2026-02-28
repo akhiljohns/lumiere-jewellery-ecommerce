@@ -1,9 +1,10 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { fetchApi } from "@/lib/api-client";
+import { adminProduct } from "@/lib/api-routes";
 import { PRODUCTS_QUERY_KEY } from "./get-products";
 
 async function deleteProduct(id: string) {
-  return fetchApi(`/api/admin/products/${id}`, {
+  return fetchApi(adminProduct(id), {
     method: "DELETE",
   });
 }

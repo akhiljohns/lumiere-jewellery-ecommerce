@@ -4,6 +4,7 @@ import type {
   ProductQueryParams,
 } from "@/features/products/types";
 import { fetchApi } from "@/lib/api-client";
+import { ADMIN_PRODUCTS } from "@/lib/api-routes";
 
 export const PRODUCTS_QUERY_KEY = "products";
 
@@ -18,7 +19,7 @@ async function fetchProducts(
   if (params.order) searchParams.set("order", params.order);
   if (params.category_id) searchParams.set("category_id", params.category_id);
 
-  return fetchApi<PaginatedProducts>(`/api/admin/products?${searchParams}`);
+  return fetchApi<PaginatedProducts>(`${ADMIN_PRODUCTS}?${searchParams}`);
 }
 
 export function getProductsQueryOptions(params: ProductQueryParams) {

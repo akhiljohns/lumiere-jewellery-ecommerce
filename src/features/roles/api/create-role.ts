@@ -1,5 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { fetchApi } from "@/lib/api-client";
+import { ADMIN_ROLES } from "@/lib/api-routes";
 import { ROLES_QUERY_KEY } from "./get-roles";
 
 export interface RoleCreateInput {
@@ -9,7 +10,7 @@ export interface RoleCreateInput {
 }
 
 async function createRole(data: RoleCreateInput) {
-  return fetchApi("/api/admin/roles", {
+  return fetchApi(ADMIN_ROLES, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data),

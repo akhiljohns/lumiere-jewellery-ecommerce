@@ -1,13 +1,14 @@
 import { queryOptions, useQuery } from "@tanstack/react-query";
 import type { ProductWithImages } from "@/features/products/types";
 import { fetchApi } from "@/lib/api-client";
+import { adminProduct } from "@/lib/api-routes";
 
 export const PRODUCT_QUERY_KEY = "product";
 
 async function fetchProduct(
   id: string,
 ): Promise<{ data: ProductWithImages }> {
-  return fetchApi<{ data: ProductWithImages }>(`/api/admin/products/${id}`);
+  return fetchApi<{ data: ProductWithImages }>(adminProduct(id));
 }
 
 export function getProductQueryOptions(id: string) {

@@ -1,5 +1,6 @@
 import { useMutation } from "@tanstack/react-query";
 import { fetchApi } from "@/lib/api-client";
+import { AUTH_GUEST_CHECKOUT } from "@/lib/api-routes";
 import { useCartStore } from "@/stores/cart-store";
 import type { CartWithItems, CartWarning } from "@/features/cart/services/cart-service";
 import type { SafeCustomer } from "@/features/auth/services/customer-auth-service";
@@ -29,7 +30,7 @@ export function useGuestCheckout() {
       const items = useCartStore.getState().items;
 
       const result = await fetchApi<GuestCheckoutResponse>(
-        "/api/auth/guest-checkout",
+        AUTH_GUEST_CHECKOUT,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },

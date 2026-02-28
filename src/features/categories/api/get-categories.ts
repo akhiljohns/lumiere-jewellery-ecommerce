@@ -1,6 +1,7 @@
 import { queryOptions, useQuery } from "@tanstack/react-query";
 import type { Category } from "@/lib/supabase/types";
 import { fetchApi } from "@/lib/api-client";
+import { ADMIN_CATEGORIES } from "@/lib/api-routes";
 
 export const CATEGORIES_QUERY_KEY = "categories";
 
@@ -38,7 +39,7 @@ async function fetchCategories(
     searchParams.set("active_only", String(params.active_only));
 
   return fetchApi<PaginatedCategories>(
-    `/api/admin/categories?${searchParams}`,
+    `${ADMIN_CATEGORIES}?${searchParams}`,
   );
 }
 

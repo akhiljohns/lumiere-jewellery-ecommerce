@@ -1,5 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { fetchApi } from "@/lib/api-client";
+import { adminRole } from "@/lib/api-routes";
 import { ROLES_QUERY_KEY } from "./get-roles";
 import { ROLE_QUERY_KEY } from "./get-role";
 
@@ -10,7 +11,7 @@ export interface RoleUpdateInput {
 }
 
 async function updateRole({ id, data }: { id: string; data: RoleUpdateInput }) {
-  return fetchApi(`/api/admin/roles/${id}`, {
+  return fetchApi(adminRole(id), {
     method: "PATCH",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(data),

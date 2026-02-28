@@ -1,9 +1,10 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { fetchApi } from "@/lib/api-client";
+import { adminCategory } from "@/lib/api-routes";
 import { CATEGORIES_QUERY_KEY } from "./get-categories";
 
 async function deleteCategory(id: string) {
-  return fetchApi(`/api/admin/categories/${id}`, {
+  return fetchApi(adminCategory(id), {
     method: "DELETE",
   });
 }

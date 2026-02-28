@@ -1,11 +1,12 @@
 import { queryOptions, useQuery } from "@tanstack/react-query";
 import type { SafeUser } from "@/features/users/types";
 import { fetchApi } from "@/lib/api-client";
+import { adminUser } from "@/lib/api-routes";
 
 export const USER_QUERY_KEY = "user";
 
 async function fetchUser(id: string): Promise<{ data: SafeUser }> {
-  return fetchApi<{ data: SafeUser }>(`/api/admin/users/${id}`);
+  return fetchApi<{ data: SafeUser }>(adminUser(id));
 }
 
 export function getUserQueryOptions(id: string) {

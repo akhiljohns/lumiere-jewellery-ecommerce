@@ -1,5 +1,6 @@
 import { useMutation } from "@tanstack/react-query";
 import { fetchApi } from "@/lib/api-client";
+import { UPLOAD_IMAGE } from "@/lib/api-routes";
 
 interface UploadResult {
   data: { url: string; public_id: string };
@@ -7,7 +8,7 @@ interface UploadResult {
 }
 
 async function uploadImage(file: string): Promise<UploadResult> {
-  return fetchApi<UploadResult>("/api/upload/image", {
+  return fetchApi<UploadResult>(UPLOAD_IMAGE, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ file }),
@@ -15,7 +16,7 @@ async function uploadImage(file: string): Promise<UploadResult> {
 }
 
 async function deleteImage(publicId: string) {
-  return fetchApi("/api/upload/image", {
+  return fetchApi(UPLOAD_IMAGE, {
     method: "DELETE",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ public_id: publicId }),

@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
 import { fetchApi } from "@/lib/api-client";
+import { CUSTOMER_CART, CUSTOMER_CART_SYNC } from "@/lib/api-routes";
 import type { CartWithItems, CartWarning } from "@/features/cart/services/cart-service";
 
 export interface LocalCartItem {
@@ -98,7 +99,7 @@ export const useCartStore = create<CartState>()(
           const result = await fetchApi<{
             data: CartWithItems;
             warnings: CartWarning[];
-          }>("/api/customer/cart/sync", {
+          }>(CUSTOMER_CART_SYNC, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
@@ -120,7 +121,7 @@ export const useCartStore = create<CartState>()(
         const result = await fetchApi<{
           data: CartWithItems;
           warnings: CartWarning[];
-        }>("/api/customer/cart");
+        }>(CUSTOMER_CART);
 
         const serverItems: LocalCartItem[] = result.data.cart_items.map(
           (ci) => {
