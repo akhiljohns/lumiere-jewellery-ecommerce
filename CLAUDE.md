@@ -57,7 +57,7 @@ Jewellery e-commerce app built with **Next.js 16 (App Router)** + **TypeScript**
 
 **API response shape**: Paginated list endpoints return `{ data: T[], pagination: { page, limit, total, totalPages } }`. Single-item endpoints return the object directly.
 
-**Images**: Uploaded to Cloudinary via base64 data URI. Product images stored in `product_images` table with `url`, `public_id`, `is_primary`, `sort_order`. Cascade-deleted with parent product.
+**Images**: Uploaded to Cloudinary via base64 data URI. Product images stored in `product_images` table with `url`, `public_id`, `is_primary`, `sort_order`. Cascade-deleted with parent product. **For rendering**, always use `<CloudinaryImage>` from `@/components/cloudinary-image` (wraps `next-cloudinary` `CldImage`) — never use `next/image` `<Image>` directly for Cloudinary-hosted images. It provides auto AVIF/WebP format, Cloudinary-side resize/crop, lazy loading, and extracts `public_id` from full URLs. Use `crop="fill"` for thumbnails, `sizes` prop for responsive large images.
 
 **Passwords**: Hashed with bcryptjs (12 salt rounds). Never exposed in responses — `sanitizeUser()` strips `password_hash`.
 
