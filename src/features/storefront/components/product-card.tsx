@@ -29,7 +29,7 @@ export function ProductCard({ product, onQuickView }: ProductCardProps) {
         href={`/products/${product.slug}`}
         className="group block overflow-hidden rounded-lg border border-border bg-card transition-shadow hover:shadow-md"
       >
-        <div className="relative aspect-[3/4] overflow-hidden bg-muted">
+        <div className="relative aspect-square overflow-hidden bg-muted">
           {primaryImage ? (
             <CloudinaryImage
               src={primaryImage.url}
