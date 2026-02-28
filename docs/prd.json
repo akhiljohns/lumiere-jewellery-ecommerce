@@ -539,18 +539,18 @@
                     "priority": "P1",
                     "impact": "high",
                     "effort": "low",
-                    "status": "not_started",
+                    "status": "done",
                     "description": "Sanitize the description field for XSS prevention and add Content-Security-Policy headers.",
                     "subtasks": [
                         {
                             "id": "TASK-B03-A",
                             "title": "Sanitize product description field for XSS if rendered as rich text",
-                            "status": "not_started"
+                            "status": "done"
                         },
                         {
                             "id": "TASK-B03-B",
                             "title": "Add Content-Security-Policy headers in next.config.ts",
-                            "status": "not_started"
+                            "status": "done"
                         }
                     ]
                 },
@@ -560,18 +560,18 @@
                     "priority": "P1",
                     "impact": "medium",
                     "effort": "low",
-                    "status": "not_started",
+                    "status": "done",
                     "description": "Validate all required env vars at build time using Zod. Fail fast with clear messages if any are missing.",
                     "subtasks": [
                         {
                             "id": "TASK-B04-A",
                             "title": "Create src/lib/env.ts with Zod schema for all required environment variables",
-                            "status": "not_started"
+                            "status": "done"
                         },
                         {
                             "id": "TASK-B04-B",
                             "title": "Import env validation in next.config.ts for build-time checking",
-                            "status": "not_started"
+                            "status": "done"
                         }
                     ]
                 },

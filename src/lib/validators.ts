@@ -1,5 +1,16 @@
 import { z } from "zod";
 
+/** Strip HTML tags from a string (defense-in-depth XSS prevention). */
+function stripHtml(value: string): string {
+  return value.replace(/<[^>]*>/g, "");
+}
+
+/** Create a sanitized string schema with an optional max length. */
+function sanitizedString(maxLength?: number) {
+  const base = maxLength ? z.string().max(maxLength) : z.string();
+  return base.transform(stripHtml);
+}
+
 // ── Auth ──────────────────────────────────────────────
 export const loginSchema = z.object({
   email: z.string().email("Invalid email address"),
@@ -69,7 +80,7 @@ export const productImageSchema = z.object({
 
 export const productCreateSchema = z.object({
   name: z.string().min(1, "Name is required").max(200),
-  description: z.string().optional(),
+  description: sanitizedString().optional(),
   price: z.number().positive("Price must be positive"),
   compare_price: z
     .number()
@@ -212,7 +223,7 @@ export const checkoutSchema = z
     shipping_address: shippingAddressSchema.optional(),
     address_id: z.string().uuid("Invalid address ID").optional(),
     billing_address: shippingAddressSchema.optional().nullable(),
-    notes: z.string().max(1000).optional().nullable(),
+    notes: sanitizedString(1000).optional().nullable(),
     payment_method: z.enum(["cod", "razorpay"]),
   })
   .refine((data) => data.shipping_address || data.address_id, {
@@ -230,7 +241,7 @@ export const orderStatusUpdateSchema = z.object({
     "cancelled",
     "refunded",
   ]),
-  cancelled_reason: z.string().max(500).optional().nullable(),
+  cancelled_reason: sanitizedString(500).optional().nullable(),
 });
 
 export const verifyPaymentSchema = z.object({
