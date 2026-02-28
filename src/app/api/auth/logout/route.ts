@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { clearCsrfCookie } from "@/lib/csrf";
 
 export async function POST() {
   const response = NextResponse.json(
@@ -13,6 +14,8 @@ export async function POST() {
     path: "/",
     maxAge: 0, // Expire immediately
   });
+
+  clearCsrfCookie(response);
 
   return response;
 }

@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { getCsrfToken } from "@/lib/api-client";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -63,9 +64,13 @@ export function LoginForm({
     setIsLoading(true);
 
     try {
+      const csrfToken = getCsrfToken();
       const res = await fetch("/api/auth/login", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          ...(csrfToken && { "x-csrf-token": csrfToken }),
+        },
         body: JSON.stringify({ email, password }),
       });
 

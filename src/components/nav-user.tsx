@@ -21,6 +21,7 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { ChevronsUpDownIcon, LogOutIcon } from "lucide-react";
+import { getCsrfToken } from "@/lib/api-client";
 
 export function NavUser({
   user,
@@ -43,7 +44,13 @@ export function NavUser({
   async function handleLogout() {
     const { useAuthStore } = await import("@/stores/auth-store");
     useAuthStore.getState().clearAuth();
-    await fetch("/api/auth/logout", { method: "POST" });
+    const csrfToken = getCsrfToken();
+    await fetch("/api/auth/logout", {
+      method: "POST",
+      headers: {
+        ...(csrfToken && { "x-csrf-token": csrfToken }),
+      },
+    });
     router.push("/login");
     router.refresh();
   }

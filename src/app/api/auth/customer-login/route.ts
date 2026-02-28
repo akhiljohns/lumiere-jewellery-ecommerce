@@ -5,6 +5,7 @@ import {
   EmailNotVerifiedError,
 } from "@/features/auth/services/customer-auth-service";
 import { signCustomerToken } from "@/lib/jwt";
+import { generateCsrfToken, setCsrfCookie } from "@/lib/csrf";
 
 export async function POST(request: NextRequest) {
   try {
@@ -46,6 +47,8 @@ export async function POST(request: NextRequest) {
       path: "/",
       maxAge: 60 * 60 * 24 * 7, // 7 days
     });
+
+    setCsrfCookie(response, generateCsrfToken());
 
     return response;
   } catch (err) {

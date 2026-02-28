@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { verifyToken } from "@/lib/jwt";
 import { rateLimitMiddleware, rateLimitResponse, addRateLimitHeaders } from "@/lib/rate-limit";
+import { validateCsrf, generateCsrfToken, setCsrfCookie, CSRF_COOKIE_NAME } from "@/lib/csrf";
 
 /**
  * Next.js Edge Proxy
@@ -15,9 +16,33 @@ import { rateLimitMiddleware, rateLimitResponse, addRateLimitHeaders } from "@/l
  *   - /api/admin/*    → admin tier (100 req / min)
  *   - /api/customer/* → customer tier (60 req / min)
  */
+function withCsrf(response: NextResponse, request: NextRequest): NextResponse {
+  if (!request.cookies.get(CSRF_COOKIE_NAME)?.value) {
+    setCsrfCookie(response, generateCsrfToken());
+  }
+  return response;
+}
+
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
+  const method = request.method;
   const token = request.cookies.get("admin-token")?.value;
+
+  // ── CSRF validation for mutating requests on protected routes ──
+  const isMutating = ["POST", "PUT", "PATCH", "DELETE"].includes(method);
+  const isProtectedRoute =
+    pathname.startsWith("/api/admin") ||
+    pathname.startsWith("/api/customer") ||
+    pathname.startsWith("/api/auth");
+
+  if (isMutating && isProtectedRoute) {
+    if (!validateCsrf(request)) {
+      return NextResponse.json(
+        { error: "CSRF validation failed" },
+        { status: 403 },
+      );
+    }
+  }
 
   // ── Rate limit auth endpoints ──
   if (pathname.startsWith("/api/auth")) {
@@ -56,7 +81,10 @@ export async function proxy(request: NextRequest) {
       JSON.stringify(payload.permissions ?? []),
     );
 
-    return NextResponse.next({ request: { headers: requestHeaders } });
+    return withCsrf(
+      NextResponse.next({ request: { headers: requestHeaders } }),
+      request,
+    );
   }
 
   // ── Protect customer API routes ──
@@ -86,7 +114,10 @@ export async function proxy(request: NextRequest) {
     requestHeaders.set("x-user-email", payload.email);
     requestHeaders.set("x-user-role", payload.role);
 
-    return NextResponse.next({ request: { headers: requestHeaders } });
+    return withCsrf(
+      NextResponse.next({ request: { headers: requestHeaders } }),
+      request,
+    );
   }
 
   // ── Protect admin pages ──
@@ -94,28 +125,31 @@ export async function proxy(request: NextRequest) {
     if (!token) {
       const loginUrl = new URL("/login", request.url);
       loginUrl.searchParams.set("redirect", pathname);
-      return NextResponse.redirect(loginUrl);
+      return withCsrf(NextResponse.redirect(loginUrl), request);
     }
 
     const payload = await verifyToken(token);
     if (!payload || payload.role === "customer") {
       const loginUrl = new URL("/login", request.url);
       loginUrl.searchParams.set("redirect", pathname);
-      return NextResponse.redirect(loginUrl);
+      return withCsrf(NextResponse.redirect(loginUrl), request);
     }
 
-    return NextResponse.next();
+    return withCsrf(NextResponse.next(), request);
   }
 
   // ── Redirect authenticated admins away from login ──
   if (pathname === "/login" && token) {
     const payload = await verifyToken(token);
     if (payload && payload.role !== "customer") {
-      return NextResponse.redirect(new URL("/admin/dashboard", request.url));
+      return withCsrf(
+        NextResponse.redirect(new URL("/admin/dashboard", request.url)),
+        request,
+      );
     }
   }
 
-  return NextResponse.next();
+  return withCsrf(NextResponse.next(), request);
 }
 
 export const config = {

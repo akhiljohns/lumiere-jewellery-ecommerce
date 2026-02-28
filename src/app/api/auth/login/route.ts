@@ -3,6 +3,7 @@ import { loginSchema } from "@/lib/validators";
 import { authenticateUser } from "@/features/auth/services/auth-service";
 import { getUserPermissions } from "@/features/auth/services/permission-service";
 import { signToken } from "@/lib/jwt";
+import { generateCsrfToken, setCsrfCookie } from "@/lib/csrf";
 
 export async function POST(request: NextRequest) {
   try {
@@ -53,6 +54,8 @@ export async function POST(request: NextRequest) {
       path: "/",
       maxAge: 60 * 60 * 24 * 7, // 7 days
     });
+
+    setCsrfCookie(response, generateCsrfToken());
 
     return response;
   } catch {

@@ -147,8 +147,9 @@ The project uses **shadcn/ui Mira style** with **amber primary**, **gray base co
 
 **Phase B — Optimizations:**
 - IP-based rate limiting across all API tiers (TASK-B01)
+- CSRF protection with double-submit cookie pattern (TASK-B02)
 
 ### Not Started
 - Phase A: Audit log persistence (A09), visual search (A12), chatbot RAG (A13), inventory alerts (A14), pricing suggestions (A15)
-- Phase B: CSRF protection, input sanitization, env validation, error standardization, image optimization, caching, bundle audit, migrations strategy, testing, accessibility
+- Phase B: Input sanitization, env validation, error standardization, image optimization, caching, bundle audit, migrations strategy, testing, accessibility
 - Phase C: All UI — storefront pages, TanStack Query, Zustand stores, Framer Motion animations, admin enhancements

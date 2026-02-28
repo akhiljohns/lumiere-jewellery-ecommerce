@@ -518,18 +518,18 @@
                     "priority": "P1",
                     "impact": "high",
                     "effort": "low",
-                    "status": "not_started",
+                    "status": "done",
                     "description": "Harden JWT-in-cookie auth against CSRF. Verify SameSite cookie attribute and consider adding a CSRF token.",
                     "subtasks": [
                         {
                             "id": "TASK-B02-A",
                             "title": "Verify and set SameSite=Strict or SameSite=Lax on admin-token and customer cookies",
-                            "status": "not_started"
+                            "status": "done"
                         },
                         {
                             "id": "TASK-B02-B",
                             "title": "Consider adding CSRF token for non-GET API requests",
-                            "status": "not_started"
+                            "status": "done"
                         }
                     ]
                 },

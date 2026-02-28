@@ -3,6 +3,7 @@ import { guestCheckoutSignupSchema } from "@/lib/validators";
 import { registerCustomerForCheckout } from "@/features/auth/services/customer-auth-service";
 import { syncCart } from "@/features/cart/services/cart-service";
 import { signCustomerToken } from "@/lib/jwt";
+import { generateCsrfToken, setCsrfCookie } from "@/lib/csrf";
 
 export async function POST(request: NextRequest) {
   try {
@@ -50,6 +51,8 @@ export async function POST(request: NextRequest) {
       maxAge: 7 * 24 * 60 * 60, // 7 days
       path: "/",
     });
+
+    setCsrfCookie(response, generateCsrfToken());
 
     return response;
   } catch (error) {
