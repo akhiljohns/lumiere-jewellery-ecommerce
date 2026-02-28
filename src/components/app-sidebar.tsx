@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Gem } from "lucide-react";
@@ -28,10 +29,15 @@ export function AppSidebar({
 }) {
   const pathname = usePathname();
   const { hasPermission } = usePermissions();
+  const [hydrated, setHydrated] = useState(false);
 
-  const visibleItems = adminMenuItems.filter(
-    (item) => !item.permission || hasPermission(item.permission),
-  );
+  useEffect(() => setHydrated(true), []);
+
+  const visibleItems = hydrated
+    ? adminMenuItems.filter(
+        (item) => !item.permission || hasPermission(item.permission),
+      )
+    : adminMenuItems;
 
   return (
     <Sidebar variant="inset" {...props}>
