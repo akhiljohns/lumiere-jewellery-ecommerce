@@ -42,6 +42,33 @@ export async function proxy(request: NextRequest) {
     return NextResponse.next({ request: { headers: requestHeaders } });
   }
 
+  // ── Protect customer API routes ──
+  if (pathname.startsWith("/api/customer")) {
+    const customerToken = request.cookies.get("customer-token")?.value;
+
+    if (!customerToken) {
+      return NextResponse.json(
+        { error: "Authentication required" },
+        { status: 401 },
+      );
+    }
+
+    const payload = await verifyToken(customerToken);
+    if (!payload || payload.role !== "customer") {
+      return NextResponse.json(
+        { error: "Invalid or expired token" },
+        { status: 401 },
+      );
+    }
+
+    const requestHeaders = new Headers(request.headers);
+    requestHeaders.set("x-user-id", payload.sub!);
+    requestHeaders.set("x-user-email", payload.email);
+    requestHeaders.set("x-user-role", payload.role);
+
+    return NextResponse.next({ request: { headers: requestHeaders } });
+  }
+
   // ── Protect admin pages ──
   if (pathname.startsWith("/admin")) {
     if (!token) {
@@ -72,5 +99,5 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/admin/:path*", "/api/admin/:path*", "/login"],
+  matcher: ["/admin/:path*", "/api/admin/:path*", "/api/customer/:path*", "/login"],
 };

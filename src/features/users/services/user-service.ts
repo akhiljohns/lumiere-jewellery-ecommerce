@@ -10,17 +10,31 @@ import type {
 
 // ── Types ──────────────────────────────────────────
 
-/** User without password_hash — safe for API responses. */
-export type SafeUser = Omit<User, "password_hash">;
+/** User without sensitive fields — safe for API responses. */
+export type SafeUser = Omit<
+  User,
+  | "password_hash"
+  | "verification_token"
+  | "verification_token_expires"
+  | "reset_token"
+  | "reset_token_expires"
+>;
 
 export interface PaginatedUsers {
   data: SafeUser[];
   pagination: ReturnType<typeof buildPaginationMeta>;
 }
 
-/** Strip password_hash from a user row. */
+/** Strip sensitive fields from a user row. */
 function sanitize(user: User): SafeUser {
-  const { password_hash, ...safe } = user;
+  const {
+    password_hash,
+    verification_token,
+    verification_token_expires,
+    reset_token,
+    reset_token_expires,
+    ...safe
+  } = user;
   return safe;
 }
 

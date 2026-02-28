@@ -6,7 +6,14 @@ import type { User } from "@/lib/supabase/types";
  * Omit sensitive fields from user before sending to client.
  */
 export function sanitizeUser(user: User) {
-  const { password_hash, ...safeUser } = user;
+  const {
+    password_hash,
+    verification_token,
+    verification_token_expires,
+    reset_token,
+    reset_token_expires,
+    ...safeUser
+  } = user;
   return safeUser;
 }
 

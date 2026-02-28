@@ -11,6 +11,13 @@ export interface AdminTokenPayload extends JWTPayload {
   permissions: string[];
 }
 
+export interface CustomerTokenPayload extends JWTPayload {
+  sub: string; // user id
+  email: string;
+  role: "customer";
+  type: "customer";
+}
+
 /**
  * Sign a new JWT for an admin user.
  */
@@ -25,6 +32,25 @@ export async function signToken(payload: {
     email: payload.email,
     role: payload.role,
     permissions: payload.permissions,
+  })
+    .setProtectedHeader({ alg: ALG })
+    .setIssuedAt()
+    .setExpirationTime(EXPIRATION)
+    .sign(secret);
+}
+
+/**
+ * Sign a new JWT for a customer user.
+ */
+export async function signCustomerToken(payload: {
+  id: string;
+  email: string;
+}): Promise<string> {
+  return new SignJWT({
+    sub: payload.id,
+    email: payload.email,
+    role: "customer",
+    type: "customer",
   })
     .setProtectedHeader({ alg: ALG })
     .setIssuedAt()

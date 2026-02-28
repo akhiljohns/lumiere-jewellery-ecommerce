@@ -79,6 +79,11 @@ export interface Database {
           avatar_url: string | null;
           role: string;
           is_active: boolean;
+          email_verified: boolean;
+          verification_token: string | null;
+          verification_token_expires: string | null;
+          reset_token: string | null;
+          reset_token_expires: string | null;
           created_at: string;
           updated_at: string;
         };
@@ -91,6 +96,11 @@ export interface Database {
           avatar_url?: string | null;
           role?: string;
           is_active?: boolean;
+          email_verified?: boolean;
+          verification_token?: string | null;
+          verification_token_expires?: string | null;
+          reset_token?: string | null;
+          reset_token_expires?: string | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -103,6 +113,11 @@ export interface Database {
           avatar_url?: string | null;
           role?: string;
           is_active?: boolean;
+          email_verified?: boolean;
+          verification_token?: string | null;
+          verification_token_expires?: string | null;
+          reset_token?: string | null;
+          reset_token_expires?: string | null;
           created_at?: string;
           updated_at?: string;
         };

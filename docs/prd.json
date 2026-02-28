@@ -2,7 +2,7 @@
     "title": "Jewellery E-Commerce — Product Requirements Document",
     "version": "3.0.0",
     "created_at": "2026-02-26",
-    "updated_at": "2026-02-26",
+    "updated_at": "2026-02-28",
     "status": "draft",
     "current_phase": 3,
     "phases_completed": [
@@ -80,38 +80,38 @@
                     "priority": "P0",
                     "impact": "very_high",
                     "effort": "medium",
-                    "status": "not_started",
+                    "status": "done",
                     "description": "Only admin auth exists. Build customer-facing auth: register, login, forgot password, email verification.",
                     "subtasks": [
                         {
                             "id": "TASK-A02-A",
                             "title": "Create POST /api/auth/register endpoint with email + password",
-                            "status": "not_started"
+                            "status": "done"
                         },
                         {
                             "id": "TASK-A02-B",
                             "title": "Create customer JWT token flow (separate from admin-token cookie)",
-                            "status": "not_started"
+                            "status": "done"
                         },
                         {
                             "id": "TASK-A02-C",
                             "title": "Create POST /api/auth/forgot-password and POST /api/auth/reset-password endpoints",
-                            "status": "not_started"
+                            "status": "done"
                         },
                         {
                             "id": "TASK-A02-D",
                             "title": "Create email verification flow (generate token, send email, verify endpoint)",
-                            "status": "not_started"
+                            "status": "done"
                         },
                         {
                             "id": "TASK-A02-E",
-                            "title": "Create GET /api/auth/profile and PATCH /api/auth/profile endpoints for customer self-management",
-                            "status": "not_started"
+                            "title": "Create GET /api/customer/profile and PATCH /api/customer/profile endpoints for customer self-management",
+                            "status": "done"
                         },
                         {
                             "id": "TASK-A02-F",
                             "title": "Add customer middleware to protect customer-only routes",
-                            "status": "not_started"
+                            "status": "done"
                         }
                     ]
                 },

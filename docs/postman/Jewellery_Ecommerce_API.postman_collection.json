@@ -1,7 +1,7 @@
 {
   "info": {
     "name": "Jewellery E-Commerce API",
-    "description": "Complete API test suite for the Jewellery E-Commerce admin panel.\n\n## Execution Order\n\nRun folders in this order:\n1. **Auth** — Login to get session cookie\n2. **Categories** — CRUD (creates parent + child)\n3. **Products** — CRUD (uses category from step 2)\n4. **Users** — CRUD\n5. **Roles** — CRUD\n6. **Auth (Logout)** — End session\n\n## Global Variables\n\n| Variable | Description |\n|----------|-------------|\n| `base_url` | API base URL (default: `http://localhost:3000`) |\n| `admin_email` | Admin login email |\n| `admin_password` | Admin login password |\n| `category_id` | Auto-set after category creation |\n| `child_category_id` | Auto-set after child category creation |\n| `product_id` | Auto-set after product creation |\n| `user_id` | Auto-set after user creation |\n| `role_id` | Auto-set after role creation |",
+    "description": "Complete API test suite for the Jewellery E-Commerce admin panel.\n\n## Execution Order\n\nRun folders in this order:\n1. **Auth** — Login to get session cookie\n2. **Categories** — CRUD (creates parent + child)\n3. **Products** — CRUD (uses category from step 2)\n4. **Users** — CRUD\n5. **Roles** — CRUD\n6. **Cleanup & Logout** — End admin session\n7. **Customer Auth** — Register, login, profile, password reset, email verify\n\n## Global Variables\n\n| Variable | Description |\n|----------|-------------|\n| `base_url` | API base URL (default: `http://localhost:3000`) |\n| `admin_email` | Admin login email |\n| `admin_password` | Admin login password |\n| `category_id` | Auto-set after category creation |\n| `child_category_id` | Auto-set after child category creation |\n| `product_id` | Auto-set after product creation |\n| `user_id` | Auto-set after user creation |\n| `role_id` | Auto-set after role creation |\n| `customer_id` | Auto-set after customer registration |\n| `customer_email` | Auto-set after customer registration |",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [],
@@ -1885,6 +1885,533 @@
               "path": ["api", "auth", "me"]
             },
             "description": "Confirms the session is invalidated after logout."
+          }
+        }
+      ]
+    },
+    {
+      "name": "7. Customer Auth",
+      "description": "Customer authentication flow: register, login, profile, forgot/reset password, email verification, and logout.",
+      "item": [
+        {
+          "name": "7.1 Register Customer",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 201', function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "pm.test('Response has customer data', function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json.data).to.have.property('id');",
+                  "    pm.expect(json.data).to.have.property('email');",
+                  "    pm.expect(json.data.role).to.eql('customer');",
+                  "    pm.expect(json.message).to.eql('Registration successful');",
+                  "});",
+                  "",
+                  "pm.test('Response has customer-token cookie', function () {",
+                  "    const cookie = pm.cookies.get('customer-token');",
+                  "    pm.expect(cookie).to.not.be.undefined;",
+                  "});",
+                  "",
+                  "const json = pm.response.json();",
+                  "if (json.data) {",
+                  "    pm.globals.set('customer_id', json.data.id);",
+                  "    pm.globals.set('customer_email', json.data.email);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"testcustomer@example.com\",\n  \"password\": \"customer123\",\n  \"full_name\": \"Test Customer\",\n  \"phone\": \"+91 9876543210\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/register",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "register"]
+            },
+            "description": "Registers a new customer account. Auto-sets `customer-token` cookie for subsequent requests."
+          }
+        },
+        {
+          "name": "7.2 Register — Duplicate Email",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 409', function () {",
+                  "    pm.response.to.have.status(409);",
+                  "});",
+                  "",
+                  "pm.test('Returns duplicate error', function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json.error).to.include('already exists');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"testcustomer@example.com\",\n  \"password\": \"customer123\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/register",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "register"]
+            },
+            "description": "Verifies that duplicate email registration returns 409."
+          }
+        },
+        {
+          "name": "7.3 Register — Validation Error",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 400', function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});",
+                  "",
+                  "pm.test('Returns validation details', function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json).to.have.property('error');",
+                  "    pm.expect(json).to.have.property('details');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"not-an-email\",\n  \"password\": \"123\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/register",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "register"]
+            },
+            "description": "Verifies that invalid input returns 400 with details."
+          }
+        },
+        {
+          "name": "7.4 Customer Logout",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Returns success message', function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json.message).to.eql('Logged out successfully');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/auth/customer-logout",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "customer-logout"]
+            },
+            "description": "Logs out the customer by clearing the `customer-token` cookie."
+          }
+        },
+        {
+          "name": "7.5 Customer Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Response has customer data', function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json.data).to.have.property('id');",
+                  "    pm.expect(json.data.role).to.eql('customer');",
+                  "    pm.expect(json.message).to.eql('Login successful');",
+                  "});",
+                  "",
+                  "pm.test('Response has customer-token cookie', function () {",
+                  "    const cookie = pm.cookies.get('customer-token');",
+                  "    pm.expect(cookie).to.not.be.undefined;",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"testcustomer@example.com\",\n  \"password\": \"customer123\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/customer-login",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "customer-login"]
+            },
+            "description": "Logs in with customer credentials. Sets `customer-token` cookie."
+          }
+        },
+        {
+          "name": "7.6 Customer Login — Invalid Credentials",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 401', function () {",
+                  "    pm.response.to.have.status(401);",
+                  "});",
+                  "",
+                  "pm.test('Returns error message', function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json).to.have.property('error');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"testcustomer@example.com\",\n  \"password\": \"wrongpassword\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/customer-login",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "customer-login"]
+            },
+            "description": "Verifies that invalid customer credentials return 401."
+          }
+        },
+        {
+          "name": "7.7 Get Customer Profile",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Response has customer profile', function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json.data).to.have.property('id');",
+                  "    pm.expect(json.data).to.have.property('email');",
+                  "    pm.expect(json.data).to.have.property('full_name');",
+                  "    pm.expect(json.data.role).to.eql('customer');",
+                  "});",
+                  "",
+                  "pm.test('No sensitive fields exposed', function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json.data).to.not.have.property('password_hash');",
+                  "    pm.expect(json.data).to.not.have.property('verification_token');",
+                  "    pm.expect(json.data).to.not.have.property('reset_token');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/customer/profile",
+              "host": ["{{base_url}}"],
+              "path": ["api", "customer", "profile"]
+            },
+            "description": "Fetches the authenticated customer's profile. Requires `customer-token` cookie."
+          }
+        },
+        {
+          "name": "7.8 Update Customer Profile",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Profile updated', function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json.data.full_name).to.eql('Updated Customer');",
+                  "    pm.expect(json.message).to.eql('Profile updated successfully');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"full_name\": \"Updated Customer\",\n  \"phone\": \"+91 1234567890\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/customer/profile",
+              "host": ["{{base_url}}"],
+              "path": ["api", "customer", "profile"]
+            },
+            "description": "Updates the authenticated customer's name and phone. Requires `customer-token` cookie."
+          }
+        },
+        {
+          "name": "7.9 Get Profile — No Auth",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 401', function () {",
+                  "    pm.response.to.have.status(401);",
+                  "});",
+                  "",
+                  "pm.test('Returns auth error', function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json).to.have.property('error');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Cookie", "value": "" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/customer/profile",
+              "host": ["{{base_url}}"],
+              "path": ["api", "customer", "profile"]
+            },
+            "description": "Verifies that accessing profile without auth returns 401. Sends empty Cookie header to override any stored cookies."
+          }
+        },
+        {
+          "name": "7.10 Forgot Password",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Returns success message (anti-enumeration)', function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json).to.have.property('message');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"testcustomer@example.com\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/forgot-password",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "forgot-password"]
+            },
+            "description": "Initiates password reset. Check server console for the reset token URL. Always returns 200 to prevent email enumeration."
+          }
+        },
+        {
+          "name": "7.11 Forgot Password — Nonexistent Email",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200 (anti-enumeration)', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Same response as valid email', function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json).to.have.property('message');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"nonexistent@example.com\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/forgot-password",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "forgot-password"]
+            },
+            "description": "Verifies anti-enumeration: nonexistent email gets the same 200 response."
+          }
+        },
+        {
+          "name": "7.12 Reset Password — Invalid Token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 400', function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});",
+                  "",
+                  "pm.test('Returns token error', function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json.error).to.include('Invalid or expired');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"token\": \"invalid-token-value\",\n  \"password\": \"newpassword123\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/reset-password",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "reset-password"]
+            },
+            "description": "Verifies that an invalid reset token returns 400."
+          }
+        },
+        {
+          "name": "7.13 Verify Email — Invalid Token",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 400', function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});",
+                  "",
+                  "pm.test('Returns token error', function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json.error).to.include('Invalid or expired');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/auth/verify-email?token=invalid-token",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "verify-email"],
+              "query": [
+                { "key": "token", "value": "invalid-token" }
+              ]
+            },
+            "description": "Verifies that an invalid verification token returns 400."
+          }
+        },
+        {
+          "name": "7.14 Customer Logout (Final)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/auth/customer-logout",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "customer-logout"]
+            },
+            "description": "Final logout to clean up the customer session."
           }
         }
       ]

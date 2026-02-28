@@ -8,6 +8,42 @@ export const loginSchema = z.object({
 
 export type LoginInput = z.infer<typeof loginSchema>;
 
+// ── Customer Auth ────────────────────────────────────
+
+export const customerRegisterSchema = z.object({
+  email: z.string().email("Invalid email address"),
+  password: z.string().min(6, "Password must be at least 6 characters"),
+  full_name: z.string().optional().nullable(),
+  phone: z.string().optional().nullable(),
+});
+
+export const forgotPasswordSchema = z.object({
+  email: z.string().email("Invalid email address"),
+});
+
+export const resetPasswordSchema = z.object({
+  token: z.string().min(1, "Token is required"),
+  password: z.string().min(6, "Password must be at least 6 characters"),
+});
+
+export const verifyEmailSchema = z.object({
+  token: z.string().min(1, "Token is required"),
+});
+
+export const customerProfileUpdateSchema = z.object({
+  full_name: z.string().optional().nullable(),
+  phone: z.string().optional().nullable(),
+  avatar_url: z.string().url("Invalid avatar URL").optional().nullable(),
+});
+
+export type CustomerRegisterInput = z.infer<typeof customerRegisterSchema>;
+export type ForgotPasswordInput = z.infer<typeof forgotPasswordSchema>;
+export type ResetPasswordInput = z.infer<typeof resetPasswordSchema>;
+export type VerifyEmailInput = z.infer<typeof verifyEmailSchema>;
+export type CustomerProfileUpdateInput = z.infer<
+  typeof customerProfileUpdateSchema
+>;
+
 // ── Categories ──────────────────────────────────────
 
 export const categoryCreateSchema = z.object({
