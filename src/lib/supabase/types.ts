@@ -233,6 +233,52 @@ export interface Database {
           created_at?: string;
         };
       };
+      carts: {
+        Row: {
+          id: string;
+          customer_id: string;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          customer_id: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          customer_id?: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+      };
+      cart_items: {
+        Row: {
+          id: string;
+          cart_id: string;
+          product_id: string;
+          quantity: number;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          cart_id: string;
+          product_id: string;
+          quantity?: number;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          cart_id?: string;
+          product_id?: string;
+          quantity?: number;
+          created_at?: string;
+          updated_at?: string;
+        };
+      };
     };
   };
 }
@@ -268,3 +314,13 @@ export type ProductImageInsert =
   Database["public"]["Tables"]["product_images"]["Insert"];
 export type ProductImageUpdate =
   Database["public"]["Tables"]["product_images"]["Update"];
+
+export type Cart = Database["public"]["Tables"]["carts"]["Row"];
+export type CartInsert = Database["public"]["Tables"]["carts"]["Insert"];
+export type CartUpdate = Database["public"]["Tables"]["carts"]["Update"];
+
+export type CartItem = Database["public"]["Tables"]["cart_items"]["Row"];
+export type CartItemInsert =
+  Database["public"]["Tables"]["cart_items"]["Insert"];
+export type CartItemUpdate =
+  Database["public"]["Tables"]["cart_items"]["Update"];
