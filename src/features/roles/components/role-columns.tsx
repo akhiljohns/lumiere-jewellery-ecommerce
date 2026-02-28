@@ -2,6 +2,7 @@
 
 import type { ColumnDef } from "@tanstack/react-table";
 import { Pencil, Trash2, ShieldCheck } from "lucide-react";
+import Link from "next/link";
 
 import { Badge } from "@/components/ui/badge";
 import {
@@ -13,9 +14,10 @@ import type { RoleWithPermissions } from "@/features/roles/types";
 import { getRoleRank, SUPER_ADMIN_ROLE } from "@/lib/permissions";
 
 interface ColumnActions {
-  onEdit?: (id: string) => void;
+  canEdit?: boolean;
   onDelete?: (role: RoleWithPermissions) => void;
   currentUserRole?: string;
+  onPrefetch?: (id: string) => void;
 }
 
 export function getRoleColumns(
@@ -79,22 +81,20 @@ export function getRoleColumns(
       cell: ({ row }) => {
         const role = row.original;
         const userRole = actions.currentUserRole ?? "";
-        const canEdit =
+        const canEditRole =
+          actions.canEdit &&
           role.name !== SUPER_ADMIN_ROLE &&
           (userRole === SUPER_ADMIN_ROLE ||
             getRoleRank(userRole) > getRoleRank(role.name));
         return (
-          <div className="flex items-center gap-3">
-            {actions.onEdit && canEdit && (
+          <div
+            className="flex items-center gap-3"
+            onMouseEnter={() => actions.onPrefetch?.(role.id)}
+          >
+            {canEditRole && (
               <Tooltip>
                 <TooltipTrigger
-                  render={
-                    <span
-                      role="button"
-                      tabIndex={0}
-                      onClick={() => actions.onEdit!(role.id)}
-                    />
-                  }
+                  render={<Link href={`/admin/roles/${role.id}/edit`} />}
                 >
                   <Pencil className="size-[18px] text-muted-foreground cursor-pointer hover:text-foreground hover:scale-110 transition-all duration-200" />
                 </TooltipTrigger>

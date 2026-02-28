@@ -1,35 +1,38 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { Plus } from "lucide-react";
+import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
-import { Button } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
 import { DataTable } from "@/components/data-table";
 import { ConfirmDialog } from "@/components/confirm-dialog";
 import { useGetRoles } from "@/features/roles/api/get-roles";
 import { useDeleteRole } from "@/features/roles/api/delete-role";
+import { getRoleQueryOptions } from "@/features/roles/api/get-role";
 import { getRoleColumns } from "@/features/roles/components/role-columns";
 import type { RoleWithPermissions } from "@/features/roles/types";
 import { useAuthStore } from "@/stores/auth-store";
 
 export default function RolesPage() {
-  const router = useRouter();
   const [deleteTarget, setDeleteTarget] = useState<RoleWithPermissions | null>(null);
   const currentUserRole = useAuthStore((s) => s.user?.role);
 
+  const queryClient = useQueryClient();
   const { data, isLoading } = useGetRoles();
   const deleteRole = useDeleteRole();
 
   const columns = useMemo(
     () =>
       getRoleColumns({
-        onEdit: (id) => router.push(`/admin/roles/${id}/edit`),
+        canEdit: true,
         onDelete: (role) => setDeleteTarget(role),
         currentUserRole,
+        onPrefetch: (id) => queryClient.prefetchQuery(getRoleQueryOptions(id)),
       }),
-    [router, currentUserRole],
+    [currentUserRole, queryClient],
   );
 
   const roles = data?.data ?? [];
@@ -58,10 +61,10 @@ export default function RolesPage() {
             Manage roles and their permissions
           </p>
         </div>
-        <Button size="lg" onClick={() => router.push("/admin/roles/create")}>
+        <Link href="/admin/roles/create" className={buttonVariants({ size: "lg" })}>
           <Plus />
           Add Role
-        </Button>
+        </Link>
       </div>
 
       <DataTable

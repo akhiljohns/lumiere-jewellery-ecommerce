@@ -1,23 +1,24 @@
 "use client";
 
 import { useCallback, useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { Plus, Search } from "lucide-react";
+import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
-import { Button } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { DataTable } from "@/components/data-table";
 import { ConfirmDialog } from "@/components/confirm-dialog";
 import { PermissionGuard } from "@/components/permission-guard";
 import { useGetUsers } from "@/features/users/api/get-users";
 import { useDeleteUser } from "@/features/users/api/delete-user";
+import { getUserQueryOptions } from "@/features/users/api/get-user";
 import { getUserColumns } from "@/features/users/components/user-columns";
 import { usePermissions } from "@/hooks/use-permissions";
 import type { SafeUser } from "@/features/users/types";
 
 export default function UsersPage() {
-  const router = useRouter();
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
@@ -31,6 +32,7 @@ export default function UsersPage() {
     order: "desc",
   });
 
+  const queryClient = useQueryClient();
   const deleteUser = useDeleteUser();
   const { canEdit, canDelete } = usePermissions();
 
@@ -61,11 +63,11 @@ export default function UsersPage() {
   const columns = useMemo(
     () =>
       getUserColumns({
-        onView: (id) => router.push(`/admin/users/${id}`),
-        onEdit: canEdit("user") ? (id) => router.push(`/admin/users/${id}/edit`) : undefined,
+        canEdit: canEdit("user"),
         onDelete: canDelete("user") ? (user) => setDeleteTarget(user) : undefined,
+        onPrefetch: (id) => queryClient.prefetchQuery(getUserQueryOptions(id)),
       }),
-    [router, canEdit, canDelete],
+    [canEdit, canDelete, queryClient],
   );
 
   const users = data?.data ?? [];
@@ -88,10 +90,10 @@ export default function UsersPage() {
           </p>
         </div>
         <PermissionGuard permission="user.create">
-          <Button size="lg" onClick={() => router.push("/admin/users/create")}>
+          <Link href="/admin/users/create" className={buttonVariants({ size: "lg" })}>
             <Plus />
             Add User
-          </Button>
+          </Link>
         </PermissionGuard>
       </div>
 

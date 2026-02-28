@@ -3,6 +3,7 @@
 import type { ColumnDef } from "@tanstack/react-table";
 import { Eye, Pencil, Trash2 } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 
 import { Badge } from "@/components/ui/badge";
 import {
@@ -13,10 +14,10 @@ import {
 import type { Category } from "@/lib/supabase/types";
 
 interface ColumnActions {
-  onView: (id: string) => void;
-  onEdit?: (id: string) => void;
+  canEdit?: boolean;
   onDelete?: (category: Category) => void;
   parentNameMap?: Record<string, string>;
+  onPrefetch?: (id: string) => void;
 }
 
 export function getCategoryColumns(
@@ -89,31 +90,22 @@ export function getCategoryColumns(
       cell: ({ row }) => {
         const category = row.original;
         return (
-          <div className="flex items-center gap-3">
+          <div
+            className="flex items-center gap-3"
+            onMouseEnter={() => actions.onPrefetch?.(category.id)}
+          >
             <Tooltip>
               <TooltipTrigger
-                render={
-                  <span
-                    role="button"
-                    tabIndex={0}
-                    onClick={() => actions.onView(category.id)}
-                  />
-                }
+                render={<Link href={`/admin/categories/${category.id}`} />}
               >
                 <Eye className="size-[18px] text-muted-foreground cursor-pointer hover:text-foreground hover:scale-110 transition-all duration-200" />
               </TooltipTrigger>
               <TooltipContent side="top">View category</TooltipContent>
             </Tooltip>
-            {actions.onEdit && (
+            {actions.canEdit && (
               <Tooltip>
                 <TooltipTrigger
-                  render={
-                    <span
-                      role="button"
-                      tabIndex={0}
-                      onClick={() => actions.onEdit!(category.id)}
-                    />
-                  }
+                  render={<Link href={`/admin/categories/${category.id}/edit`} />}
                 >
                   <Pencil className="size-[18px] text-muted-foreground cursor-pointer hover:text-foreground hover:scale-110 transition-all duration-200" />
                 </TooltipTrigger>

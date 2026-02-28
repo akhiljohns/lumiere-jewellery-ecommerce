@@ -1,23 +1,25 @@
 "use client";
 
 import { useCallback, useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { Plus, Search } from "lucide-react";
+import { useQueryClient } from "@tanstack/react-query";
+
 import { toast } from "sonner";
 
-import { Button } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { DataTable } from "@/components/data-table";
 import { ConfirmDialog } from "@/components/confirm-dialog";
 import { PermissionGuard } from "@/components/permission-guard";
 import { useGetProducts } from "@/features/products/api/get-products";
 import { useDeleteProduct } from "@/features/products/api/delete-product";
+import { getProductQueryOptions } from "@/features/products/api/get-product";
 import { getProductColumns } from "@/features/products/components/product-columns";
 import { usePermissions } from "@/hooks/use-permissions";
 import type { ProductWithImages } from "@/features/products/types";
 
 export default function ProductsPage() {
-  const router = useRouter();
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
@@ -33,6 +35,7 @@ export default function ProductsPage() {
     order: "desc",
   });
 
+  const queryClient = useQueryClient();
   const deleteProduct = useDeleteProduct();
   const { canEdit, canDelete } = usePermissions();
 
@@ -64,11 +67,11 @@ export default function ProductsPage() {
   const columns = useMemo(
     () =>
       getProductColumns({
-        onView: (id) => router.push(`/admin/products/${id}`),
-        onEdit: canEdit("product") ? (id) => router.push(`/admin/products/${id}/edit`) : undefined,
+        canEdit: canEdit("product"),
         onDelete: canDelete("product") ? (product) => setDeleteTarget(product) : undefined,
+        onPrefetch: (id) => queryClient.prefetchQuery(getProductQueryOptions(id)),
       }),
-    [router, canEdit, canDelete],
+    [canEdit, canDelete, queryClient],
   );
 
   const products = data?.data ?? [];
@@ -91,10 +94,10 @@ export default function ProductsPage() {
           </p>
         </div>
         <PermissionGuard permission="product.create">
-          <Button size="lg" onClick={() => router.push("/admin/products/create")}>
+          <Link href="/admin/products/create" className={buttonVariants({ size: "lg" })}>
             <Plus />
             Add Product
-          </Button>
+          </Link>
         </PermissionGuard>
       </div>
 

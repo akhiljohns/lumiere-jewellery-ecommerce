@@ -3,6 +3,7 @@
 import type { ColumnDef } from "@tanstack/react-table";
 import { Eye, Pencil, Trash2 } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 
 import { Badge } from "@/components/ui/badge";
 import {
@@ -14,9 +15,9 @@ import { formatCurrency, getPrimaryImage } from "@/lib/utils";
 import type { ProductWithImages } from "@/features/products/types";
 
 interface ColumnActions {
-  onView: (id: string) => void;
-  onEdit?: (id: string) => void;
+  canEdit?: boolean;
   onDelete?: (product: ProductWithImages) => void;
+  onPrefetch?: (id: string) => void;
 }
 
 export function getProductColumns(
@@ -99,31 +100,22 @@ export function getProductColumns(
       cell: ({ row }) => {
         const product = row.original;
         return (
-          <div className="flex items-center gap-3">
+          <div
+            className="flex items-center gap-3"
+            onMouseEnter={() => actions.onPrefetch?.(product.id)}
+          >
             <Tooltip>
               <TooltipTrigger
-                render={
-                  <span
-                    role="button"
-                    tabIndex={0}
-                    onClick={() => actions.onView(product.id)}
-                  />
-                }
+                render={<Link href={`/admin/products/${product.id}`} />}
               >
                 <Eye className="size-[18px] text-muted-foreground cursor-pointer hover:text-foreground hover:scale-110 transition-all duration-200" />
               </TooltipTrigger>
               <TooltipContent side="top">View product</TooltipContent>
             </Tooltip>
-            {actions.onEdit && (
+            {actions.canEdit && (
               <Tooltip>
                 <TooltipTrigger
-                  render={
-                    <span
-                      role="button"
-                      tabIndex={0}
-                      onClick={() => actions.onEdit!(product.id)}
-                    />
-                  }
+                  render={<Link href={`/admin/products/${product.id}/edit`} />}
                 >
                   <Pencil className="size-[18px] text-muted-foreground cursor-pointer hover:text-foreground hover:scale-110 transition-all duration-200" />
                 </TooltipTrigger>

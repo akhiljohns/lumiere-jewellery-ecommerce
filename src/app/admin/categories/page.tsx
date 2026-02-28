@@ -1,23 +1,24 @@
 "use client";
 
 import { useCallback, useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { Plus, Search } from "lucide-react";
+import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
-import { Button } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { DataTable } from "@/components/data-table";
 import { ConfirmDialog } from "@/components/confirm-dialog";
 import { PermissionGuard } from "@/components/permission-guard";
 import { useGetCategories } from "@/features/categories/api/get-categories";
 import { useDeleteCategory } from "@/features/categories/api/delete-category";
+import { getCategoryQueryOptions } from "@/features/categories/api/get-category";
 import { getCategoryColumns } from "@/features/categories/components/category-columns";
 import { usePermissions } from "@/hooks/use-permissions";
 import type { Category } from "@/lib/supabase/types";
 
 export default function CategoriesPage() {
-  const router = useRouter();
   const [page, setPage] = useState(1);
   const [search, setSearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
@@ -31,6 +32,7 @@ export default function CategoriesPage() {
     order: "asc",
   });
 
+  const queryClient = useQueryClient();
   const deleteCategory = useDeleteCategory();
   const { canEdit, canDelete } = usePermissions();
 
@@ -75,16 +77,14 @@ export default function CategoriesPage() {
   const columns = useMemo(
     () =>
       getCategoryColumns({
-        onView: (id) => router.push(`/admin/categories/${id}`),
-        onEdit: canEdit("category")
-          ? (id) => router.push(`/admin/categories/${id}/edit`)
-          : undefined,
+        canEdit: canEdit("category"),
         onDelete: canDelete("category")
           ? (category) => setDeleteTarget(category)
           : undefined,
         parentNameMap,
+        onPrefetch: (id) => queryClient.prefetchQuery(getCategoryQueryOptions(id)),
       }),
-    [router, canEdit, canDelete, parentNameMap],
+    [canEdit, canDelete, parentNameMap, queryClient],
   );
 
   return (
@@ -99,13 +99,10 @@ export default function CategoriesPage() {
           </p>
         </div>
         <PermissionGuard permission="category.create">
-          <Button
-            size="lg"
-            onClick={() => router.push("/admin/categories/create")}
-          >
+          <Link href="/admin/categories/create" className={buttonVariants({ size: "lg" })}>
             <Plus />
             Add Category
-          </Button>
+          </Link>
         </PermissionGuard>
       </div>
 
