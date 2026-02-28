@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { Gem, ArrowRight, ShieldCheck } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
 
 export default function Home() {
   return (
@@ -21,14 +21,14 @@ export default function Home() {
         </div>
 
         <div className="flex flex-col gap-3 sm:flex-row">
-          <Button size="lg" render={<Link href="/admin" />}>
+          <Link href="/admin" className={buttonVariants({ size: "lg" })}>
             <ShieldCheck className="size-4" />
             Admin Dashboard
-          </Button>
-          <Button variant="outline" size="lg" render={<Link href="/login" />}>
+          </Link>
+          <Link href="/login" className={buttonVariants({ variant: "outline", size: "lg" })}>
             Sign in
             <ArrowRight className="size-4" />
-          </Button>
+          </Link>
         </div>
 
         <p className="text-xs text-muted-foreground">
