@@ -39,38 +39,38 @@
                     "priority": "P0",
                     "impact": "high",
                     "effort": "medium",
-                    "status": "not_started",
+                    "status": "done",
                     "description": "Currently category is a free-text string on products, causing inconsistent naming. Create a proper categories table with hierarchy support and full CRUD API.",
                     "subtasks": [
                         {
                             "id": "TASK-A01-A",
                             "title": "Create categories table (id, name, slug, parent_id, image_url, sort_order, is_active, created_at, updated_at)",
-                            "status": "not_started"
+                            "status": "done"
                         },
                         {
                             "id": "TASK-A01-B",
                             "title": "Add RLS policies and indexes for categories table",
-                            "status": "not_started"
+                            "status": "done"
                         },
                         {
                             "id": "TASK-A01-C",
                             "title": "Create category Zod validators (categoryCreateSchema, categoryUpdateSchema)",
-                            "status": "not_started"
+                            "status": "done"
                         },
                         {
                             "id": "TASK-A01-D",
                             "title": "Create category service (CRUD + hierarchy queries)",
-                            "status": "not_started"
+                            "status": "done"
                         },
                         {
                             "id": "TASK-A01-E",
                             "title": "Create category API routes (GET list, GET by id, POST, PATCH, DELETE)",
-                            "status": "not_started"
+                            "status": "done"
                         },
                         {
                             "id": "TASK-A01-F",
                             "title": "Migrate products.category from free-text to category_id FK reference",
-                            "status": "not_started"
+                            "status": "done"
                         }
                     ]
                 },

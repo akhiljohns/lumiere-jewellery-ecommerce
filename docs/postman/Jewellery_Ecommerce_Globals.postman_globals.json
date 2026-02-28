@@ -1,0 +1,79 @@
+{
+  "id": "jewellery-ecommerce-globals",
+  "name": "Jewellery E-Commerce Globals",
+  "values": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:3000",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "admin_email",
+      "value": "admin@jewellery.com",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "admin_password",
+      "value": "CHANGE_ME",
+      "type": "secret",
+      "enabled": true
+    },
+    {
+      "key": "admin_user_id",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "category_id",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "category_slug",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "child_category_id",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "product_id",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "product_id_2",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "user_id",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "role_id",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    },
+    {
+      "key": "super_admin_role_id",
+      "value": "",
+      "type": "default",
+      "enabled": true
+    }
+  ],
+  "_postman_variable_scope": "globals"
+}

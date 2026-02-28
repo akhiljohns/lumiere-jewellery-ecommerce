@@ -9,9 +9,19 @@ npm run dev          # Start dev server (http://localhost:3000)
 npm run build        # Production build (React Compiler enabled)
 npm run lint         # ESLint (next/core-web-vitals + typescript)
 npx tsx src/lib/seed-admin.ts  # Seed initial admin user
+
+# Database (Supabase CLI)
+npm run db:migrate          # Push migrations to remote DB (supabase db push)
+npm run db:migration:new    # Create a new migration file (e.g. npm run db:migration:new add_carts)
+npm run db:migration:list   # List migration status
+npm run db:reset            # Reset DB and re-run all migrations
+npm run db:diff             # Diff local schema against remote
+npm run db:types            # Regenerate TypeScript types from DB schema
 ```
 
 No test framework is configured yet.
+
+**Database Migrations**: Managed via Supabase CLI. Migration files live in `supabase/migrations/` with timestamp prefixes. Link to your remote project first with `npx supabase link --project-ref <ref>`.
 
 ## Architecture
 
@@ -21,7 +31,7 @@ Jewellery e-commerce app built with **Next.js 16 (App Router)** + **TypeScript**
 
 - **`app/api/`** — REST API routes (Next.js Route Handlers)
   - `auth/` — Public: login (JWT cookie), logout, me
-  - `admin/products/` and `admin/users/` — Protected CRUD endpoints
+  - `admin/products/`, `admin/categories/`, and `admin/users/` — Protected CRUD endpoints
   - `upload/image/` — Cloudinary upload/delete proxy
 - **`features/`** — Domain logic organized by feature
   - Each feature has a `services/` folder with Supabase query functions
@@ -35,7 +45,7 @@ Jewellery e-commerce app built with **Next.js 16 (App Router)** + **TypeScript**
 
 **Database access**: Three Supabase clients in `lib/supabase/` — browser (`client.ts`), SSR (`server.ts`), and admin/service-role (`admin.ts`, bypasses RLS). Services use the admin client for CRUD operations.
 
-**Validation**: All API inputs validated with Zod schemas defined in `lib/validators.ts`. Schemas: `loginSchema`, `productCreateSchema`, `productUpdateSchema`, `userCreateSchema`, `userUpdateSchema`, `paginationSchema`.
+**Validation**: All API inputs validated with Zod schemas defined in `lib/validators.ts`. Schemas: `loginSchema`, `productCreateSchema`, `productUpdateSchema`, `categoryCreateSchema`, `categoryUpdateSchema`, `userCreateSchema`, `userUpdateSchema`, `paginationSchema`.
 
 **API response shape**: Paginated list endpoints return `{ data: T[], pagination: { page, limit, total, totalPages } }`. Single-item endpoints return the object directly.
 
@@ -43,12 +53,13 @@ Jewellery e-commerce app built with **Next.js 16 (App Router)** + **TypeScript**
 
 **Passwords**: Hashed with bcryptjs (12 salt rounds). Never exposed in responses — `sanitizeUser()` strips `password_hash`.
 
-**Slugs**: Auto-generated from product name via `slugify()`. Collisions appended with timestamp.
+**Slugs**: Auto-generated from product/category name via `slugify()`. Collisions appended with timestamp.
 
 ### Database Tables (Supabase/PostgreSQL)
 
 - **users** — email (unique), password_hash, full_name, phone, avatar_url, role (admin|customer), is_active
-- **products** — name, slug (unique), description, price, compare_price, category, material, weight, stock, is_active
+- **categories** — name, slug (unique), parent_id (self-FK, SET NULL), image_url, sort_order, is_active
+- **products** — name, slug (unique), description, price, compare_price, category_id (FK→categories, SET NULL), material, weight, stock, is_active
 - **product_images** — product_id (FK, cascade), url, public_id, is_primary, sort_order
 
 ### Path Alias

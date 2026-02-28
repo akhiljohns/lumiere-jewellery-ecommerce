@@ -1,0 +1,1893 @@
+{
+  "info": {
+    "name": "Jewellery E-Commerce API",
+    "description": "Complete API test suite for the Jewellery E-Commerce admin panel.\n\n## Execution Order\n\nRun folders in this order:\n1. **Auth** — Login to get session cookie\n2. **Categories** — CRUD (creates parent + child)\n3. **Products** — CRUD (uses category from step 2)\n4. **Users** — CRUD\n5. **Roles** — CRUD\n6. **Auth (Logout)** — End session\n\n## Global Variables\n\n| Variable | Description |\n|----------|-------------|\n| `base_url` | API base URL (default: `http://localhost:3000`) |\n| `admin_email` | Admin login email |\n| `admin_password` | Admin login password |\n| `category_id` | Auto-set after category creation |\n| `child_category_id` | Auto-set after child category creation |\n| `product_id` | Auto-set after product creation |\n| `user_id` | Auto-set after user creation |\n| `role_id` | Auto-set after role creation |",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [],
+  "event": [],
+  "item": [
+    {
+      "name": "1. Auth",
+      "description": "Authentication flow. Run Login first to set the session cookie for all subsequent requests.",
+      "item": [
+        {
+          "name": "1.1 Login (Admin)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Response has user data', function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json.data).to.have.property('user');",
+                  "    pm.expect(json.data.user).to.have.property('id');",
+                  "    pm.expect(json.data.user).to.have.property('email');",
+                  "    pm.expect(json.data.user).to.have.property('role');",
+                  "    pm.expect(json.data).to.have.property('permissions');",
+                  "    pm.expect(json.message).to.eql('Login successful');",
+                  "});",
+                  "",
+                  "pm.test('Response has admin-token cookie', function () {",
+                  "    const cookie = pm.cookies.get('admin-token');",
+                  "    pm.expect(cookie).to.not.be.undefined;",
+                  "});",
+                  "",
+                  "// Save user id for later use",
+                  "const json = pm.response.json();",
+                  "if (json.data && json.data.user) {",
+                  "    pm.globals.set('admin_user_id', json.data.user.id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"{{admin_email}}\",\n  \"password\": \"{{admin_password}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/login",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "login"]
+            },
+            "description": "Authenticates with admin credentials. Sets `admin-token` HTTP-only cookie that all subsequent `/api/admin/*` requests use automatically."
+          }
+        },
+        {
+          "name": "1.2 Login — Invalid Credentials",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 401', function () {",
+                  "    pm.response.to.have.status(401);",
+                  "});",
+                  "",
+                  "pm.test('Returns error message', function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json).to.have.property('error');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"wrong@example.com\",\n  \"password\": \"wrongpassword\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/login",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "login"]
+            },
+            "description": "Verifies that invalid credentials return 401."
+          }
+        },
+        {
+          "name": "1.3 Login — Validation Error",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 400', function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});",
+                  "",
+                  "pm.test('Returns validation details', function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json).to.have.property('error');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"not-an-email\",\n  \"password\": \"12\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/login",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "login"]
+            },
+            "description": "Verifies Zod validation rejects invalid email format and short password."
+          }
+        },
+        {
+          "name": "1.4 Get Current User (Me)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Returns user and permissions', function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json.data).to.have.property('user');",
+                  "    pm.expect(json.data).to.have.property('permissions');",
+                  "    pm.expect(json.data.user.email).to.eql(pm.globals.get('admin_email'));",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/auth/me",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "me"]
+            },
+            "description": "Fetches the currently authenticated user profile and permissions. Relies on the `admin-token` cookie set during login."
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Categories",
+      "description": "Category CRUD operations. Creates a parent category, then a child category to test hierarchy. Updates, reads, and deletes.",
+      "item": [
+        {
+          "name": "2.1 Create Parent Category",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 201', function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "pm.test('Category created with correct fields', function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json.data).to.have.property('id');",
+                  "    pm.expect(json.data).to.have.property('slug');",
+                  "    pm.expect(json.data.name).to.eql('Rings');",
+                  "    pm.expect(json.data.is_active).to.be.true;",
+                  "    pm.expect(json.data.parent_id).to.be.null;",
+                  "    pm.expect(json.message).to.eql('Category created successfully');",
+                  "});",
+                  "",
+                  "// Save category ID",
+                  "const json = pm.response.json();",
+                  "if (json.data) {",
+                  "    pm.globals.set('category_id', json.data.id);",
+                  "    pm.globals.set('category_slug', json.data.slug);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Rings\",\n  \"sort_order\": 1,\n  \"is_active\": true\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/admin/categories",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "categories"]
+            },
+            "description": "Creates a top-level parent category. Saves `category_id` for subsequent requests."
+          }
+        },
+        {
+          "name": "2.2 Create Child Category",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 201', function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "pm.test('Child category linked to parent', function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json.data.parent_id).to.eql(pm.globals.get('category_id'));",
+                  "    pm.expect(json.data.name).to.eql('Engagement Rings');",
+                  "});",
+                  "",
+                  "const json = pm.response.json();",
+                  "if (json.data) {",
+                  "    pm.globals.set('child_category_id', json.data.id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Engagement Rings\",\n  \"parent_id\": \"{{category_id}}\",\n  \"sort_order\": 1,\n  \"is_active\": true\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/admin/categories",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "categories"]
+            },
+            "description": "Creates a child category under the parent created in 2.1. Tests the hierarchy feature."
+          }
+        },
+        {
+          "name": "2.3 Create Category — Validation Error",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 400', function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});",
+                  "",
+                  "pm.test('Returns validation error', function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json).to.have.property('error');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"\",\n  \"image_url\": \"not-a-url\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/admin/categories",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "categories"]
+            },
+            "description": "Sends empty name and invalid image_url to test validation."
+          }
+        },
+        {
+          "name": "2.4 List Categories",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Returns paginated data', function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json).to.have.property('data');",
+                  "    pm.expect(json).to.have.property('pagination');",
+                  "    pm.expect(json.data).to.be.an('array');",
+                  "    pm.expect(json.pagination).to.have.property('page');",
+                  "    pm.expect(json.pagination).to.have.property('limit');",
+                  "    pm.expect(json.pagination).to.have.property('total');",
+                  "    pm.expect(json.pagination).to.have.property('totalPages');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/admin/categories?page=1&limit=10&sort=sort_order&order=asc",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "categories"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "10" },
+                { "key": "sort", "value": "sort_order" },
+                { "key": "order", "value": "asc" }
+              ]
+            },
+            "description": "Lists all categories with pagination."
+          }
+        },
+        {
+          "name": "2.5 List Categories — Search",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Search results contain matching name', function () {",
+                  "    const json = pm.response.json();",
+                  "    if (json.data.length > 0) {",
+                  "        pm.expect(json.data[0].name.toLowerCase()).to.include('ring');",
+                  "    }",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/admin/categories?search=Ring",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "categories"],
+              "query": [
+                { "key": "search", "value": "Ring" }
+              ]
+            },
+            "description": "Tests name search filtering."
+          }
+        },
+        {
+          "name": "2.6 List Categories — Filter by Parent",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('All results have correct parent_id', function () {",
+                  "    const json = pm.response.json();",
+                  "    const parentId = pm.globals.get('category_id');",
+                  "    json.data.forEach(function (cat) {",
+                  "        pm.expect(cat.parent_id).to.eql(parentId);",
+                  "    });",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/admin/categories?parent_id={{category_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "categories"],
+              "query": [
+                { "key": "parent_id", "value": "{{category_id}}" }
+              ]
+            },
+            "description": "Filters categories by parent_id to list only children of the parent category."
+          }
+        },
+        {
+          "name": "2.7 Get Category by ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Returns correct category', function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json.data.id).to.eql(pm.globals.get('category_id'));",
+                  "    pm.expect(json.data).to.have.property('name');",
+                  "    pm.expect(json.data).to.have.property('slug');",
+                  "    pm.expect(json.data).to.have.property('sort_order');",
+                  "    pm.expect(json.data).to.have.property('is_active');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/admin/categories/{{category_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "categories", "{{category_id}}"]
+            },
+            "description": "Fetches a single category by ID."
+          }
+        },
+        {
+          "name": "2.8 Get Category — Not Found",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 404', function () {",
+                  "    pm.response.to.have.status(404);",
+                  "});",
+                  "",
+                  "pm.test('Returns not found error', function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json).to.have.property('error');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/admin/categories/00000000-0000-0000-0000-000000000000",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "categories", "00000000-0000-0000-0000-000000000000"]
+            },
+            "description": "Tests 404 response for a non-existent category UUID."
+          }
+        },
+        {
+          "name": "2.9 Update Category",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Category updated correctly', function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json.data.name).to.eql('Gold Rings');",
+                  "    pm.expect(json.data.sort_order).to.eql(2);",
+                  "    pm.expect(json.message).to.eql('Category updated successfully');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Gold Rings\",\n  \"sort_order\": 2\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/admin/categories/{{category_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "categories", "{{category_id}}"]
+            },
+            "description": "Partially updates the parent category name and sort order."
+          }
+        },
+        {
+          "name": "2.10 Update Category — Deactivate",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Category deactivated', function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json.data.is_active).to.be.false;",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"is_active\": false\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/admin/categories/{{child_category_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "categories", "{{child_category_id}}"]
+            },
+            "description": "Deactivates the child category to test status toggle."
+          }
+        },
+        {
+          "name": "2.11 List Categories — Active Only",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('All results are active', function () {",
+                  "    const json = pm.response.json();",
+                  "    json.data.forEach(function (cat) {",
+                  "        pm.expect(cat.is_active).to.be.true;",
+                  "    });",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/admin/categories?active_only=true",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "categories"],
+              "query": [
+                { "key": "active_only", "value": "true" }
+              ]
+            },
+            "description": "Filters to only active categories. The deactivated child should not appear."
+          }
+        },
+        {
+          "name": "2.12 Re-activate Child Category",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Category re-activated', function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json.data.is_active).to.be.true;",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"is_active\": true\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/admin/categories/{{child_category_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "categories", "{{child_category_id}}"]
+            },
+            "description": "Re-activates the child category."
+          }
+        },
+        {
+          "name": "2.13 Delete Child Category",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Delete confirmation message', function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json.message).to.eql('Category deleted successfully');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/admin/categories/{{child_category_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "categories", "{{child_category_id}}"]
+            },
+            "description": "Deletes the child category. Parent remains intact."
+          }
+        },
+        {
+          "name": "2.14 Delete Category — Not Found",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 404', function () {",
+                  "    pm.response.to.have.status(404);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/admin/categories/00000000-0000-0000-0000-000000000000",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "categories", "00000000-0000-0000-0000-000000000000"]
+            },
+            "description": "Tests 404 when deleting a non-existent category."
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. Products",
+      "description": "Product CRUD operations. Uses the parent category created in step 2.",
+      "item": [
+        {
+          "name": "3.1 Create Product",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 201', function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "pm.test('Product created with correct fields', function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json.data).to.have.property('id');",
+                  "    pm.expect(json.data).to.have.property('slug');",
+                  "    pm.expect(json.data.name).to.eql('Diamond Solitaire Ring');",
+                  "    pm.expect(json.data.price).to.eql(45000);",
+                  "    pm.expect(json.data.stock).to.eql(10);",
+                  "    pm.expect(json.data.is_active).to.be.true;",
+                  "    pm.expect(json.data.category_id).to.eql(pm.globals.get('category_id'));",
+                  "    pm.expect(json.message).to.eql('Product created successfully');",
+                  "});",
+                  "",
+                  "const json = pm.response.json();",
+                  "if (json.data) {",
+                  "    pm.globals.set('product_id', json.data.id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Diamond Solitaire Ring\",\n  \"description\": \"A stunning 1-carat diamond solitaire ring set in 18k white gold.\",\n  \"price\": 45000,\n  \"compare_price\": 55000,\n  \"category_id\": \"{{category_id}}\",\n  \"material\": \"18k White Gold\",\n  \"weight\": \"3.5g\",\n  \"stock\": 10,\n  \"is_active\": true\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/admin/products",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "products"]
+            },
+            "description": "Creates a product linked to the category from step 2. Saves `product_id`."
+          }
+        },
+        {
+          "name": "3.2 Create Product — Minimal Fields",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 201', function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "pm.test('Product created with defaults', function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json.data.name).to.eql('Simple Silver Band');",
+                  "    pm.expect(json.data.stock).to.eql(0);",
+                  "    pm.expect(json.data.is_active).to.be.true;",
+                  "});",
+                  "",
+                  "const json = pm.response.json();",
+                  "if (json.data) {",
+                  "    pm.globals.set('product_id_2', json.data.id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Simple Silver Band\",\n  \"price\": 2500\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/admin/products",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "products"]
+            },
+            "description": "Creates a product with only required fields (name, price). All other fields use defaults."
+          }
+        },
+        {
+          "name": "3.3 Create Product — Validation Error",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 400', function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});",
+                  "",
+                  "pm.test('Returns validation error', function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json).to.have.property('error');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"\",\n  \"price\": -100,\n  \"stock\": -5\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/admin/products",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "products"]
+            },
+            "description": "Tests validation: empty name, negative price, negative stock."
+          }
+        },
+        {
+          "name": "3.4 List Products",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Returns paginated products', function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json).to.have.property('data');",
+                  "    pm.expect(json).to.have.property('pagination');",
+                  "    pm.expect(json.data).to.be.an('array');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/admin/products?page=1&limit=10&sort=created_at&order=desc",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "products"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "10" },
+                { "key": "sort", "value": "created_at" },
+                { "key": "order", "value": "desc" }
+              ]
+            },
+            "description": "Lists all products with pagination, sorted by newest first."
+          }
+        },
+        {
+          "name": "3.5 List Products — Search",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Search results match', function () {",
+                  "    const json = pm.response.json();",
+                  "    if (json.data.length > 0) {",
+                  "        pm.expect(json.data[0].name.toLowerCase()).to.include('diamond');",
+                  "    }",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/admin/products?search=Diamond",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "products"],
+              "query": [
+                { "key": "search", "value": "Diamond" }
+              ]
+            },
+            "description": "Tests product name/description search."
+          }
+        },
+        {
+          "name": "3.6 List Products — Filter by Category",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('All results in correct category', function () {",
+                  "    const json = pm.response.json();",
+                  "    const catId = pm.globals.get('category_id');",
+                  "    json.data.forEach(function (prod) {",
+                  "        pm.expect(prod.category_id).to.eql(catId);",
+                  "    });",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/admin/products?category_id={{category_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "products"],
+              "query": [
+                { "key": "category_id", "value": "{{category_id}}" }
+              ]
+            },
+            "description": "Filters products by category_id."
+          }
+        },
+        {
+          "name": "3.7 Get Product by ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Returns correct product with images', function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json.data.id).to.eql(pm.globals.get('product_id'));",
+                  "    pm.expect(json.data).to.have.property('product_images');",
+                  "    pm.expect(json.data).to.have.property('categories');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/admin/products/{{product_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "products", "{{product_id}}"]
+            },
+            "description": "Fetches a single product by ID with images and category."
+          }
+        },
+        {
+          "name": "3.8 Update Product",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Product updated correctly', function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json.data.price).to.eql(42000);",
+                  "    pm.expect(json.data.stock).to.eql(15);",
+                  "    pm.expect(json.message).to.eql('Product updated successfully');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"price\": 42000,\n  \"stock\": 15,\n  \"description\": \"A stunning 1-carat diamond solitaire ring. Now on sale!\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/admin/products/{{product_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "products", "{{product_id}}"]
+            },
+            "description": "Updates price, stock, and description."
+          }
+        },
+        {
+          "name": "3.9 Update Product — Deactivate",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Product deactivated', function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json.data.is_active).to.be.false;",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"is_active\": false\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/admin/products/{{product_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "products", "{{product_id}}"]
+            },
+            "description": "Deactivates a product (mark as draft)."
+          }
+        },
+        {
+          "name": "3.10 Delete Product (secondary)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Delete confirmation', function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json.message).to.eql('Product deleted successfully');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/admin/products/{{product_id_2}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "products", "{{product_id_2}}"]
+            },
+            "description": "Deletes the minimal product created in 3.2. Cascade-deletes its images."
+          }
+        },
+        {
+          "name": "3.11 Delete Product — Not Found",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 404', function () {",
+                  "    pm.response.to.have.status(404);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/admin/products/00000000-0000-0000-0000-000000000000",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "products", "00000000-0000-0000-0000-000000000000"]
+            },
+            "description": "Tests 404 when deleting non-existent product."
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. Users",
+      "description": "User CRUD operations. Creates a test user, updates, views, and deletes.",
+      "item": [
+        {
+          "name": "4.1 Create User",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 201', function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "pm.test('User created correctly', function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json.data).to.have.property('id');",
+                  "    pm.expect(json.data.email).to.eql('testuser@jewellery.com');",
+                  "    pm.expect(json.data.role).to.eql('customer');",
+                  "    pm.expect(json.data.is_active).to.be.true;",
+                  "    pm.expect(json.data).to.not.have.property('password_hash');",
+                  "    pm.expect(json.message).to.eql('User created successfully');",
+                  "});",
+                  "",
+                  "const json = pm.response.json();",
+                  "if (json.data) {",
+                  "    pm.globals.set('user_id', json.data.id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"testuser@jewellery.com\",\n  \"password\": \"Test@123\",\n  \"full_name\": \"Test User\",\n  \"phone\": \"+91-9876543210\",\n  \"role\": \"customer\",\n  \"is_active\": true\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/admin/users",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "users"]
+            },
+            "description": "Creates a new customer user. Saves `user_id`. Password is auto-hashed server-side."
+          }
+        },
+        {
+          "name": "4.2 Create User — Duplicate Email",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 400 or 409', function () {",
+                  "    pm.expect(pm.response.code).to.be.oneOf([400, 409]);",
+                  "});",
+                  "",
+                  "pm.test('Returns error about duplicate', function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json).to.have.property('error');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"testuser@jewellery.com\",\n  \"password\": \"Test@123\",\n  \"full_name\": \"Duplicate User\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/admin/users",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "users"]
+            },
+            "description": "Attempts to create a user with an email that already exists."
+          }
+        },
+        {
+          "name": "4.3 Create User — Validation Error",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 400', function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});",
+                  "",
+                  "pm.test('Returns validation error', function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json).to.have.property('error');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"not-an-email\",\n  \"password\": \"12\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/admin/users",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "users"]
+            },
+            "description": "Tests validation: invalid email and short password."
+          }
+        },
+        {
+          "name": "4.4 List Users",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Returns paginated users', function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json).to.have.property('data');",
+                  "    pm.expect(json).to.have.property('pagination');",
+                  "    pm.expect(json.data).to.be.an('array');",
+                  "    // Ensure password_hash is never exposed",
+                  "    json.data.forEach(function (user) {",
+                  "        pm.expect(user).to.not.have.property('password_hash');",
+                  "    });",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/admin/users?page=1&limit=10&sort=created_at&order=desc",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "users"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "10" },
+                { "key": "sort", "value": "created_at" },
+                { "key": "order", "value": "desc" }
+              ]
+            },
+            "description": "Lists all users. Verifies password_hash is never exposed."
+          }
+        },
+        {
+          "name": "4.5 List Users — Search",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Search results match', function () {",
+                  "    const json = pm.response.json();",
+                  "    if (json.data.length > 0) {",
+                  "        const match = json.data.some(u => u.email.includes('testuser') || (u.full_name && u.full_name.toLowerCase().includes('test')));",
+                  "        pm.expect(match).to.be.true;",
+                  "    }",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/admin/users?search=testuser",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "users"],
+              "query": [
+                { "key": "search", "value": "testuser" }
+              ]
+            },
+            "description": "Tests user search by email/name."
+          }
+        },
+        {
+          "name": "4.6 Get User by ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Returns correct user', function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json.data.id).to.eql(pm.globals.get('user_id'));",
+                  "    pm.expect(json.data).to.not.have.property('password_hash');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/admin/users/{{user_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "users", "{{user_id}}"]
+            },
+            "description": "Fetches the test user by ID."
+          }
+        },
+        {
+          "name": "4.7 Update User",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('User updated correctly', function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json.data.full_name).to.eql('Updated Test User');",
+                  "    pm.expect(json.data.phone).to.eql('+91-1234567890');",
+                  "    pm.expect(json.message).to.eql('User updated successfully');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"full_name\": \"Updated Test User\",\n  \"phone\": \"+91-1234567890\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/admin/users/{{user_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "users", "{{user_id}}"]
+            },
+            "description": "Updates the test user's name and phone."
+          }
+        },
+        {
+          "name": "4.8 Update User — Deactivate",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('User deactivated', function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json.data.is_active).to.be.false;",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"is_active\": false\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/admin/users/{{user_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "users", "{{user_id}}"]
+            },
+            "description": "Deactivates the test user."
+          }
+        },
+        {
+          "name": "4.9 Delete User — Self-delete Prevention",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 400', function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});",
+                  "",
+                  "pm.test('Self-delete prevented', function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json.error).to.include('cannot delete your own');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/admin/users/{{admin_user_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "users", "{{admin_user_id}}"]
+            },
+            "description": "Attempts to delete the currently logged-in admin user. Should be blocked."
+          }
+        },
+        {
+          "name": "4.10 Delete User",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Delete confirmation', function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json.message).to.eql('User deleted successfully');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/admin/users/{{user_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "users", "{{user_id}}"]
+            },
+            "description": "Deletes the test user."
+          }
+        }
+      ]
+    },
+    {
+      "name": "5. Roles",
+      "description": "Role CRUD operations. Creates a custom role, updates permissions, and deletes it.",
+      "item": [
+        {
+          "name": "5.1 List Roles",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Returns roles array', function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json).to.have.property('data');",
+                  "    pm.expect(json.data).to.be.an('array');",
+                  "    pm.expect(json.data.length).to.be.greaterThan(0);",
+                  "});",
+                  "",
+                  "pm.test('System roles exist', function () {",
+                  "    const json = pm.response.json();",
+                  "    const names = json.data.map(r => r.name);",
+                  "    pm.expect(names).to.include('super_admin');",
+                  "    pm.expect(names).to.include('admin');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/admin/roles",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "roles"]
+            },
+            "description": "Lists all roles with their permissions."
+          }
+        },
+        {
+          "name": "5.2 Create Custom Role",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 201', function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "pm.test('Role created correctly', function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json.data).to.have.property('id');",
+                  "    pm.expect(json.data.name).to.eql('content_editor');",
+                  "    pm.expect(json.data.is_system).to.be.false;",
+                  "    pm.expect(json.message).to.eql('Role created successfully');",
+                  "});",
+                  "",
+                  "const json = pm.response.json();",
+                  "if (json.data) {",
+                  "    pm.globals.set('role_id', json.data.id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"content_editor\",\n  \"description\": \"Can manage products and categories but not users\",\n  \"permissions\": [\n    \"product.view\",\n    \"product.create\",\n    \"product.edit\",\n    \"category.view\",\n    \"category.create\",\n    \"category.edit\",\n    \"dashboard.view\"\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/admin/roles",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "roles"]
+            },
+            "description": "Creates a custom 'content_editor' role with product and category permissions. Saves `role_id`."
+          }
+        },
+        {
+          "name": "5.3 Get Role by ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Returns correct role', function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json.data.id).to.eql(pm.globals.get('role_id'));",
+                  "    pm.expect(json.data.name).to.eql('content_editor');",
+                  "    pm.expect(json.data.permissions).to.be.an('array');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/admin/roles/{{role_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "roles", "{{role_id}}"]
+            },
+            "description": "Fetches the custom role by ID."
+          }
+        },
+        {
+          "name": "5.4 Update Role — Add Permissions",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Role updated with new permissions', function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json.data.description).to.eql('Content editor with delete access');",
+                  "    pm.expect(json.message).to.eql('Role updated successfully');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"description\": \"Content editor with delete access\",\n  \"permissions\": [\n    \"product.view\",\n    \"product.create\",\n    \"product.edit\",\n    \"product.delete\",\n    \"category.view\",\n    \"category.create\",\n    \"category.edit\",\n    \"category.delete\",\n    \"dashboard.view\"\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/admin/roles/{{role_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "roles", "{{role_id}}"]
+            },
+            "description": "Updates the custom role to add delete permissions."
+          }
+        },
+        {
+          "name": "5.5 Update Role — Locked super_admin",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 403', function () {",
+                  "    pm.response.to.have.status(403);",
+                  "});",
+                  "",
+                  "pm.test('super_admin modification blocked', function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json.error).to.include('locked');",
+                  "});"
+                ]
+              }
+            },
+            {
+              "listen": "prerequest",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// First get the super_admin role ID",
+                  "pm.sendRequest({",
+                  "    url: pm.globals.get('base_url') + '/api/admin/roles',",
+                  "    method: 'GET'",
+                  "}, function (err, res) {",
+                  "    if (!err && res) {",
+                  "        const json = res.json();",
+                  "        const superAdmin = json.data.find(r => r.name === 'super_admin');",
+                  "        if (superAdmin) {",
+                  "            pm.globals.set('super_admin_role_id', superAdmin.id);",
+                  "        }",
+                  "    }",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"description\": \"Hacked description\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/admin/roles/{{super_admin_role_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "roles", "{{super_admin_role_id}}"]
+            },
+            "description": "Attempts to modify the locked super_admin role. Should return 403."
+          }
+        },
+        {
+          "name": "5.6 Delete Custom Role",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Delete confirmation', function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json.message).to.eql('Role deleted successfully');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/admin/roles/{{role_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "roles", "{{role_id}}"]
+            },
+            "description": "Deletes the custom content_editor role."
+          }
+        },
+        {
+          "name": "5.7 Delete Role — System Role Blocked",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 400', function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});",
+                  "",
+                  "pm.test('System role deletion blocked', function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json).to.have.property('error');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/admin/roles/{{super_admin_role_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "roles", "{{super_admin_role_id}}"]
+            },
+            "description": "Attempts to delete the system super_admin role. Should be blocked."
+          }
+        }
+      ]
+    },
+    {
+      "name": "6. Cleanup & Logout",
+      "description": "Cleans up test data and ends the session.",
+      "item": [
+        {
+          "name": "6.1 Delete Test Product",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/admin/products/{{product_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "products", "{{product_id}}"]
+            },
+            "description": "Cleans up the main test product."
+          }
+        },
+        {
+          "name": "6.2 Delete Test Category",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/admin/categories/{{category_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "categories", "{{category_id}}"]
+            },
+            "description": "Cleans up the parent test category."
+          }
+        },
+        {
+          "name": "6.3 Logout",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Logout successful', function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json.message).to.eql('Logged out successfully');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/auth/logout",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "logout"]
+            },
+            "description": "Ends the session. Clears the admin-token cookie."
+          }
+        },
+        {
+          "name": "6.4 Verify Logged Out (Me)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 401', function () {",
+                  "    pm.response.to.have.status(401);",
+                  "});",
+                  "",
+                  "pm.test('Returns auth error', function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json).to.have.property('error');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/auth/me",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "me"]
+            },
+            "description": "Confirms the session is invalidated after logout."
+          }
+        }
+      ]
+    }
+  ]
+}
