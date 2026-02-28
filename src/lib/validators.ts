@@ -140,3 +140,37 @@ export const productQuerySchema = paginationSchema.extend({
 export type PaginationInput = z.infer<typeof paginationSchema>;
 export type CategoryQueryInput = z.infer<typeof categoryQuerySchema>;
 export type ProductQueryInput = z.infer<typeof productQuerySchema>;
+
+// ── Cart ────────────────────────────────────────
+
+export const addToCartSchema = z.object({
+  product_id: z.string().uuid("Invalid product ID"),
+  quantity: z.number().int().min(1, "Quantity must be at least 1"),
+});
+
+export const updateCartItemSchema = z.object({
+  quantity: z.number().int().min(1, "Quantity must be at least 1"),
+});
+
+const cartSyncItemSchema = z.object({
+  product_id: z.string().uuid("Invalid product ID"),
+  quantity: z.number().int().min(1, "Quantity must be at least 1"),
+});
+
+export const cartSyncSchema = z.object({
+  items: z.array(cartSyncItemSchema),
+});
+
+export const guestCheckoutSignupSchema = z.object({
+  email: z.string().email("Invalid email address"),
+  full_name: z.string().optional().nullable(),
+  phone: z.string().optional().nullable(),
+  items: z.array(cartSyncItemSchema),
+});
+
+export type AddToCartInput = z.infer<typeof addToCartSchema>;
+export type UpdateCartItemInput = z.infer<typeof updateCartItemSchema>;
+export type CartSyncInput = z.infer<typeof cartSyncSchema>;
+export type GuestCheckoutSignupInput = z.infer<
+  typeof guestCheckoutSignupSchema
+>;
