@@ -348,23 +348,23 @@
                     "priority": "P2",
                     "impact": "medium",
                     "effort": "low",
-                    "status": "not_started",
+                    "status": "done",
                     "description": "Server-side API to auto-generate product descriptions, SEO meta, and image alt text using an LLM.",
                     "subtasks": [
                         {
                             "id": "TASK-A10-A",
                             "title": "Create AI service wrapper for OpenAI/Gemini API (src/lib/ai.ts)",
-                            "status": "not_started"
+                            "status": "done"
                         },
                         {
                             "id": "TASK-A10-B",
                             "title": "Create POST /api/admin/ai/generate-description endpoint (input: name, category, material → output: description, meta_description, tags)",
-                            "status": "not_started"
+                            "status": "done"
                         },
                         {
                             "id": "TASK-A10-C",
                             "title": "Create POST /api/admin/ai/generate-alt-text endpoint (input: image_url → output: alt text)",
-                            "status": "not_started"
+                            "status": "done"
                         }
                     ]
                 },

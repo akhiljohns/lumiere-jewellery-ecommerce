@@ -304,3 +304,20 @@ export const adminSearchQuerySchema = z.object({
 export type PublicProductQueryInput = z.infer<typeof publicProductQuerySchema>;
 export type SearchQueryInput = z.infer<typeof searchQuerySchema>;
 export type AdminSearchQueryInput = z.infer<typeof adminSearchQuerySchema>;
+
+// ── AI Generation ─────────────────────────────────
+
+export const aiGenerateDescriptionSchema = z.object({
+  name: z.string().min(1, "Product name is required").max(200),
+  category: z.string().optional().nullable(),
+  material: z.string().optional().nullable(),
+  price: z.number().positive().optional().nullable(),
+  weight: z.string().optional().nullable(),
+});
+
+export const aiGenerateAltTextSchema = z.object({
+  image_url: z.string().url("Invalid image URL"),
+});
+
+export type AIGenerateDescriptionInput = z.infer<typeof aiGenerateDescriptionSchema>;
+export type AIGenerateAltTextInput = z.infer<typeof aiGenerateAltTextSchema>;

@@ -1,0 +1,165 @@
+{
+  "info": {
+    "name": "AI Generation API",
+    "description": "AI-powered product description and image alt text generation endpoints.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "17. AI Generation",
+      "item": [
+        {
+          "name": "17.1 Generate Product Description",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Cookie", "value": "admin-token={{admin_token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"22K Gold Temple Necklace\",\n  \"category\": \"Necklaces\",\n  \"material\": \"22K Gold\",\n  \"price\": 125000,\n  \"weight\": \"45g\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/admin/ai/generate-description",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "ai", "generate-description"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "const json = pm.response.json();",
+                  "pm.test('Has description', () => pm.expect(json.data.description).to.be.a('string'));",
+                  "pm.test('Has meta_description', () => pm.expect(json.data.meta_description).to.be.a('string'));",
+                  "pm.test('Has tags array', () => pm.expect(json.data.tags).to.be.an('array'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "17.2 Generate Description — Minimal Input",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Cookie", "value": "admin-token={{admin_token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Diamond Stud Earrings\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/admin/ai/generate-description",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "ai", "generate-description"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "17.3 Generate Description — Missing Name (400)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Cookie", "value": "admin-token={{admin_token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"category\": \"Rings\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/admin/ai/generate-description",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "ai", "generate-description"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 400', () => pm.response.to.have.status(400));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "17.4 Generate Image Alt Text",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Cookie", "value": "admin-token={{admin_token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"image_url\": \"https://res.cloudinary.com/demo/image/upload/sample.jpg\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/admin/ai/generate-alt-text",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "ai", "generate-alt-text"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "const json = pm.response.json();",
+                  "pm.test('Has alt_text', () => pm.expect(json.data.alt_text).to.be.a('string'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "17.5 Generate Alt Text — Invalid URL (400)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Cookie", "value": "admin-token={{admin_token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"image_url\": \"not-a-url\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/admin/ai/generate-alt-text",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "ai", "generate-alt-text"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 400', () => pm.response.to.have.status(400));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
