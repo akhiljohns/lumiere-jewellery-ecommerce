@@ -64,15 +64,15 @@ export function ProductCard({ product, onQuickView }: ProductCardProps) {
           )}
         </div>
 
-        <div className="space-y-1 p-3">
-          <h3 className="truncate text-sm font-medium text-foreground">
-            {product.name}
-          </h3>
-          {product.categories && (
-            <p className="text-xs text-muted-foreground">
-              {product.categories.name}
+        <div className="flex h-24 flex-col justify-between p-3">
+          <div>
+            <h3 className="truncate text-sm font-medium text-foreground">
+              {product.name}
+            </h3>
+            <p className="truncate text-xs text-muted-foreground">
+              {product.categories?.name ?? "\u00A0"}
             </p>
-          )}
+          </div>
           <PriceDisplay
             price={product.price}
             comparePrice={product.compare_price}
