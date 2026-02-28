@@ -44,7 +44,7 @@ export function AppSidebar({
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton size="lg" render={<Link href="/admin" />}>
+            <SidebarMenuButton size="lg" render={<Link href="/admin/dashboard" />}>
               <div className="flex size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
                 <Gem className="size-4" />
               </div>
@@ -64,10 +64,7 @@ export function AppSidebar({
           <SidebarGroupContent>
             <SidebarMenu>
               {visibleItems.map((item, index) => {
-                const isActive =
-                  item.href === "/admin"
-                    ? pathname === "/admin"
-                    : pathname.startsWith(item.href);
+                const isActive = pathname.startsWith(item.href);
 
                 return (
                   <SidebarMenuItem key={item.href} className="cursor-pointer">

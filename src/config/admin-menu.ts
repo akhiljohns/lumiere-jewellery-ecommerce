@@ -10,7 +10,7 @@ export interface AdminMenuItem {
 export const adminMenuItems: AdminMenuItem[] = [
   {
     title: "Dashboard",
-    href: "/admin",
+    href: "/admin/dashboard",
     icon: LayoutDashboard,
     permission: "dashboard.view",
   },

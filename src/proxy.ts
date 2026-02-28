@@ -91,7 +91,7 @@ export async function proxy(request: NextRequest) {
   if (pathname === "/login" && token) {
     const payload = await verifyToken(token);
     if (payload && payload.role !== "customer") {
-      return NextResponse.redirect(new URL("/admin", request.url));
+      return NextResponse.redirect(new URL("/admin/dashboard", request.url));
     }
   }
 
