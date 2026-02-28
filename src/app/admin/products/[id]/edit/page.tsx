@@ -6,7 +6,7 @@ import { toast } from "sonner";
 import { usePermissions } from "@/hooks/use-permissions";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { PageLoader } from "@/components/page-loader";
+import { FormSkeleton } from "@/components/page-loader";
 import { PageHeader } from "@/components/page-header";
 import { ErrorState } from "@/components/error-state";
 import { useGetProduct } from "@/features/products/api/get-product";
@@ -27,7 +27,7 @@ export default function EditProductPage() {
     }
   }, [canEdit, router]);
 
-  if (isLoading) return <PageLoader message="Loading product..." />;
+  if (isLoading) return <FormSkeleton fields={8} />;
 
   if (isError) {
     return (

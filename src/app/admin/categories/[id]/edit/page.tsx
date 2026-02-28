@@ -6,7 +6,7 @@ import { toast } from "sonner";
 import { usePermissions } from "@/hooks/use-permissions";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { PageLoader } from "@/components/page-loader";
+import { FormSkeleton } from "@/components/page-loader";
 import { PageHeader } from "@/components/page-header";
 import { ErrorState } from "@/components/error-state";
 import { useGetCategory } from "@/features/categories/api/get-category";
@@ -27,7 +27,7 @@ export default function EditCategoryPage() {
     }
   }, [canEdit, router]);
 
-  if (isLoading) return <PageLoader message="Loading category..." />;
+  if (isLoading) return <FormSkeleton fields={4} />;
 
   if (isError) {
     return (

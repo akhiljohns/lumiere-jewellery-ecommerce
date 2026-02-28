@@ -6,7 +6,7 @@ import { toast } from "sonner";
 import { usePermissions } from "@/hooks/use-permissions";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { PageLoader } from "@/components/page-loader";
+import { FormSkeleton } from "@/components/page-loader";
 import { PageHeader } from "@/components/page-header";
 import { ErrorState } from "@/components/error-state";
 import { useGetUser } from "@/features/users/api/get-user";
@@ -27,7 +27,7 @@ export default function EditUserPage() {
     }
   }, [canEdit, router]);
 
-  if (isLoading) return <PageLoader message="Loading user..." />;
+  if (isLoading) return <FormSkeleton fields={5} />;
 
   if (isError) {
     return (

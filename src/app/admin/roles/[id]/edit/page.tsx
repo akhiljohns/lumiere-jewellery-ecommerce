@@ -5,7 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import { toast } from "sonner";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { PageLoader } from "@/components/page-loader";
+import { FormSkeleton } from "@/components/page-loader";
 import { PageHeader } from "@/components/page-header";
 import { ErrorState } from "@/components/error-state";
 import { useGetRole } from "@/features/roles/api/get-role";
@@ -40,7 +40,7 @@ export default function EditRolePage() {
     }
   }, [role, currentUserRole, router]);
 
-  if (isLoading) return <PageLoader message="Loading role..." />;
+  if (isLoading) return <FormSkeleton fields={3} />;
 
   if (isError) {
     return (

@@ -1,17 +1,18 @@
 "use client";
 
-import { useParams, useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
+import Link from "next/link";
 import { Pencil } from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
 import {
   Card,
   CardContent,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { PageLoader } from "@/components/page-loader";
+import { DetailSkeleton } from "@/components/page-loader";
 import { PageHeader } from "@/components/page-header";
 import { ErrorState } from "@/components/error-state";
 import { DetailField } from "@/components/detail-field";
@@ -19,10 +20,9 @@ import { useGetUser } from "@/features/users/api/get-user";
 
 export default function ViewUserPage() {
   const { id } = useParams<{ id: string }>();
-  const router = useRouter();
   const { data, isLoading, isError, error } = useGetUser(id);
 
-  if (isLoading) return <PageLoader message="Loading user..." />;
+  if (isLoading) return <DetailSkeleton fields={7} />;
 
   if (isError) {
     return (
@@ -43,13 +43,10 @@ export default function ViewUserPage() {
         subtitle="User details"
         backUrl="/admin/users"
         action={
-          <Button
-            size="lg"
-            onClick={() => router.push(`/admin/users/${id}/edit`)}
-          >
+          <Link href={`/admin/users/${id}/edit`} className={buttonVariants({ size: "lg" })}>
             <Pencil />
             Edit User
-          </Button>
+          </Link>
         }
       />
 
