@@ -1,0 +1,695 @@
+{
+  "info": {
+    "name": "Jewellery API — Cart & Guest Checkout",
+    "description": "New endpoints for TASK-A03. Import into existing Jewellery workspace.\n\nRequires the same global variables (base_url, product_id) and an active customer-token cookie from folder 7.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [],
+  "event": [],
+  "item": [
+    {
+      "name": "8. Cart",
+      "description": "Cart CRUD operations. Requires a logged-in customer (customer-token cookie set). Uses product_id from Products section.",
+      "item": [
+        {
+          "name": "8.1 Get Cart (Empty)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Cart has cart_items array', function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json.data).to.have.property('cart_items');",
+                  "    pm.expect(json.data.cart_items).to.be.an('array');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/customer/cart",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "customer",
+                "cart"
+              ]
+            },
+            "description": "Get the current customer cart. Should be empty initially."
+          }
+        },
+        {
+          "name": "8.2 Add Item to Cart",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 201', function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "pm.test('Cart contains the added item', function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json.data.cart_items.length).to.be.at.least(1);",
+                  "    pm.expect(json.message).to.eql('Item added to cart');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"product_id\": \"{{product_id}}\",\n  \"quantity\": 2\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/customer/cart",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "customer",
+                "cart"
+              ]
+            },
+            "description": "Add a product to the cart with quantity 2."
+          }
+        },
+        {
+          "name": "8.3 Add Item — Validation Error",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 400', function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});",
+                  "",
+                  "pm.test('Returns validation details', function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json).to.have.property('error');",
+                  "    pm.expect(json).to.have.property('details');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"product_id\": \"not-a-uuid\",\n  \"quantity\": 0\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/customer/cart",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "customer",
+                "cart"
+              ]
+            },
+            "description": "Verifies that invalid input returns 400 with details."
+          }
+        },
+        {
+          "name": "8.4 Add Item — Product Not Found",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 404', function () {",
+                  "    pm.response.to.have.status(404);",
+                  "});",
+                  "",
+                  "pm.test('Returns not found error', function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json.error).to.include('not found');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"product_id\": \"00000000-0000-0000-0000-000000000000\",\n  \"quantity\": 1\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/customer/cart",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "customer",
+                "cart"
+              ]
+            },
+            "description": "Attempt to add a non-existent product. Should return 404."
+          }
+        },
+        {
+          "name": "8.5 Get Cart (With Items)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Cart has items with product details', function () {",
+                  "    const json = pm.response.json();",
+                  "    const items = json.data.cart_items;",
+                  "    pm.expect(items.length).to.be.at.least(1);",
+                  "    pm.expect(items[0].products).to.have.property('name');",
+                  "    pm.expect(items[0].products).to.have.property('price');",
+                  "    pm.expect(items[0].products).to.have.property('product_images');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/customer/cart",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "customer",
+                "cart"
+              ]
+            },
+            "description": "Get the cart after adding items. Should include product details and images."
+          }
+        },
+        {
+          "name": "8.6 Update Cart Item Quantity",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Quantity is updated', function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json.message).to.eql('Cart updated');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "PATCH",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"quantity\": 3\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/customer/cart/{{product_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "customer",
+                "cart",
+                "{{product_id}}"
+              ]
+            },
+            "description": "Update the quantity of a cart item to 3."
+          }
+        },
+        {
+          "name": "8.7 Remove Cart Item",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Item removed', function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json.message).to.eql('Item removed from cart');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/customer/cart/{{product_id}}",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "customer",
+                "cart",
+                "{{product_id}}"
+              ]
+            },
+            "description": "Remove a specific product from the cart."
+          }
+        },
+        {
+          "name": "8.8 Sync Cart (Merge)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Cart synced with items', function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json.data.cart_items.length).to.be.at.least(1);",
+                  "    pm.expect(json.message).to.eql('Cart synced successfully');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"items\": [\n    { \"product_id\": \"{{product_id}}\", \"quantity\": 1 }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/customer/cart/sync",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "customer",
+                "cart",
+                "sync"
+              ]
+            },
+            "description": "Sync localStorage items to the server cart (merge strategy: max quantity)."
+          }
+        },
+        {
+          "name": "8.9 Sync Cart — Empty Items",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Sync with empty items works', function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json.data).to.have.property('cart_items');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"items\": []\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/customer/cart/sync",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "customer",
+                "cart",
+                "sync"
+              ]
+            },
+            "description": "Sync with empty items array. Should just return current server cart."
+          }
+        },
+        {
+          "name": "8.10 Validate Cart for Checkout",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Validation returns cart and warnings', function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json.data).to.have.property('cart_items');",
+                  "    pm.expect(json).to.have.property('warnings');",
+                  "    pm.expect(json).to.have.property('message');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/customer/cart/validate",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "customer",
+                "cart",
+                "validate"
+              ]
+            },
+            "description": "Pre-checkout validation. Removes inactive/out-of-stock items and clamps quantities."
+          }
+        },
+        {
+          "name": "8.11 Clear Cart",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 200', function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test('Cart is cleared', function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json.data.cart_items).to.be.an('array').that.is.empty;",
+                  "    pm.expect(json.message).to.eql('Cart cleared');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "DELETE",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/api/customer/cart/clear",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "customer",
+                "cart",
+                "clear"
+              ]
+            },
+            "description": "Clear all items from the cart."
+          }
+        },
+        {
+          "name": "8.12 Cart — No Auth",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 401', function () {",
+                  "    pm.response.to.have.status(401);",
+                  "});",
+                  "",
+                  "pm.test('Returns auth error', function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json.error).to.include('Authentication');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Cookie",
+                "value": ""
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/customer/cart",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "customer",
+                "cart"
+              ]
+            },
+            "description": "Attempt to access cart without authentication. Should return 401."
+          }
+        }
+      ]
+    },
+    {
+      "name": "9. Guest Checkout",
+      "description": "Guest checkout signup flow. Creates account, syncs cart, sets JWT cookie.",
+      "item": [
+        {
+          "name": "9.1 Guest Checkout Signup",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 201', function () {",
+                  "    pm.response.to.have.status(201);",
+                  "});",
+                  "",
+                  "pm.test('Response has customer and cart', function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json.data).to.have.property('customer');",
+                  "    pm.expect(json.data).to.have.property('cart');",
+                  "    pm.expect(json.data.customer).to.have.property('id');",
+                  "    pm.expect(json.message).to.include('Account created');",
+                  "});",
+                  "",
+                  "pm.test('JWT cookie is set', function () {",
+                  "    const cookie = pm.response.headers.get('Set-Cookie');",
+                  "    pm.expect(cookie).to.include('customer-token');",
+                  "});",
+                  "",
+                  "const json = pm.response.json();",
+                  "if (json.data && json.data.customer) {",
+                  "    pm.globals.set('guest_customer_id', json.data.customer.id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"guestcheckout_{{$timestamp}}@example.com\",\n  \"full_name\": \"Guest Customer\",\n  \"phone\": \"+91 1234567890\",\n  \"items\": [\n    { \"product_id\": \"{{product_id}}\", \"quantity\": 1 }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/guest-checkout",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "guest-checkout"
+              ]
+            },
+            "description": "Guest checkout: creates account with random password, syncs cart, sets JWT cookie, sends password reset email."
+          }
+        },
+        {
+          "name": "9.2 Guest Checkout — Duplicate Email",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 409', function () {",
+                  "    pm.response.to.have.status(409);",
+                  "});",
+                  "",
+                  "pm.test('Returns duplicate error', function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json.error).to.include('already exists');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"testcustomer@example.com\",\n  \"items\": [\n    { \"product_id\": \"{{product_id}}\", \"quantity\": 1 }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/guest-checkout",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "guest-checkout"
+              ]
+            },
+            "description": "Attempt guest checkout with existing email. Should return 409."
+          }
+        },
+        {
+          "name": "9.3 Guest Checkout — Validation Error",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "pm.test('Status is 400', function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});",
+                  "",
+                  "pm.test('Returns validation details', function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json).to.have.property('error');",
+                  "    pm.expect(json).to.have.property('details');",
+                  "});"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"not-an-email\",\n  \"items\": \"not-an-array\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/guest-checkout",
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "guest-checkout"
+              ]
+            },
+            "description": "Verifies that invalid input returns 400 with details."
+          }
+        }
+      ]
+    }
+  ]
+}

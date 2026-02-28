@@ -50,7 +50,10 @@
           "request": {
             "method": "POST",
             "header": [
-              { "key": "Content-Type", "value": "application/json" }
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
             ],
             "body": {
               "mode": "raw",
@@ -58,8 +61,14 @@
             },
             "url": {
               "raw": "{{base_url}}/api/auth/login",
-              "host": ["{{base_url}}"],
-              "path": ["api", "auth", "login"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
             },
             "description": "Authenticates with admin credentials. Sets `admin-token` HTTP-only cookie that all subsequent `/api/admin/*` requests use automatically."
           }
@@ -87,7 +96,10 @@
           "request": {
             "method": "POST",
             "header": [
-              { "key": "Content-Type", "value": "application/json" }
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
             ],
             "body": {
               "mode": "raw",
@@ -95,8 +107,14 @@
             },
             "url": {
               "raw": "{{base_url}}/api/auth/login",
-              "host": ["{{base_url}}"],
-              "path": ["api", "auth", "login"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
             },
             "description": "Verifies that invalid credentials return 401."
           }
@@ -124,7 +142,10 @@
           "request": {
             "method": "POST",
             "header": [
-              { "key": "Content-Type", "value": "application/json" }
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
             ],
             "body": {
               "mode": "raw",
@@ -132,8 +153,14 @@
             },
             "url": {
               "raw": "{{base_url}}/api/auth/login",
-              "host": ["{{base_url}}"],
-              "path": ["api", "auth", "login"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "login"
+              ]
             },
             "description": "Verifies Zod validation rejects invalid email format and short password."
           }
@@ -165,8 +192,14 @@
             "header": [],
             "url": {
               "raw": "{{base_url}}/api/auth/me",
-              "host": ["{{base_url}}"],
-              "path": ["api", "auth", "me"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "me"
+              ]
             },
             "description": "Fetches the currently authenticated user profile and permissions. Relies on the `admin-token` cookie set during login."
           }
@@ -212,7 +245,10 @@
           "request": {
             "method": "POST",
             "header": [
-              { "key": "Content-Type", "value": "application/json" }
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
             ],
             "body": {
               "mode": "raw",
@@ -220,8 +256,14 @@
             },
             "url": {
               "raw": "{{base_url}}/api/admin/categories",
-              "host": ["{{base_url}}"],
-              "path": ["api", "admin", "categories"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "categories"
+              ]
             },
             "description": "Creates a top-level parent category. Saves `category_id` for subsequent requests."
           }
@@ -255,7 +297,10 @@
           "request": {
             "method": "POST",
             "header": [
-              { "key": "Content-Type", "value": "application/json" }
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
             ],
             "body": {
               "mode": "raw",
@@ -263,8 +308,14 @@
             },
             "url": {
               "raw": "{{base_url}}/api/admin/categories",
-              "host": ["{{base_url}}"],
-              "path": ["api", "admin", "categories"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "categories"
+              ]
             },
             "description": "Creates a child category under the parent created in 2.1. Tests the hierarchy feature."
           }
@@ -292,7 +343,10 @@
           "request": {
             "method": "POST",
             "header": [
-              { "key": "Content-Type", "value": "application/json" }
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
             ],
             "body": {
               "mode": "raw",
@@ -300,8 +354,14 @@
             },
             "url": {
               "raw": "{{base_url}}/api/admin/categories",
-              "host": ["{{base_url}}"],
-              "path": ["api", "admin", "categories"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "categories"
+              ]
             },
             "description": "Sends empty name and invalid image_url to test validation."
           }
@@ -337,13 +397,31 @@
             "header": [],
             "url": {
               "raw": "{{base_url}}/api/admin/categories?page=1&limit=10&sort=sort_order&order=asc",
-              "host": ["{{base_url}}"],
-              "path": ["api", "admin", "categories"],
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "categories"
+              ],
               "query": [
-                { "key": "page", "value": "1" },
-                { "key": "limit", "value": "10" },
-                { "key": "sort", "value": "sort_order" },
-                { "key": "order", "value": "asc" }
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                },
+                {
+                  "key": "sort",
+                  "value": "sort_order"
+                },
+                {
+                  "key": "order",
+                  "value": "asc"
+                }
               ]
             },
             "description": "Lists all categories with pagination."
@@ -376,10 +454,19 @@
             "header": [],
             "url": {
               "raw": "{{base_url}}/api/admin/categories?search=Ring",
-              "host": ["{{base_url}}"],
-              "path": ["api", "admin", "categories"],
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "categories"
+              ],
               "query": [
-                { "key": "search", "value": "Ring" }
+                {
+                  "key": "search",
+                  "value": "Ring"
+                }
               ]
             },
             "description": "Tests name search filtering."
@@ -413,10 +500,19 @@
             "header": [],
             "url": {
               "raw": "{{base_url}}/api/admin/categories?parent_id={{category_id}}",
-              "host": ["{{base_url}}"],
-              "path": ["api", "admin", "categories"],
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "categories"
+              ],
               "query": [
-                { "key": "parent_id", "value": "{{category_id}}" }
+                {
+                  "key": "parent_id",
+                  "value": "{{category_id}}"
+                }
               ]
             },
             "description": "Filters categories by parent_id to list only children of the parent category."
@@ -451,8 +547,15 @@
             "header": [],
             "url": {
               "raw": "{{base_url}}/api/admin/categories/{{category_id}}",
-              "host": ["{{base_url}}"],
-              "path": ["api", "admin", "categories", "{{category_id}}"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "categories",
+                "{{category_id}}"
+              ]
             },
             "description": "Fetches a single category by ID."
           }
@@ -482,8 +585,15 @@
             "header": [],
             "url": {
               "raw": "{{base_url}}/api/admin/categories/00000000-0000-0000-0000-000000000000",
-              "host": ["{{base_url}}"],
-              "path": ["api", "admin", "categories", "00000000-0000-0000-0000-000000000000"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "categories",
+                "00000000-0000-0000-0000-000000000000"
+              ]
             },
             "description": "Tests 404 response for a non-existent category UUID."
           }
@@ -513,7 +623,10 @@
           "request": {
             "method": "PATCH",
             "header": [
-              { "key": "Content-Type", "value": "application/json" }
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
             ],
             "body": {
               "mode": "raw",
@@ -521,8 +634,15 @@
             },
             "url": {
               "raw": "{{base_url}}/api/admin/categories/{{category_id}}",
-              "host": ["{{base_url}}"],
-              "path": ["api", "admin", "categories", "{{category_id}}"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "categories",
+                "{{category_id}}"
+              ]
             },
             "description": "Partially updates the parent category name and sort order."
           }
@@ -550,7 +670,10 @@
           "request": {
             "method": "PATCH",
             "header": [
-              { "key": "Content-Type", "value": "application/json" }
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
             ],
             "body": {
               "mode": "raw",
@@ -558,8 +681,15 @@
             },
             "url": {
               "raw": "{{base_url}}/api/admin/categories/{{child_category_id}}",
-              "host": ["{{base_url}}"],
-              "path": ["api", "admin", "categories", "{{child_category_id}}"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "categories",
+                "{{child_category_id}}"
+              ]
             },
             "description": "Deactivates the child category to test status toggle."
           }
@@ -591,10 +721,19 @@
             "header": [],
             "url": {
               "raw": "{{base_url}}/api/admin/categories?active_only=true",
-              "host": ["{{base_url}}"],
-              "path": ["api", "admin", "categories"],
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "categories"
+              ],
               "query": [
-                { "key": "active_only", "value": "true" }
+                {
+                  "key": "active_only",
+                  "value": "true"
+                }
               ]
             },
             "description": "Filters to only active categories. The deactivated child should not appear."
@@ -623,7 +762,10 @@
           "request": {
             "method": "PATCH",
             "header": [
-              { "key": "Content-Type", "value": "application/json" }
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
             ],
             "body": {
               "mode": "raw",
@@ -631,8 +773,15 @@
             },
             "url": {
               "raw": "{{base_url}}/api/admin/categories/{{child_category_id}}",
-              "host": ["{{base_url}}"],
-              "path": ["api", "admin", "categories", "{{child_category_id}}"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "categories",
+                "{{child_category_id}}"
+              ]
             },
             "description": "Re-activates the child category."
           }
@@ -662,8 +811,15 @@
             "header": [],
             "url": {
               "raw": "{{base_url}}/api/admin/categories/{{child_category_id}}",
-              "host": ["{{base_url}}"],
-              "path": ["api", "admin", "categories", "{{child_category_id}}"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "categories",
+                "{{child_category_id}}"
+              ]
             },
             "description": "Deletes the child category. Parent remains intact."
           }
@@ -688,8 +844,15 @@
             "header": [],
             "url": {
               "raw": "{{base_url}}/api/admin/categories/00000000-0000-0000-0000-000000000000",
-              "host": ["{{base_url}}"],
-              "path": ["api", "admin", "categories", "00000000-0000-0000-0000-000000000000"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "categories",
+                "00000000-0000-0000-0000-000000000000"
+              ]
             },
             "description": "Tests 404 when deleting a non-existent category."
           }
@@ -735,7 +898,10 @@
           "request": {
             "method": "POST",
             "header": [
-              { "key": "Content-Type", "value": "application/json" }
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
             ],
             "body": {
               "mode": "raw",
@@ -743,8 +909,14 @@
             },
             "url": {
               "raw": "{{base_url}}/api/admin/products",
-              "host": ["{{base_url}}"],
-              "path": ["api", "admin", "products"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "products"
+              ]
             },
             "description": "Creates a product linked to the category from step 2. Saves `product_id`."
           }
@@ -779,7 +951,10 @@
           "request": {
             "method": "POST",
             "header": [
-              { "key": "Content-Type", "value": "application/json" }
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
             ],
             "body": {
               "mode": "raw",
@@ -787,8 +962,14 @@
             },
             "url": {
               "raw": "{{base_url}}/api/admin/products",
-              "host": ["{{base_url}}"],
-              "path": ["api", "admin", "products"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "products"
+              ]
             },
             "description": "Creates a product with only required fields (name, price). All other fields use defaults."
           }
@@ -816,7 +997,10 @@
           "request": {
             "method": "POST",
             "header": [
-              { "key": "Content-Type", "value": "application/json" }
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
             ],
             "body": {
               "mode": "raw",
@@ -824,8 +1008,14 @@
             },
             "url": {
               "raw": "{{base_url}}/api/admin/products",
-              "host": ["{{base_url}}"],
-              "path": ["api", "admin", "products"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "products"
+              ]
             },
             "description": "Tests validation: empty name, negative price, negative stock."
           }
@@ -857,13 +1047,31 @@
             "header": [],
             "url": {
               "raw": "{{base_url}}/api/admin/products?page=1&limit=10&sort=created_at&order=desc",
-              "host": ["{{base_url}}"],
-              "path": ["api", "admin", "products"],
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "products"
+              ],
               "query": [
-                { "key": "page", "value": "1" },
-                { "key": "limit", "value": "10" },
-                { "key": "sort", "value": "created_at" },
-                { "key": "order", "value": "desc" }
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                },
+                {
+                  "key": "sort",
+                  "value": "created_at"
+                },
+                {
+                  "key": "order",
+                  "value": "desc"
+                }
               ]
             },
             "description": "Lists all products with pagination, sorted by newest first."
@@ -896,10 +1104,19 @@
             "header": [],
             "url": {
               "raw": "{{base_url}}/api/admin/products?search=Diamond",
-              "host": ["{{base_url}}"],
-              "path": ["api", "admin", "products"],
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "products"
+              ],
               "query": [
-                { "key": "search", "value": "Diamond" }
+                {
+                  "key": "search",
+                  "value": "Diamond"
+                }
               ]
             },
             "description": "Tests product name/description search."
@@ -933,10 +1150,19 @@
             "header": [],
             "url": {
               "raw": "{{base_url}}/api/admin/products?category_id={{category_id}}",
-              "host": ["{{base_url}}"],
-              "path": ["api", "admin", "products"],
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "products"
+              ],
               "query": [
-                { "key": "category_id", "value": "{{category_id}}" }
+                {
+                  "key": "category_id",
+                  "value": "{{category_id}}"
+                }
               ]
             },
             "description": "Filters products by category_id."
@@ -969,8 +1195,15 @@
             "header": [],
             "url": {
               "raw": "{{base_url}}/api/admin/products/{{product_id}}",
-              "host": ["{{base_url}}"],
-              "path": ["api", "admin", "products", "{{product_id}}"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "products",
+                "{{product_id}}"
+              ]
             },
             "description": "Fetches a single product by ID with images and category."
           }
@@ -1000,7 +1233,10 @@
           "request": {
             "method": "PATCH",
             "header": [
-              { "key": "Content-Type", "value": "application/json" }
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
             ],
             "body": {
               "mode": "raw",
@@ -1008,8 +1244,15 @@
             },
             "url": {
               "raw": "{{base_url}}/api/admin/products/{{product_id}}",
-              "host": ["{{base_url}}"],
-              "path": ["api", "admin", "products", "{{product_id}}"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "products",
+                "{{product_id}}"
+              ]
             },
             "description": "Updates price, stock, and description."
           }
@@ -1037,7 +1280,10 @@
           "request": {
             "method": "PATCH",
             "header": [
-              { "key": "Content-Type", "value": "application/json" }
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
             ],
             "body": {
               "mode": "raw",
@@ -1045,8 +1291,15 @@
             },
             "url": {
               "raw": "{{base_url}}/api/admin/products/{{product_id}}",
-              "host": ["{{base_url}}"],
-              "path": ["api", "admin", "products", "{{product_id}}"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "products",
+                "{{product_id}}"
+              ]
             },
             "description": "Deactivates a product (mark as draft)."
           }
@@ -1076,8 +1329,15 @@
             "header": [],
             "url": {
               "raw": "{{base_url}}/api/admin/products/{{product_id_2}}",
-              "host": ["{{base_url}}"],
-              "path": ["api", "admin", "products", "{{product_id_2}}"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "products",
+                "{{product_id_2}}"
+              ]
             },
             "description": "Deletes the minimal product created in 3.2. Cascade-deletes its images."
           }
@@ -1102,8 +1362,15 @@
             "header": [],
             "url": {
               "raw": "{{base_url}}/api/admin/products/00000000-0000-0000-0000-000000000000",
-              "host": ["{{base_url}}"],
-              "path": ["api", "admin", "products", "00000000-0000-0000-0000-000000000000"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "products",
+                "00000000-0000-0000-0000-000000000000"
+              ]
             },
             "description": "Tests 404 when deleting non-existent product."
           }
@@ -1147,7 +1414,10 @@
           "request": {
             "method": "POST",
             "header": [
-              { "key": "Content-Type", "value": "application/json" }
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
             ],
             "body": {
               "mode": "raw",
@@ -1155,8 +1425,14 @@
             },
             "url": {
               "raw": "{{base_url}}/api/admin/users",
-              "host": ["{{base_url}}"],
-              "path": ["api", "admin", "users"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "users"
+              ]
             },
             "description": "Creates a new customer user. Saves `user_id`. Password is auto-hashed server-side."
           }
@@ -1184,7 +1460,10 @@
           "request": {
             "method": "POST",
             "header": [
-              { "key": "Content-Type", "value": "application/json" }
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
             ],
             "body": {
               "mode": "raw",
@@ -1192,8 +1471,14 @@
             },
             "url": {
               "raw": "{{base_url}}/api/admin/users",
-              "host": ["{{base_url}}"],
-              "path": ["api", "admin", "users"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "users"
+              ]
             },
             "description": "Attempts to create a user with an email that already exists."
           }
@@ -1221,7 +1506,10 @@
           "request": {
             "method": "POST",
             "header": [
-              { "key": "Content-Type", "value": "application/json" }
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
             ],
             "body": {
               "mode": "raw",
@@ -1229,8 +1517,14 @@
             },
             "url": {
               "raw": "{{base_url}}/api/admin/users",
-              "host": ["{{base_url}}"],
-              "path": ["api", "admin", "users"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "users"
+              ]
             },
             "description": "Tests validation: invalid email and short password."
           }
@@ -1266,13 +1560,31 @@
             "header": [],
             "url": {
               "raw": "{{base_url}}/api/admin/users?page=1&limit=10&sort=created_at&order=desc",
-              "host": ["{{base_url}}"],
-              "path": ["api", "admin", "users"],
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "users"
+              ],
               "query": [
-                { "key": "page", "value": "1" },
-                { "key": "limit", "value": "10" },
-                { "key": "sort", "value": "created_at" },
-                { "key": "order", "value": "desc" }
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                },
+                {
+                  "key": "sort",
+                  "value": "created_at"
+                },
+                {
+                  "key": "order",
+                  "value": "desc"
+                }
               ]
             },
             "description": "Lists all users. Verifies password_hash is never exposed."
@@ -1306,10 +1618,19 @@
             "header": [],
             "url": {
               "raw": "{{base_url}}/api/admin/users?search=testuser",
-              "host": ["{{base_url}}"],
-              "path": ["api", "admin", "users"],
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "users"
+              ],
               "query": [
-                { "key": "search", "value": "testuser" }
+                {
+                  "key": "search",
+                  "value": "testuser"
+                }
               ]
             },
             "description": "Tests user search by email/name."
@@ -1341,8 +1662,15 @@
             "header": [],
             "url": {
               "raw": "{{base_url}}/api/admin/users/{{user_id}}",
-              "host": ["{{base_url}}"],
-              "path": ["api", "admin", "users", "{{user_id}}"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "users",
+                "{{user_id}}"
+              ]
             },
             "description": "Fetches the test user by ID."
           }
@@ -1372,7 +1700,10 @@
           "request": {
             "method": "PATCH",
             "header": [
-              { "key": "Content-Type", "value": "application/json" }
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
             ],
             "body": {
               "mode": "raw",
@@ -1380,8 +1711,15 @@
             },
             "url": {
               "raw": "{{base_url}}/api/admin/users/{{user_id}}",
-              "host": ["{{base_url}}"],
-              "path": ["api", "admin", "users", "{{user_id}}"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "users",
+                "{{user_id}}"
+              ]
             },
             "description": "Updates the test user's name and phone."
           }
@@ -1409,7 +1747,10 @@
           "request": {
             "method": "PATCH",
             "header": [
-              { "key": "Content-Type", "value": "application/json" }
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
             ],
             "body": {
               "mode": "raw",
@@ -1417,8 +1758,15 @@
             },
             "url": {
               "raw": "{{base_url}}/api/admin/users/{{user_id}}",
-              "host": ["{{base_url}}"],
-              "path": ["api", "admin", "users", "{{user_id}}"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "users",
+                "{{user_id}}"
+              ]
             },
             "description": "Deactivates the test user."
           }
@@ -1448,8 +1796,15 @@
             "header": [],
             "url": {
               "raw": "{{base_url}}/api/admin/users/{{admin_user_id}}",
-              "host": ["{{base_url}}"],
-              "path": ["api", "admin", "users", "{{admin_user_id}}"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "users",
+                "{{admin_user_id}}"
+              ]
             },
             "description": "Attempts to delete the currently logged-in admin user. Should be blocked."
           }
@@ -1479,8 +1834,15 @@
             "header": [],
             "url": {
               "raw": "{{base_url}}/api/admin/users/{{user_id}}",
-              "host": ["{{base_url}}"],
-              "path": ["api", "admin", "users", "{{user_id}}"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "users",
+                "{{user_id}}"
+              ]
             },
             "description": "Deletes the test user."
           }
@@ -1525,8 +1887,14 @@
             "header": [],
             "url": {
               "raw": "{{base_url}}/api/admin/roles",
-              "host": ["{{base_url}}"],
-              "path": ["api", "admin", "roles"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "roles"
+              ]
             },
             "description": "Lists all roles with their permissions."
           }
@@ -1562,7 +1930,10 @@
           "request": {
             "method": "POST",
             "header": [
-              { "key": "Content-Type", "value": "application/json" }
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
             ],
             "body": {
               "mode": "raw",
@@ -1570,8 +1941,14 @@
             },
             "url": {
               "raw": "{{base_url}}/api/admin/roles",
-              "host": ["{{base_url}}"],
-              "path": ["api", "admin", "roles"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "roles"
+              ]
             },
             "description": "Creates a custom 'content_editor' role with product and category permissions. Saves `role_id`."
           }
@@ -1603,8 +1980,15 @@
             "header": [],
             "url": {
               "raw": "{{base_url}}/api/admin/roles/{{role_id}}",
-              "host": ["{{base_url}}"],
-              "path": ["api", "admin", "roles", "{{role_id}}"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "roles",
+                "{{role_id}}"
+              ]
             },
             "description": "Fetches the custom role by ID."
           }
@@ -1633,7 +2017,10 @@
           "request": {
             "method": "PATCH",
             "header": [
-              { "key": "Content-Type", "value": "application/json" }
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
             ],
             "body": {
               "mode": "raw",
@@ -1641,8 +2028,15 @@
             },
             "url": {
               "raw": "{{base_url}}/api/admin/roles/{{role_id}}",
-              "host": ["{{base_url}}"],
-              "path": ["api", "admin", "roles", "{{role_id}}"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "roles",
+                "{{role_id}}"
+              ]
             },
             "description": "Updates the custom role to add delete permissions."
           }
@@ -1691,7 +2085,10 @@
           "request": {
             "method": "PATCH",
             "header": [
-              { "key": "Content-Type", "value": "application/json" }
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
             ],
             "body": {
               "mode": "raw",
@@ -1699,8 +2096,15 @@
             },
             "url": {
               "raw": "{{base_url}}/api/admin/roles/{{super_admin_role_id}}",
-              "host": ["{{base_url}}"],
-              "path": ["api", "admin", "roles", "{{super_admin_role_id}}"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "roles",
+                "{{super_admin_role_id}}"
+              ]
             },
             "description": "Attempts to modify the locked super_admin role. Should return 403."
           }
@@ -1730,8 +2134,15 @@
             "header": [],
             "url": {
               "raw": "{{base_url}}/api/admin/roles/{{role_id}}",
-              "host": ["{{base_url}}"],
-              "path": ["api", "admin", "roles", "{{role_id}}"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "roles",
+                "{{role_id}}"
+              ]
             },
             "description": "Deletes the custom content_editor role."
           }
@@ -1761,8 +2172,15 @@
             "header": [],
             "url": {
               "raw": "{{base_url}}/api/admin/roles/{{super_admin_role_id}}",
-              "host": ["{{base_url}}"],
-              "path": ["api", "admin", "roles", "{{super_admin_role_id}}"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "roles",
+                "{{super_admin_role_id}}"
+              ]
             },
             "description": "Attempts to delete the system super_admin role. Should be blocked."
           }
@@ -1793,8 +2211,15 @@
             "header": [],
             "url": {
               "raw": "{{base_url}}/api/admin/products/{{product_id}}",
-              "host": ["{{base_url}}"],
-              "path": ["api", "admin", "products", "{{product_id}}"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "products",
+                "{{product_id}}"
+              ]
             },
             "description": "Cleans up the main test product."
           }
@@ -1819,8 +2244,15 @@
             "header": [],
             "url": {
               "raw": "{{base_url}}/api/admin/categories/{{category_id}}",
-              "host": ["{{base_url}}"],
-              "path": ["api", "admin", "categories", "{{category_id}}"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "admin",
+                "categories",
+                "{{category_id}}"
+              ]
             },
             "description": "Cleans up the parent test category."
           }
@@ -1850,8 +2282,14 @@
             "header": [],
             "url": {
               "raw": "{{base_url}}/api/auth/logout",
-              "host": ["{{base_url}}"],
-              "path": ["api", "auth", "logout"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "logout"
+              ]
             },
             "description": "Ends the session. Clears the admin-token cookie."
           }
@@ -1881,8 +2319,14 @@
             "header": [],
             "url": {
               "raw": "{{base_url}}/api/auth/me",
-              "host": ["{{base_url}}"],
-              "path": ["api", "auth", "me"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "me"
+              ]
             },
             "description": "Confirms the session is invalidated after logout."
           }
@@ -1930,7 +2374,10 @@
           "request": {
             "method": "POST",
             "header": [
-              { "key": "Content-Type", "value": "application/json" }
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
             ],
             "body": {
               "mode": "raw",
@@ -1938,8 +2385,14 @@
             },
             "url": {
               "raw": "{{base_url}}/api/auth/register",
-              "host": ["{{base_url}}"],
-              "path": ["api", "auth", "register"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "register"
+              ]
             },
             "description": "Registers a new customer account. Auto-sets `customer-token` cookie for subsequent requests."
           }
@@ -1967,7 +2420,10 @@
           "request": {
             "method": "POST",
             "header": [
-              { "key": "Content-Type", "value": "application/json" }
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
             ],
             "body": {
               "mode": "raw",
@@ -1975,8 +2431,14 @@
             },
             "url": {
               "raw": "{{base_url}}/api/auth/register",
-              "host": ["{{base_url}}"],
-              "path": ["api", "auth", "register"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "register"
+              ]
             },
             "description": "Verifies that duplicate email registration returns 409."
           }
@@ -2005,7 +2467,10 @@
           "request": {
             "method": "POST",
             "header": [
-              { "key": "Content-Type", "value": "application/json" }
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
             ],
             "body": {
               "mode": "raw",
@@ -2013,8 +2478,14 @@
             },
             "url": {
               "raw": "{{base_url}}/api/auth/register",
-              "host": ["{{base_url}}"],
-              "path": ["api", "auth", "register"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "register"
+              ]
             },
             "description": "Verifies that invalid input returns 400 with details."
           }
@@ -2044,8 +2515,14 @@
             "header": [],
             "url": {
               "raw": "{{base_url}}/api/auth/customer-logout",
-              "host": ["{{base_url}}"],
-              "path": ["api", "auth", "customer-logout"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "customer-logout"
+              ]
             },
             "description": "Logs out the customer by clearing the `customer-token` cookie."
           }
@@ -2074,7 +2551,10 @@
           "request": {
             "method": "POST",
             "header": [
-              { "key": "Content-Type", "value": "application/json" }
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
             ],
             "body": {
               "mode": "raw",
@@ -2082,8 +2562,14 @@
             },
             "url": {
               "raw": "{{base_url}}/api/auth/customer-login",
-              "host": ["{{base_url}}"],
-              "path": ["api", "auth", "customer-login"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "customer-login"
+              ]
             },
             "description": "Attempts login with unverified customer. Should return 403 with EMAIL_NOT_VERIFIED code."
           }
@@ -2111,7 +2597,10 @@
           "request": {
             "method": "POST",
             "header": [
-              { "key": "Content-Type", "value": "application/json" }
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
             ],
             "body": {
               "mode": "raw",
@@ -2119,8 +2608,14 @@
             },
             "url": {
               "raw": "{{base_url}}/api/auth/customer-login",
-              "host": ["{{base_url}}"],
-              "path": ["api", "auth", "customer-login"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "customer-login"
+              ]
             },
             "description": "Verifies that invalid customer credentials return 401."
           }
@@ -2160,8 +2655,14 @@
             "header": [],
             "url": {
               "raw": "{{base_url}}/api/customer/profile",
-              "host": ["{{base_url}}"],
-              "path": ["api", "customer", "profile"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "customer",
+                "profile"
+              ]
             },
             "description": "Fetches the authenticated customer's profile. Requires `customer-token` cookie."
           }
@@ -2190,7 +2691,10 @@
           "request": {
             "method": "PATCH",
             "header": [
-              { "key": "Content-Type", "value": "application/json" }
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
             ],
             "body": {
               "mode": "raw",
@@ -2198,8 +2702,14 @@
             },
             "url": {
               "raw": "{{base_url}}/api/customer/profile",
-              "host": ["{{base_url}}"],
-              "path": ["api", "customer", "profile"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "customer",
+                "profile"
+              ]
             },
             "description": "Updates the authenticated customer's name and phone. Requires `customer-token` cookie."
           }
@@ -2227,12 +2737,21 @@
           "request": {
             "method": "GET",
             "header": [
-              { "key": "Cookie", "value": "" }
+              {
+                "key": "Cookie",
+                "value": ""
+              }
             ],
             "url": {
               "raw": "{{base_url}}/api/customer/profile",
-              "host": ["{{base_url}}"],
-              "path": ["api", "customer", "profile"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "customer",
+                "profile"
+              ]
             },
             "description": "Verifies that accessing profile without auth returns 401. Sends empty Cookie header to override any stored cookies."
           }
@@ -2260,7 +2779,10 @@
           "request": {
             "method": "POST",
             "header": [
-              { "key": "Content-Type", "value": "application/json" }
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
             ],
             "body": {
               "mode": "raw",
@@ -2268,8 +2790,14 @@
             },
             "url": {
               "raw": "{{base_url}}/api/auth/forgot-password",
-              "host": ["{{base_url}}"],
-              "path": ["api", "auth", "forgot-password"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "forgot-password"
+              ]
             },
             "description": "Initiates password reset. Check server console for the reset token URL. Always returns 200 to prevent email enumeration."
           }
@@ -2297,7 +2825,10 @@
           "request": {
             "method": "POST",
             "header": [
-              { "key": "Content-Type", "value": "application/json" }
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
             ],
             "body": {
               "mode": "raw",
@@ -2305,8 +2836,14 @@
             },
             "url": {
               "raw": "{{base_url}}/api/auth/forgot-password",
-              "host": ["{{base_url}}"],
-              "path": ["api", "auth", "forgot-password"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "forgot-password"
+              ]
             },
             "description": "Verifies anti-enumeration: nonexistent email gets the same 200 response."
           }
@@ -2334,7 +2871,10 @@
           "request": {
             "method": "POST",
             "header": [
-              { "key": "Content-Type", "value": "application/json" }
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
             ],
             "body": {
               "mode": "raw",
@@ -2342,8 +2882,14 @@
             },
             "url": {
               "raw": "{{base_url}}/api/auth/reset-password",
-              "host": ["{{base_url}}"],
-              "path": ["api", "auth", "reset-password"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "reset-password"
+              ]
             },
             "description": "Verifies that an invalid reset token returns 400."
           }
@@ -2373,10 +2919,19 @@
             "header": [],
             "url": {
               "raw": "{{base_url}}/api/auth/verify-email?token=invalid-token",
-              "host": ["{{base_url}}"],
-              "path": ["api", "auth", "verify-email"],
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "verify-email"
+              ],
               "query": [
-                { "key": "token", "value": "invalid-token" }
+                {
+                  "key": "token",
+                  "value": "invalid-token"
+                }
               ]
             },
             "description": "Verifies that an invalid verification token returns 400."
@@ -2402,8 +2957,14 @@
             "header": [],
             "url": {
               "raw": "{{base_url}}/api/auth/customer-logout",
-              "host": ["{{base_url}}"],
-              "path": ["api", "auth", "customer-logout"]
+              "host": [
+                "{{base_url}}"
+              ],
+              "path": [
+                "api",
+                "auth",
+                "customer-logout"
+              ]
             },
             "description": "Final logout to clean up the customer session."
           }
