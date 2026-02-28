@@ -59,6 +59,8 @@ Jewellery e-commerce app built with **Next.js 16 (App Router)** + **TypeScript**
 
 **Images**: Uploaded to Cloudinary via base64 data URI. Product images stored in `product_images` table with `url`, `public_id`, `is_primary`, `sort_order`. Cascade-deleted with parent product. **For rendering**, always use `<CloudinaryImage>` from `@/components/cloudinary-image` (wraps `next-cloudinary` `CldImage`) — never use `next/image` `<Image>` directly for Cloudinary-hosted images. It provides auto AVIF/WebP format, Cloudinary-side resize/crop, lazy loading, and extracts `public_id` from full URLs. Use `crop="fill"` for thumbnails, `sizes` prop for responsive large images.
 
+**Form Accessibility**: All form inputs with validation must have `aria-describedby` linking to their error message element. Pattern: `aria-describedby={errors.field ? "field-error" : undefined}` on the input, `id="field-error"` on the `<FieldError>`. For descriptive hint text (e.g. system role note), use `id="field-desc"` and include in `aria-describedby`.
+
 **Passwords**: Hashed with bcryptjs (12 salt rounds). Never exposed in responses — `sanitizeUser()` strips `password_hash`.
 
 **Slugs**: Auto-generated from product/category name via `slugify()`. Collisions appended with timestamp.
@@ -153,8 +155,11 @@ The project uses **shadcn/ui Mira style** with **amber primary**, **gray base co
 - Image optimization with next-cloudinary CldImage, AVIF/WebP, responsive sizes (TASK-B06)
 - API response caching — Cache-Control headers on public endpoints, `unstable_cache` with tag-based revalidation on storefront service, on-demand `revalidateTag` in admin mutations (TASK-B07)
 - Bundle size optimization — removed `radix-ui` (replaced with native implementations), `next/dynamic` lazy-loading for admin form pages, `optimizePackageImports` for lucide-react/tanstack/framer-motion (TASK-B08)
+- Database migrations strategy — Supabase CLI migrations fully adopted with versioned files, `docs/schema.sql` retained as reference only (TASK-B09)
+- Form accessibility — `aria-describedby` linking inputs to error messages across all admin forms, labels and focus rings verified (TASK-B11)
+- Color contrast — light mode `--muted-foreground` and `--destructive` adjusted to pass WCAG AA 4.5:1 ratio (TASK-B12)
 
 ### Not Started
 - Phase A: Audit log persistence (A09), visual search (A12), chatbot RAG (A13), inventory alerts (A14), pricing suggestions (A15)
-- Phase B: Error standardization, migrations strategy, testing, accessibility
+- Phase B: Error standardization, testing
 - Phase C: All UI — storefront pages, TanStack Query, Zustand stores, Framer Motion animations, admin enhancements

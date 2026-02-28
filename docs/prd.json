@@ -675,18 +675,18 @@
                     "priority": "P2",
                     "impact": "medium",
                     "effort": "low",
-                    "status": "not_started",
+                    "status": "done",
                     "description": "Adopt Supabase CLI migrations or dbmate for versioned, repeatable migrations.",
                     "subtasks": [
                         {
                             "id": "TASK-B09-A",
                             "title": "Evaluate and adopt Supabase CLI migrations or dbmate",
-                            "status": "not_started"
+                            "status": "done"
                         },
                         {
                             "id": "TASK-B09-B",
                             "title": "Convert existing schema.sql into versioned migration files",
-                            "status": "not_started"
+                            "status": "done"
                         }
                     ]
                 },
@@ -732,23 +732,23 @@
                     "priority": "P2",
                     "impact": "medium",
                     "effort": "low",
-                    "status": "not_started",
+                    "status": "done",
                     "description": "Ensure all inputs have associated labels, aria-describedby for error messages, and visible focus rings.",
                     "subtasks": [
                         {
                             "id": "TASK-B11-A",
                             "title": "Audit and add associated label elements to all inputs using shadcn FormLabel",
-                            "status": "not_started"
+                            "status": "done"
                         },
                         {
                             "id": "TASK-B11-B",
                             "title": "Add aria-describedby linking inputs to their error messages",
-                            "status": "not_started"
+                            "status": "done"
                         },
                         {
                             "id": "TASK-B11-C",
                             "title": "Verify visible focus rings across all interactive elements",
-                            "status": "not_started"
+                            "status": "done"
                         }
                     ]
                 },
@@ -758,18 +758,18 @@
                     "priority": "P3",
                     "impact": "medium",
                     "effort": "low",
-                    "status": "not_started",
+                    "status": "done",
                     "description": "Verify muted-foreground text meets WCAG AA (4.5:1) and ensure destructive states have sufficient contrast.",
                     "subtasks": [
                         {
                             "id": "TASK-B12-A",
                             "title": "Audit OKLCH 0.551 muted-foreground on white background for WCAG AA compliance",
-                            "status": "not_started"
+                            "status": "done"
                         },
                         {
                             "id": "TASK-B12-B",
                             "title": "Verify destructive state contrast in both light and dark modes",
-                            "status": "not_started"
+                            "status": "done"
                         }
                     ]
                 }
