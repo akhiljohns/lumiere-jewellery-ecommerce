@@ -2,12 +2,20 @@
 
 import { useCallback, useMemo, useState } from "react";
 import Link from "next/link";
-import { Plus, Search } from "lucide-react";
+import { Plus, Search, Filter } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
+import { useQueryState, parseAsInteger, parseAsStringLiteral } from "nuqs";
 import { toast } from "sonner";
 
 import { buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { DataTable } from "@/components/data-table";
 import { ConfirmDialog } from "@/components/confirm-dialog";
 import { PermissionGuard } from "@/components/permission-guard";
@@ -18,10 +26,16 @@ import { getUserColumns } from "@/features/users/components/user-columns";
 import { usePermissions } from "@/hooks/use-permissions";
 import type { SafeUser } from "@/features/users/types";
 
+const VERIFIED_OPTIONS = ["all", "true", "false"] as const;
+
 export default function UsersPage() {
-  const [page, setPage] = useState(1);
-  const [search, setSearch] = useState("");
-  const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [page, setPage] = useQueryState("page", parseAsInteger.withDefault(1));
+  const [search, setSearch] = useQueryState("search", { defaultValue: "" });
+  const [debouncedSearch, setDebouncedSearch] = useState(search);
+  const [verified, setVerified] = useQueryState(
+    "verified",
+    parseAsStringLiteral(VERIFIED_OPTIONS).withDefault("all"),
+  );
   const [deleteTarget, setDeleteTarget] = useState<SafeUser | null>(null);
 
   const { data, isLoading } = useGetUsers({
@@ -30,6 +44,7 @@ export default function UsersPage() {
     search: debouncedSearch || undefined,
     sort: "created_at",
     order: "desc",
+    verified: verified === "all" ? undefined : verified,
   });
 
   const queryClient = useQueryClient();
@@ -43,7 +58,7 @@ export default function UsersPage() {
       setPage(1);
     }, 400);
     return () => clearTimeout(timeout);
-  }, []);
+  }, [setSearch, setPage]);
 
   const handleDelete = useCallback(() => {
     if (!deleteTarget) return;
@@ -97,14 +112,33 @@ export default function UsersPage() {
         </PermissionGuard>
       </div>
 
-      <div className="relative max-w-sm">
-        <Search className="absolute left-2 top-1/2 size-3.5 -translate-y-1/2 text-muted-foreground" />
-        <Input
-          placeholder="Search by name or email..."
-          value={search}
-          onChange={(e) => handleSearchChange(e.target.value)}
-          className="pl-8"
-        />
+      <div className="flex items-center gap-3">
+        <div className="relative max-w-sm flex-1">
+          <Search className="absolute left-2 top-1/2 size-3.5 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            placeholder="Search by name or email..."
+            value={search}
+            onChange={(e) => handleSearchChange(e.target.value)}
+            className="pl-8"
+          />
+        </div>
+        <Select
+          value={verified}
+          onValueChange={(v) => {
+            setVerified(v as "all" | "true" | "false");
+            setPage(1);
+          }}
+        >
+          <SelectTrigger className="w-[180px]">
+            <Filter className="size-3.5 text-muted-foreground" />
+            <SelectValue placeholder="Email status" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="all">All Users</SelectItem>
+            <SelectItem value="true">Verified</SelectItem>
+            <SelectItem value="false">Unverified</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
 
       <DataTable

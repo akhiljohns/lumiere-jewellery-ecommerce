@@ -28,7 +28,11 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const result = await getUsers(parsed.data);
+    const verified = searchParams.get("verified");
+    const emailVerified =
+      verified === "true" ? true : verified === "false" ? false : undefined;
+
+    const result = await getUsers(parsed.data, { emailVerified });
 
     return NextResponse.json(result, { status: 200 });
   } catch (err) {

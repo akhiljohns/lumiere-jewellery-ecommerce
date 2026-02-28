@@ -42,6 +42,7 @@ function sanitize(user: User): SafeUser {
 
 export async function getUsers(
   query: PaginationInput,
+  filters?: { emailVerified?: boolean },
 ): Promise<PaginatedUsers> {
   const supabase = createAdminClient();
   const { page, limit, search, sort, order } = query;
@@ -51,6 +52,10 @@ export async function getUsers(
 
   if (search) {
     qb = qb.or(`email.ilike.%${search}%,full_name.ilike.%${search}%`);
+  }
+
+  if (filters?.emailVerified !== undefined) {
+    qb = qb.eq("email_verified", filters.emailVerified);
   }
 
   qb = qb

@@ -1,7 +1,7 @@
 "use client";
 
 import type { ColumnDef } from "@tanstack/react-table";
-import { Eye, Pencil, Trash2 } from "lucide-react";
+import { CheckCircle2, Eye, Pencil, Trash2, XCircle } from "lucide-react";
 import Link from "next/link";
 
 import { Badge } from "@/components/ui/badge";
@@ -26,8 +26,20 @@ export function getUserColumns(
       accessorKey: "full_name",
       header: "Name",
       cell: ({ row }) => (
-        <span className="font-medium text-foreground">
+        <span className="flex items-center gap-1.5 font-medium text-foreground">
           {row.original.full_name || "—"}
+          <Tooltip>
+            <TooltipTrigger>
+              {row.original.email_verified ? (
+                <CheckCircle2 className="size-3.5 text-emerald-500" />
+              ) : (
+                <XCircle className="size-3.5 text-destructive" />
+              )}
+            </TooltipTrigger>
+            <TooltipContent side="top">
+              {row.original.email_verified ? "Email verified" : "Email not verified"}
+            </TooltipContent>
+          </Tooltip>
         </span>
       ),
     },

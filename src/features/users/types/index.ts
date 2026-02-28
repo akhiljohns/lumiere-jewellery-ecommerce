@@ -1,6 +1,13 @@
 import type { User } from "@/lib/supabase/types";
 
-export type SafeUser = Omit<User, "password_hash">;
+export type SafeUser = Omit<
+  User,
+  | "password_hash"
+  | "verification_token"
+  | "verification_token_expires"
+  | "reset_token"
+  | "reset_token_expires"
+>;
 
 export interface PaginatedResponse<T> {
   data: T[];
@@ -20,4 +27,5 @@ export interface UserQueryParams {
   search?: string;
   sort?: string;
   order?: "asc" | "desc";
+  verified?: "true" | "false";
 }

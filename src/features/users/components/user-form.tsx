@@ -94,14 +94,14 @@ export function UserForm({
 
   const onFormSubmit = handleSubmit((data) => {
     if (isEdit) {
-      const updateData: UserUpdateInput = {};
+      const updateData: Partial<UserUpdateInput> = {};
       if (data.email) updateData.email = data.email;
       if (data.password) updateData.password = data.password;
       if (data.full_name !== undefined) updateData.full_name = data.full_name || null;
       if (data.phone !== undefined) updateData.phone = data.phone || null;
       if (data.role) updateData.role = data.role;
       if (data.is_active !== undefined) updateData.is_active = data.is_active;
-      (onSubmit as (data: UserUpdateInput) => void)(updateData);
+      (onSubmit as (data: UserUpdateInput) => void)(updateData as UserUpdateInput);
     } else {
       (onSubmit as (data: UserCreateInput) => void)(data as UserCreateInput);
     }

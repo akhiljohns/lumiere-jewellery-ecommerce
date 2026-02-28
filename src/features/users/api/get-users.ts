@@ -11,6 +11,7 @@ async function fetchUsers(params: UserQueryParams): Promise<PaginatedUsers> {
   if (params.search) searchParams.set("search", params.search);
   if (params.sort) searchParams.set("sort", params.sort);
   if (params.order) searchParams.set("order", params.order);
+  if (params.verified) searchParams.set("verified", params.verified);
 
   return fetchApi<PaginatedUsers>(`/api/admin/users?${searchParams}`);
 }

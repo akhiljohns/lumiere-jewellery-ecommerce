@@ -4,6 +4,7 @@ import { useCallback, useMemo, useState } from "react";
 import Link from "next/link";
 import { Plus, Search } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
+import { useQueryState, parseAsInteger } from "nuqs";
 import { toast } from "sonner";
 
 import { buttonVariants } from "@/components/ui/button";
@@ -19,9 +20,9 @@ import { usePermissions } from "@/hooks/use-permissions";
 import type { Category } from "@/lib/supabase/types";
 
 export default function CategoriesPage() {
-  const [page, setPage] = useState(1);
-  const [search, setSearch] = useState("");
-  const [debouncedSearch, setDebouncedSearch] = useState("");
+  const [page, setPage] = useQueryState("page", parseAsInteger.withDefault(1));
+  const [search, setSearch] = useQueryState("search", { defaultValue: "" });
+  const [debouncedSearch, setDebouncedSearch] = useState(search);
   const [deleteTarget, setDeleteTarget] = useState<Category | null>(null);
 
   const { data, isLoading } = useGetCategories({
@@ -43,7 +44,7 @@ export default function CategoriesPage() {
       setPage(1);
     }, 400);
     return () => clearTimeout(timeout);
-  }, []);
+  }, [setSearch, setPage]);
 
   const handleDelete = useCallback(() => {
     if (!deleteTarget) return;

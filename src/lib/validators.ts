@@ -103,9 +103,9 @@ export const userCreateSchema = z.object({
 export const userUpdateSchema = z.object({
   email: z.string().email("Invalid email address").optional(),
   password: z
-    .string()
-    .min(6, "Password must be at least 6 characters")
-    .optional(),
+    .union([z.string().min(6, "Password must be at least 6 characters"), z.literal("")])
+    .optional()
+    .transform((v) => (v === "" ? undefined : v)),
   full_name: z.string().optional().nullable(),
   phone: z.string().optional().nullable(),
   role: z.string().optional(),
