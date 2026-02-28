@@ -22,17 +22,36 @@ export async function authenticateUser(
 ): Promise<SafeUser | null> {
   const supabase = createAdminClient();
 
+  console.log("[AUTH DEBUG] Attempting login for:", email);
+
   const { data: user, error } = await supabase
     .from("users")
     .select("*")
     .eq("email", email)
     .single();
 
-  if (error || !user) return null;
-  if (!user.is_active) return null;
-  if (user.role === "customer") return null;
+  if (error) {
+    console.log("[AUTH DEBUG] Supabase query error:", error.message, error.code, error.details);
+    return null;
+  }
+  if (!user) {
+    console.log("[AUTH DEBUG] No user found for email:", email);
+    return null;
+  }
+
+  console.log("[AUTH DEBUG] User found:", { id: user.id, email: user.email, role: user.role, is_active: user.is_active, has_hash: !!user.password_hash });
+
+  if (!user.is_active) {
+    console.log("[AUTH DEBUG] User is not active");
+    return null;
+  }
+  if (user.role === "customer") {
+    console.log("[AUTH DEBUG] User role is customer, rejecting");
+    return null;
+  }
 
   const isValid = await compare(password, user.password_hash);
+  console.log("[AUTH DEBUG] Password comparison result:", isValid);
   if (!isValid) return null;
 
   return sanitizeUser(user);
