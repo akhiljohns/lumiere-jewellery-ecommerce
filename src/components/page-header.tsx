@@ -1,9 +1,9 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
 
 interface PageHeaderProps {
   title: string;
@@ -18,18 +18,15 @@ export function PageHeader({
   backUrl,
   action,
 }: PageHeaderProps) {
-  const router = useRouter();
-
   return (
     <div className="flex items-center justify-between">
       <div className="flex items-center gap-3">
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={() => router.push(backUrl)}
+        <Link
+          href={backUrl}
+          className={buttonVariants({ variant: "ghost", size: "icon" })}
         >
           <ArrowLeft />
-        </Button>
+        </Link>
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-foreground">
             {title}
