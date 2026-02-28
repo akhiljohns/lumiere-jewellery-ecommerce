@@ -107,6 +107,41 @@ export interface Database {
           updated_at?: string;
         };
       };
+      categories: {
+        Row: {
+          id: string;
+          name: string;
+          slug: string;
+          parent_id: string | null;
+          image_url: string | null;
+          sort_order: number;
+          is_active: boolean;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          name: string;
+          slug: string;
+          parent_id?: string | null;
+          image_url?: string | null;
+          sort_order?: number;
+          is_active?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          name?: string;
+          slug?: string;
+          parent_id?: string | null;
+          image_url?: string | null;
+          sort_order?: number;
+          is_active?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+      };
       products: {
         Row: {
           id: string;
@@ -115,7 +150,7 @@ export interface Database {
           description: string | null;
           price: number;
           compare_price: number | null;
-          category: string;
+          category_id: string | null;
           material: string | null;
           weight: string | null;
           stock: number;
@@ -130,7 +165,7 @@ export interface Database {
           description?: string | null;
           price: number;
           compare_price?: number | null;
-          category: string;
+          category_id?: string | null;
           material?: string | null;
           weight?: string | null;
           stock?: number;
@@ -145,7 +180,7 @@ export interface Database {
           description?: string | null;
           price?: number;
           compare_price?: number | null;
-          category?: string;
+          category_id?: string | null;
           material?: string | null;
           weight?: string | null;
           stock?: number;
@@ -201,6 +236,12 @@ export type RolePermission =
 export type User = Database["public"]["Tables"]["users"]["Row"];
 export type UserInsert = Database["public"]["Tables"]["users"]["Insert"];
 export type UserUpdate = Database["public"]["Tables"]["users"]["Update"];
+
+export type Category = Database["public"]["Tables"]["categories"]["Row"];
+export type CategoryInsert =
+  Database["public"]["Tables"]["categories"]["Insert"];
+export type CategoryUpdate =
+  Database["public"]["Tables"]["categories"]["Update"];
 
 export type Product = Database["public"]["Tables"]["products"]["Row"];
 export type ProductInsert = Database["public"]["Tables"]["products"]["Insert"];

@@ -1,4 +1,4 @@
-export const RESOURCES = ["product", "user", "dashboard"] as const;
+export const RESOURCES = ["product", "category", "user", "dashboard"] as const;
 export const ACTIONS = ["view", "create", "edit", "delete"] as const;
 
 export const PERMISSIONS = {
@@ -7,6 +7,12 @@ export const PERMISSIONS = {
     create: "product.create",
     edit: "product.edit",
     delete: "product.delete",
+  },
+  category: {
+    view: "category.view",
+    create: "category.create",
+    edit: "category.edit",
+    delete: "category.delete",
   },
   user: {
     view: "user.view",
@@ -24,6 +30,10 @@ export type Permission =
   | "product.create"
   | "product.edit"
   | "product.delete"
+  | "category.view"
+  | "category.create"
+  | "category.edit"
+  | "category.delete"
   | "user.view"
   | "user.create"
   | "user.edit"
@@ -35,6 +45,10 @@ export const ALL_PERMISSIONS: Permission[] = [
   "product.create",
   "product.edit",
   "product.delete",
+  "category.view",
+  "category.create",
+  "category.edit",
+  "category.delete",
   "user.view",
   "user.create",
   "user.edit",
@@ -52,10 +66,15 @@ export const ROLE_PERMISSIONS: Record<string, Permission[]> = {
     "product.create",
     "product.edit",
     "product.delete",
+    "category.view",
+    "category.create",
+    "category.edit",
+    "category.delete",
     "dashboard.view",
   ],
   viewer: [
     "product.view",
+    "category.view",
     "user.view",
     "dashboard.view",
   ],
@@ -80,6 +99,7 @@ export function getRoleRank(role: string): number {
 /** Group permissions by resource for UI display (roles CRUD form) */
 export const PERMISSIONS_BY_RESOURCE: Record<string, Permission[]> = {
   product: ["product.view", "product.create", "product.edit", "product.delete"],
+  category: ["category.view", "category.create", "category.edit", "category.delete"],
   user: ["user.view", "user.create", "user.edit", "user.delete"],
   dashboard: ["dashboard.view"],
 };

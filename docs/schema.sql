@@ -17,6 +17,19 @@ create table if not exists public.users (
   updated_at    timestamptz default now()
 );
 
+-- ── CATEGORIES TABLE ────────────────────────────────
+create table if not exists public.categories (
+  id            uuid primary key default gen_random_uuid(),
+  name          text not null,
+  slug          text unique not null,
+  parent_id     uuid references public.categories(id) on delete set null,
+  image_url     text,
+  sort_order    integer not null default 0,
+  is_active     boolean default true,
+  created_at    timestamptz default now(),
+  updated_at    timestamptz default now()
+);
+
 -- ── PRODUCTS TABLE ───────────────────────────────
 create table if not exists public.products (
   id            uuid primary key default gen_random_uuid(),
@@ -25,7 +38,7 @@ create table if not exists public.products (
   description   text,
   price         numeric(10,2) not null,
   compare_price numeric(10,2),
-  category      text not null,
+  category_id   uuid references public.categories(id) on delete set null,
   material      text,
   weight        text,
   stock         integer not null default 0,
@@ -48,8 +61,11 @@ create table if not exists public.product_images (
 -- ── INDEXES ──────────────────────────────────────
 create index if not exists idx_users_email on public.users(email);
 create index if not exists idx_users_role on public.users(role);
+create index if not exists idx_categories_slug on public.categories(slug);
+create index if not exists idx_categories_parent_id on public.categories(parent_id);
+create index if not exists idx_categories_sort_order on public.categories(sort_order);
 create index if not exists idx_products_slug on public.products(slug);
-create index if not exists idx_products_category on public.products(category);
+create index if not exists idx_products_category_id on public.products(category_id);
 create index if not exists idx_products_is_active on public.products(is_active);
 create index if not exists idx_product_images_product_id on public.product_images(product_id);
 
@@ -66,6 +82,10 @@ create trigger on_users_updated
   before update on public.users
   for each row execute function public.handle_updated_at();
 
+create trigger on_categories_updated
+  before update on public.categories
+  for each row execute function public.handle_updated_at();
+
 create trigger on_products_updated
   before update on public.products
   for each row execute function public.handle_updated_at();
@@ -73,8 +93,14 @@ create trigger on_products_updated
 -- ── ROW LEVEL SECURITY ──────────────────────────
 -- Enable RLS on all tables
 alter table public.users enable row level security;
+alter table public.categories enable row level security;
 alter table public.products enable row level security;
 alter table public.product_images enable row level security;
+
+-- Public read access for active categories (storefront)
+create policy "Active categories are viewable by everyone"
+  on public.categories for select
+  using (is_active = true);
 
 -- Public read access for products (storefront)
 create policy "Products are viewable by everyone"

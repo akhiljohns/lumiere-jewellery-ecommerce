@@ -8,6 +8,21 @@ export const loginSchema = z.object({
 
 export type LoginInput = z.infer<typeof loginSchema>;
 
+// ── Categories ──────────────────────────────────────
+
+export const categoryCreateSchema = z.object({
+  name: z.string().min(1, "Name is required").max(100),
+  parent_id: z.string().uuid().optional().nullable(),
+  image_url: z.string().url("Invalid image URL").optional().nullable(),
+  sort_order: z.number().int().min(0).default(0),
+  is_active: z.boolean().default(true),
+});
+
+export const categoryUpdateSchema = categoryCreateSchema.partial();
+
+export type CategoryCreateInput = z.infer<typeof categoryCreateSchema>;
+export type CategoryUpdateInput = z.infer<typeof categoryUpdateSchema>;
+
 // ── Products ─────────────────────────────────────────
 
 export const productImageSchema = z.object({
@@ -25,7 +40,7 @@ export const productCreateSchema = z.object({
     .positive("Compare price must be positive")
     .optional()
     .nullable(),
-  category: z.string().min(1, "Category is required"),
+  category_id: z.string().uuid("Invalid category ID").optional().nullable(),
   material: z.string().optional().nullable(),
   weight: z.string().optional().nullable(),
   stock: z.number().int().min(0, "Stock cannot be negative").default(0),
@@ -74,9 +89,18 @@ export const paginationSchema = z.object({
   order: z.enum(["asc", "desc"]).default("desc"),
 });
 
+export const categoryQuerySchema = paginationSchema.extend({
+  parent_id: z.string().uuid().optional(),
+  active_only: z
+    .enum(["true", "false"])
+    .transform((v) => v === "true")
+    .optional(),
+});
+
 export const productQuerySchema = paginationSchema.extend({
-  category: z.string().optional(),
+  category_id: z.string().uuid().optional(),
 });
 
 export type PaginationInput = z.infer<typeof paginationSchema>;
+export type CategoryQueryInput = z.infer<typeof categoryQuerySchema>;
 export type ProductQueryInput = z.infer<typeof productQuerySchema>;
