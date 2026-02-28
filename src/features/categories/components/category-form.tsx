@@ -7,6 +7,7 @@ import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Select,
   SelectContent,
@@ -47,11 +48,12 @@ export function CategoryForm({
   submitLabel,
   excludeId,
 }: CategoryFormProps) {
-  const { data: categoriesData } = useGetCategories({
-    limit: 100,
-    sort: "name",
-    order: "asc",
-  });
+  const { data: categoriesData, isLoading: isCategoriesLoading } =
+    useGetCategories({
+      limit: 100,
+      sort: "name",
+      order: "asc",
+    });
   const categories = (categoriesData?.data ?? []).filter(
     (cat) => cat.id !== excludeId,
   );
@@ -97,31 +99,35 @@ export function CategoryForm({
         <div className="grid gap-6 sm:grid-cols-2">
           <Field>
             <FieldLabel>Parent Category</FieldLabel>
-            <Controller
-              control={control}
-              name="parent_id"
-              render={({ field }) => (
-                <Select
-                  value={field.value ?? ""}
-                  onValueChange={(v) => field.onChange(v || null)}
-                >
-                  <SelectTrigger
-                    className="w-full"
-                    aria-invalid={!!errors.parent_id}
+            {isCategoriesLoading ? (
+              <Skeleton className="h-7 w-full rounded-md" />
+            ) : (
+              <Controller
+                control={control}
+                name="parent_id"
+                render={({ field }) => (
+                  <Select
+                    value={field.value ?? ""}
+                    onValueChange={(v) => field.onChange(v || null)}
                   >
-                    <SelectValue placeholder="None (top-level)" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="">None (top-level)</SelectItem>
-                    {categories.map((cat) => (
-                      <SelectItem key={cat.id} value={cat.id}>
-                        {cat.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              )}
-            />
+                    <SelectTrigger
+                      className="w-full"
+                      aria-invalid={!!errors.parent_id}
+                    >
+                      <SelectValue placeholder="None (top-level)" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="">None (top-level)</SelectItem>
+                      {categories.map((cat) => (
+                        <SelectItem key={cat.id} value={cat.id}>
+                          {cat.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
+              />
+            )}
             {errors.parent_id && (
               <FieldError>{errors.parent_id.message}</FieldError>
             )}
