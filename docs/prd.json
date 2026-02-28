@@ -787,23 +787,23 @@
                     "priority": "P0",
                     "impact": "high",
                     "effort": "medium",
-                    "status": "not_started",
+                    "status": "done",
                     "description": "Migrate all client-side data fetching to TanStack React Query with query keys, caching, and optimistic updates.",
                     "subtasks": [
                         {
                             "id": "TASK-C01-A",
                             "title": "Set up QueryClient provider and configure defaults (staleTime, gcTime, retry)",
-                            "status": "not_started"
+                            "status": "done"
                         },
                         {
                             "id": "TASK-C01-B",
                             "title": "Create query hooks for products, users, categories, orders (useProducts, useUsers, etc.)",
-                            "status": "not_started"
+                            "status": "done"
                         },
                         {
                             "id": "TASK-C01-C",
                             "title": "Create mutation hooks with optimistic updates for all CRUD operations",
-                            "status": "not_started"
+                            "status": "done"
                         }
                     ]
                 },
@@ -813,23 +813,23 @@
                     "priority": "P0",
                     "impact": "high",
                     "effort": "low",
-                    "status": "not_started",
+                    "status": "done",
                     "description": "Expand Zustand beyond auth-store to cart, wishlist, and UI state management.",
                     "subtasks": [
                         {
                             "id": "TASK-C02-A",
                             "title": "Create cart-store.ts (items, add, remove, update quantity, clear, total)",
-                            "status": "not_started"
+                            "status": "done"
                         },
                         {
                             "id": "TASK-C02-B",
                             "title": "Create wishlist-store.ts (items, toggle, check)",
-                            "status": "not_started"
+                            "status": "done"
                         },
                         {
                             "id": "TASK-C02-C",
                             "title": "Create ui-store.ts (sidebar state, filter state, search state)",
-                            "status": "not_started"
+                            "status": "done"
                         }
                     ]
                 },
