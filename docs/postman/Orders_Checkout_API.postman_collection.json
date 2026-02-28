@@ -1,0 +1,271 @@
+{
+  "info": {
+    "name": "Orders & Checkout API",
+    "_postman_id": "orders-checkout-api",
+    "description": "TASK-A04: Orders, checkout, addresses, and payment verification endpoints.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "10. Customer Addresses",
+      "item": [
+        {
+          "name": "10.1 Create Address",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "  const json = pm.response.json();",
+                  "  pm.globals.set('address_id', json.data.id);",
+                  "  pm.test('Address created', () => pm.expect(json.data.full_name).to.be.a('string'));",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"label\": \"Home\",\n  \"full_name\": \"Test Customer\",\n  \"phone\": \"9876543210\",\n  \"address_line_1\": \"123 Main Street\",\n  \"address_line_2\": \"Apt 4B\",\n  \"city\": \"Mumbai\",\n  \"state\": \"Maharashtra\",\n  \"pincode\": \"400001\",\n  \"country\": \"India\",\n  \"is_default\": true\n}"
+            },
+            "url": { "raw": "{{base_url}}/api/customer/addresses", "host": ["{{base_url}}"], "path": ["api", "customer", "addresses"] }
+          }
+        },
+        {
+          "name": "10.2 List Addresses",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{base_url}}/api/customer/addresses", "host": ["{{base_url}}"], "path": ["api", "customer", "addresses"] }
+          }
+        },
+        {
+          "name": "10.3 Get Address",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{base_url}}/api/customer/addresses/{{address_id}}", "host": ["{{base_url}}"], "path": ["api", "customer", "addresses", "{{address_id}}"] }
+          }
+        },
+        {
+          "name": "10.4 Update Address",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"label\": \"Office\",\n  \"city\": \"Delhi\"\n}"
+            },
+            "url": { "raw": "{{base_url}}/api/customer/addresses/{{address_id}}", "host": ["{{base_url}}"], "path": ["api", "customer", "addresses", "{{address_id}}"] }
+          }
+        },
+        {
+          "name": "10.5 Delete Address",
+          "request": {
+            "method": "DELETE",
+            "url": { "raw": "{{base_url}}/api/customer/addresses/{{address_id}}", "host": ["{{base_url}}"], "path": ["api", "customer", "addresses", "{{address_id}}"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "11. Checkout & Orders",
+      "item": [
+        {
+          "name": "11.1 Validate Cart (ref)",
+          "request": {
+            "method": "POST",
+            "url": { "raw": "{{base_url}}/api/customer/cart/validate", "host": ["{{base_url}}"], "path": ["api", "customer", "cart", "validate"] }
+          }
+        },
+        {
+          "name": "11.2 Checkout — COD Order",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "  const json = pm.response.json();",
+                  "  pm.globals.set('order_id', json.data.order_id);",
+                  "  pm.globals.set('order_number', json.data.order_number);",
+                  "  pm.test('COD order created', () => pm.expect(json.data.payment_method).to.eql('cod'));",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"payment_method\": \"cod\",\n  \"shipping_address\": {\n    \"full_name\": \"Test Customer\",\n    \"phone\": \"9876543210\",\n    \"address_line_1\": \"123 Main Street\",\n    \"city\": \"Mumbai\",\n    \"state\": \"Maharashtra\",\n    \"pincode\": \"400001\",\n    \"country\": \"India\"\n  },\n  \"notes\": \"Please deliver before 5 PM\"\n}"
+            },
+            "url": { "raw": "{{base_url}}/api/customer/checkout", "host": ["{{base_url}}"], "path": ["api", "customer", "checkout"] }
+          }
+        },
+        {
+          "name": "11.3 Checkout — Razorpay Order",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "  const json = pm.response.json();",
+                  "  pm.globals.set('order_id', json.data.order_id);",
+                  "  pm.globals.set('order_number', json.data.order_number);",
+                  "  if (json.data.razorpay_order_id) {",
+                  "    pm.globals.set('razorpay_order_id', json.data.razorpay_order_id);",
+                  "  }",
+                  "  pm.test('Razorpay order created', () => pm.expect(json.data.payment_method).to.eql('razorpay'));",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"payment_method\": \"razorpay\",\n  \"address_id\": \"{{address_id}}\",\n  \"notes\": \"Online payment order\"\n}"
+            },
+            "url": { "raw": "{{base_url}}/api/customer/checkout", "host": ["{{base_url}}"], "path": ["api", "customer", "checkout"] }
+          }
+        },
+        {
+          "name": "11.4 Verify Razorpay Payment",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"razorpay_order_id\": \"{{razorpay_order_id}}\",\n  \"razorpay_payment_id\": \"pay_test_id\",\n  \"razorpay_signature\": \"test_signature\"\n}"
+            },
+            "url": { "raw": "{{base_url}}/api/customer/checkout/verify-payment", "host": ["{{base_url}}"], "path": ["api", "customer", "checkout", "verify-payment"] }
+          }
+        },
+        {
+          "name": "11.5 List My Orders",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/customer/orders?page=1&limit=10",
+              "host": ["{{base_url}}"],
+              "path": ["api", "customer", "orders"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "10" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "11.6 Get Order Detail",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{base_url}}/api/customer/orders/{{order_id}}", "host": ["{{base_url}}"], "path": ["api", "customer", "orders", "{{order_id}}"] }
+          }
+        },
+        {
+          "name": "11.7 Cancel Order",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reason\": \"Changed my mind\"\n}"
+            },
+            "url": { "raw": "{{base_url}}/api/customer/orders/{{order_id}}/cancel", "host": ["{{base_url}}"], "path": ["api", "customer", "orders", "{{order_id}}", "cancel"] }
+          }
+        }
+      ]
+    },
+    {
+      "name": "12. Admin — Orders",
+      "item": [
+        {
+          "name": "12.1 List All Orders",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/admin/orders?page=1&limit=10",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "orders"],
+              "query": [
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "10" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "12.2 Filter by Status",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/admin/orders?status=confirmed&page=1&limit=10",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "orders"],
+              "query": [
+                { "key": "status", "value": "confirmed" },
+                { "key": "page", "value": "1" },
+                { "key": "limit", "value": "10" }
+              ]
+            }
+          }
+        },
+        {
+          "name": "12.3 Get Order Detail",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{base_url}}/api/admin/orders/{{order_id}}", "host": ["{{base_url}}"], "path": ["api", "admin", "orders", "{{order_id}}"] }
+          }
+        },
+        {
+          "name": "12.4 Update Order Status — Confirm",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"confirmed\"\n}"
+            },
+            "url": { "raw": "{{base_url}}/api/admin/orders/{{order_id}}", "host": ["{{base_url}}"], "path": ["api", "admin", "orders", "{{order_id}}"] }
+          }
+        },
+        {
+          "name": "12.5 Update Order Status — Ship",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"shipped\"\n}"
+            },
+            "url": { "raw": "{{base_url}}/api/admin/orders/{{order_id}}", "host": ["{{base_url}}"], "path": ["api", "admin", "orders", "{{order_id}}"] }
+          }
+        },
+        {
+          "name": "12.6 Update Order Status — Cancel",
+          "request": {
+            "method": "PATCH",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"cancelled\",\n  \"cancelled_reason\": \"Customer requested cancellation\"\n}"
+            },
+            "url": { "raw": "{{base_url}}/api/admin/orders/{{order_id}}", "host": ["{{base_url}}"], "path": ["api", "admin", "orders", "{{order_id}}"] }
+          }
+        }
+      ]
+    }
+  ]
+}

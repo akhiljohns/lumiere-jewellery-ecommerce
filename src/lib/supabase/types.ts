@@ -279,8 +279,173 @@ export interface Database {
           updated_at?: string;
         };
       };
+      addresses: {
+        Row: {
+          id: string;
+          customer_id: string;
+          label: string;
+          full_name: string;
+          phone: string;
+          address_line_1: string;
+          address_line_2: string | null;
+          city: string;
+          state: string;
+          pincode: string;
+          country: string;
+          is_default: boolean;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          customer_id: string;
+          label?: string;
+          full_name: string;
+          phone: string;
+          address_line_1: string;
+          address_line_2?: string | null;
+          city: string;
+          state: string;
+          pincode: string;
+          country?: string;
+          is_default?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          customer_id?: string;
+          label?: string;
+          full_name?: string;
+          phone?: string;
+          address_line_1?: string;
+          address_line_2?: string | null;
+          city?: string;
+          state?: string;
+          pincode?: string;
+          country?: string;
+          is_default?: boolean;
+          created_at?: string;
+          updated_at?: string;
+        };
+      };
+      orders: {
+        Row: {
+          id: string;
+          order_number: string;
+          customer_id: string;
+          status: "pending" | "confirmed" | "processing" | "shipped" | "delivered" | "cancelled" | "refunded";
+          payment_status: "pending" | "paid" | "failed" | "refunded";
+          payment_method: "cod" | "razorpay";
+          subtotal: number;
+          discount: number;
+          shipping_fee: number;
+          total: number;
+          shipping_address: ShippingAddress;
+          billing_address: ShippingAddress | null;
+          razorpay_order_id: string | null;
+          razorpay_payment_id: string | null;
+          razorpay_signature: string | null;
+          notes: string | null;
+          cancelled_reason: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          order_number: string;
+          customer_id: string;
+          status?: "pending" | "confirmed" | "processing" | "shipped" | "delivered" | "cancelled" | "refunded";
+          payment_status?: "pending" | "paid" | "failed" | "refunded";
+          payment_method: "cod" | "razorpay";
+          subtotal?: number;
+          discount?: number;
+          shipping_fee?: number;
+          total?: number;
+          shipping_address: ShippingAddress;
+          billing_address?: ShippingAddress | null;
+          razorpay_order_id?: string | null;
+          razorpay_payment_id?: string | null;
+          razorpay_signature?: string | null;
+          notes?: string | null;
+          cancelled_reason?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          order_number?: string;
+          customer_id?: string;
+          status?: "pending" | "confirmed" | "processing" | "shipped" | "delivered" | "cancelled" | "refunded";
+          payment_status?: "pending" | "paid" | "failed" | "refunded";
+          payment_method?: "cod" | "razorpay";
+          subtotal?: number;
+          discount?: number;
+          shipping_fee?: number;
+          total?: number;
+          shipping_address?: ShippingAddress;
+          billing_address?: ShippingAddress | null;
+          razorpay_order_id?: string | null;
+          razorpay_payment_id?: string | null;
+          razorpay_signature?: string | null;
+          notes?: string | null;
+          cancelled_reason?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+      };
+      order_items: {
+        Row: {
+          id: string;
+          order_id: string;
+          product_id: string | null;
+          product_name: string;
+          product_slug: string;
+          product_image: string | null;
+          price: number;
+          quantity: number;
+          total: number;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          order_id: string;
+          product_id?: string | null;
+          product_name: string;
+          product_slug: string;
+          product_image?: string | null;
+          price: number;
+          quantity: number;
+          total: number;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          order_id?: string;
+          product_id?: string | null;
+          product_name?: string;
+          product_slug?: string;
+          product_image?: string | null;
+          price?: number;
+          quantity?: number;
+          total?: number;
+          created_at?: string;
+        };
+      };
     };
   };
+}
+
+// ── Shipping Address (JSONB shape stored in orders) ──
+export interface ShippingAddress {
+  full_name: string;
+  phone: string;
+  address_line_1: string;
+  address_line_2?: string | null;
+  city: string;
+  state: string;
+  pincode: string;
+  country: string;
 }
 
 // ── Convenience type aliases ──
@@ -324,3 +489,19 @@ export type CartItemInsert =
   Database["public"]["Tables"]["cart_items"]["Insert"];
 export type CartItemUpdate =
   Database["public"]["Tables"]["cart_items"]["Update"];
+
+export type Address = Database["public"]["Tables"]["addresses"]["Row"];
+export type AddressInsert =
+  Database["public"]["Tables"]["addresses"]["Insert"];
+export type AddressUpdate =
+  Database["public"]["Tables"]["addresses"]["Update"];
+
+export type Order = Database["public"]["Tables"]["orders"]["Row"];
+export type OrderInsert = Database["public"]["Tables"]["orders"]["Insert"];
+export type OrderUpdate = Database["public"]["Tables"]["orders"]["Update"];
+
+export type OrderItem = Database["public"]["Tables"]["order_items"]["Row"];
+export type OrderItemInsert =
+  Database["public"]["Tables"]["order_items"]["Insert"];
+export type OrderItemUpdate =
+  Database["public"]["Tables"]["order_items"]["Update"];

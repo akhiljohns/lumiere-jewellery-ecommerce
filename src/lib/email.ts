@@ -107,6 +107,142 @@ export async function sendVerificationEmail(
   });
 }
 
+export interface OrderEmailItem {
+  name: string;
+  quantity: number;
+  price: number;
+  total: number;
+}
+
+export interface OrderEmailDetails {
+  order_number: string;
+  items: OrderEmailItem[];
+  subtotal: number;
+  shipping_fee: number;
+  total: number;
+  payment_method: string;
+  shipping_address: {
+    full_name: string;
+    address_line_1: string;
+    address_line_2?: string | null;
+    city: string;
+    state: string;
+    pincode: string;
+  };
+}
+
+export async function sendOrderConfirmationEmail(
+  to: string,
+  name: string | null,
+  orderDetails: OrderEmailDetails,
+) {
+  const url = `${APP_URL}/orders/${orderDetails.order_number}`;
+  const greeting = name ? `Hi ${name},` : "Hi,";
+
+  const formatINR = (amount: number) =>
+    new Intl.NumberFormat("en-IN", {
+      style: "currency",
+      currency: "INR",
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 2,
+    }).format(amount);
+
+  const itemRows = orderDetails.items
+    .map(
+      (item) => `
+      <tr>
+        <td style="padding:8px 12px;border-bottom:1px solid #e4e4e7;font-size:14px;color:#3f3f46;">${item.name}</td>
+        <td style="padding:8px 12px;border-bottom:1px solid #e4e4e7;font-size:14px;color:#3f3f46;text-align:center;">${item.quantity}</td>
+        <td style="padding:8px 12px;border-bottom:1px solid #e4e4e7;font-size:14px;color:#3f3f46;text-align:right;">${formatINR(item.price)}</td>
+        <td style="padding:8px 12px;border-bottom:1px solid #e4e4e7;font-size:14px;color:#3f3f46;text-align:right;">${formatINR(item.total)}</td>
+      </tr>`,
+    )
+    .join("");
+
+  const addr = orderDetails.shipping_address;
+  const addressLines = [
+    addr.full_name,
+    addr.address_line_1,
+    addr.address_line_2,
+    `${addr.city}, ${addr.state} - ${addr.pincode}`,
+  ]
+    .filter(Boolean)
+    .join("<br />");
+
+  const html = layout(`
+    <h2 style="margin:0 0 16px;font-size:20px;font-weight:600;color:#18181b;">Order Confirmed!</h2>
+    <p style="margin:0 0 12px;font-size:15px;color:#3f3f46;line-height:1.6;">${greeting}</p>
+    <p style="margin:0 0 24px;font-size:15px;color:#3f3f46;line-height:1.6;">
+      Thank you for your order! Your order <strong>${orderDetails.order_number}</strong> has been placed successfully.
+    </p>
+
+    <!-- Order Items Table -->
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 20px;border:1px solid #e4e4e7;border-radius:8px;overflow:hidden;">
+      <thead>
+        <tr style="background-color:#f4f4f5;">
+          <th style="padding:10px 12px;font-size:13px;font-weight:600;color:#18181b;text-align:left;">Item</th>
+          <th style="padding:10px 12px;font-size:13px;font-weight:600;color:#18181b;text-align:center;">Qty</th>
+          <th style="padding:10px 12px;font-size:13px;font-weight:600;color:#18181b;text-align:right;">Price</th>
+          <th style="padding:10px 12px;font-size:13px;font-weight:600;color:#18181b;text-align:right;">Total</th>
+        </tr>
+      </thead>
+      <tbody>
+        ${itemRows}
+      </tbody>
+    </table>
+
+    <!-- Totals -->
+    <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 24px;">
+      <tr>
+        <td style="padding:4px 0;font-size:14px;color:#71717a;">Subtotal</td>
+        <td style="padding:4px 0;font-size:14px;color:#3f3f46;text-align:right;">${formatINR(orderDetails.subtotal)}</td>
+      </tr>
+      ${
+        orderDetails.shipping_fee > 0
+          ? `<tr>
+              <td style="padding:4px 0;font-size:14px;color:#71717a;">Shipping</td>
+              <td style="padding:4px 0;font-size:14px;color:#3f3f46;text-align:right;">${formatINR(orderDetails.shipping_fee)}</td>
+            </tr>`
+          : ""
+      }
+      <tr>
+        <td style="padding:8px 0 0;font-size:16px;font-weight:700;color:#18181b;border-top:1px solid #e4e4e7;">Total</td>
+        <td style="padding:8px 0 0;font-size:16px;font-weight:700;color:#18181b;text-align:right;border-top:1px solid #e4e4e7;">${formatINR(orderDetails.total)}</td>
+      </tr>
+    </table>
+
+    <!-- Payment Method -->
+    <p style="margin:0 0 16px;font-size:14px;color:#71717a;">
+      Payment Method: <strong style="color:#3f3f46;">${orderDetails.payment_method === "cod" ? "Cash on Delivery" : "Online Payment (Razorpay)"}</strong>
+    </p>
+
+    <!-- Shipping Address -->
+    <div style="margin:0 0 24px;padding:16px;background-color:#f4f4f5;border-radius:8px;">
+      <p style="margin:0 0 8px;font-size:13px;font-weight:600;color:#18181b;">Shipping Address</p>
+      <p style="margin:0;font-size:14px;color:#3f3f46;line-height:1.6;">
+        ${addressLines}
+      </p>
+    </div>
+
+    <table role="presentation" cellpadding="0" cellspacing="0" style="margin:0 0 24px;">
+      <tr>
+        <td align="center" style="border-radius:8px;background-color:#f59e0b;">
+          <a href="${url}" target="_blank" style="${btnStyle}">View Order</a>
+        </td>
+      </tr>
+    </table>
+
+    <p style="margin:0;font-size:13px;color:#a1a1aa;">We'll send you updates as your order progresses.</p>
+  `);
+
+  await transporter.sendMail({
+    from: `"${FROM_NAME}" <${FROM_EMAIL}>`,
+    to,
+    subject: `Order Confirmed — ${orderDetails.order_number}`,
+    html,
+  });
+}
+
 export async function sendPasswordResetEmail(
   to: string,
   name: string | null,

@@ -174,3 +174,89 @@ export type CartSyncInput = z.infer<typeof cartSyncSchema>;
 export type GuestCheckoutSignupInput = z.infer<
   typeof guestCheckoutSignupSchema
 >;
+
+// ── Addresses ──────────────────────────────────────
+
+export const shippingAddressSchema = z.object({
+  full_name: z.string().min(1, "Full name is required").max(200),
+  phone: z
+    .string()
+    .min(10, "Phone must be at least 10 characters")
+    .max(15, "Phone must be at most 15 characters"),
+  address_line_1: z.string().min(1, "Address line 1 is required").max(500),
+  address_line_2: z.string().max(500).optional().nullable(),
+  city: z.string().min(1, "City is required").max(100),
+  state: z.string().min(1, "State is required").max(100),
+  pincode: z
+    .string()
+    .regex(/^\d{6}$/, "Pincode must be exactly 6 digits"),
+  country: z.string().max(100).default("India"),
+});
+
+export const addressCreateSchema = shippingAddressSchema.extend({
+  label: z.string().min(1, "Label is required").max(50).default("Home"),
+  is_default: z.boolean().default(false),
+});
+
+export const addressUpdateSchema = addressCreateSchema.partial();
+
+export type ShippingAddressInput = z.infer<typeof shippingAddressSchema>;
+export type AddressCreateInput = z.infer<typeof addressCreateSchema>;
+export type AddressUpdateInput = z.infer<typeof addressUpdateSchema>;
+
+// ── Checkout & Orders ──────────────────────────────
+
+export const checkoutSchema = z
+  .object({
+    shipping_address: shippingAddressSchema.optional(),
+    address_id: z.string().uuid("Invalid address ID").optional(),
+    billing_address: shippingAddressSchema.optional().nullable(),
+    notes: z.string().max(1000).optional().nullable(),
+    payment_method: z.enum(["cod", "razorpay"]),
+  })
+  .refine((data) => data.shipping_address || data.address_id, {
+    message: "Either shipping_address or address_id is required",
+    path: ["shipping_address"],
+  });
+
+export const orderStatusUpdateSchema = z.object({
+  status: z.enum([
+    "pending",
+    "confirmed",
+    "processing",
+    "shipped",
+    "delivered",
+    "cancelled",
+    "refunded",
+  ]),
+  cancelled_reason: z.string().max(500).optional().nullable(),
+});
+
+export const verifyPaymentSchema = z.object({
+  razorpay_order_id: z.string().min(1, "Razorpay order ID is required"),
+  razorpay_payment_id: z.string().min(1, "Razorpay payment ID is required"),
+  razorpay_signature: z.string().min(1, "Razorpay signature is required"),
+});
+
+export const orderQuerySchema = paginationSchema.extend({
+  status: z
+    .enum([
+      "pending",
+      "confirmed",
+      "processing",
+      "shipped",
+      "delivered",
+      "cancelled",
+      "refunded",
+    ])
+    .optional(),
+  payment_status: z
+    .enum(["pending", "paid", "failed", "refunded"])
+    .optional(),
+  customer_id: z.string().uuid().optional(),
+});
+
+export type CheckoutInput = z.infer<typeof checkoutSchema>;
+export type OrderStatusUpdateInput = z.infer<typeof orderStatusUpdateSchema>;
+export type VerifyPaymentInput = z.infer<typeof verifyPaymentSchema>;
+export type OrderQueryInput = z.infer<typeof orderQuerySchema>;

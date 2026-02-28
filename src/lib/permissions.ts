@@ -1,4 +1,4 @@
-export const RESOURCES = ["product", "category", "user", "dashboard"] as const;
+export const RESOURCES = ["product", "category", "user", "dashboard", "order"] as const;
 export const ACTIONS = ["view", "create", "edit", "delete"] as const;
 
 export const PERMISSIONS = {
@@ -23,6 +23,11 @@ export const PERMISSIONS = {
   dashboard: {
     view: "dashboard.view",
   },
+  order: {
+    view: "order.view",
+    edit: "order.edit",
+    delete: "order.delete",
+  },
 } as const;
 
 export type Permission =
@@ -38,7 +43,10 @@ export type Permission =
   | "user.create"
   | "user.edit"
   | "user.delete"
-  | "dashboard.view";
+  | "dashboard.view"
+  | "order.view"
+  | "order.edit"
+  | "order.delete";
 
 export const ALL_PERMISSIONS: Permission[] = [
   "product.view",
@@ -54,6 +62,9 @@ export const ALL_PERMISSIONS: Permission[] = [
   "user.edit",
   "user.delete",
   "dashboard.view",
+  "order.view",
+  "order.edit",
+  "order.delete",
 ];
 
 export const SUPER_ADMIN_ROLE = "super_admin";
@@ -71,12 +82,14 @@ export const ROLE_PERMISSIONS: Record<string, Permission[]> = {
     "category.edit",
     "category.delete",
     "dashboard.view",
+    "order.view",
   ],
   viewer: [
     "product.view",
     "category.view",
     "user.view",
     "dashboard.view",
+    "order.view",
   ],
 };
 
@@ -102,4 +115,5 @@ export const PERMISSIONS_BY_RESOURCE: Record<string, Permission[]> = {
   category: ["category.view", "category.create", "category.edit", "category.delete"],
   user: ["user.view", "user.create", "user.edit", "user.delete"],
   dashboard: ["dashboard.view"],
+  order: ["order.view", "order.edit", "order.delete"],
 };
