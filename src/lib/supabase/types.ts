@@ -170,6 +170,8 @@ export interface Database {
           weight: string | null;
           stock: number;
           is_active: boolean;
+          is_featured: boolean;
+          search_vector: string | null;
           created_at: string;
           updated_at: string;
         };
@@ -185,6 +187,7 @@ export interface Database {
           weight?: string | null;
           stock?: number;
           is_active?: boolean;
+          is_featured?: boolean;
           created_at?: string;
           updated_at?: string;
         };
@@ -200,6 +203,7 @@ export interface Database {
           weight?: string | null;
           stock?: number;
           is_active?: boolean;
+          is_featured?: boolean;
           created_at?: string;
           updated_at?: string;
         };

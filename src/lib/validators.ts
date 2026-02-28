@@ -81,6 +81,7 @@ export const productCreateSchema = z.object({
   weight: z.string().optional().nullable(),
   stock: z.number().int().min(0, "Stock cannot be negative").default(0),
   is_active: z.boolean().default(true),
+  is_featured: z.boolean().optional().default(false),
   images: z.array(productImageSchema).optional(),
 });
 
@@ -268,3 +269,38 @@ export const wishlistToggleSchema = z.object({
 });
 
 export type WishlistToggleInput = z.infer<typeof wishlistToggleSchema>;
+
+// ── Public Storefront Queries ─────────────────────────
+
+export const publicProductQuerySchema = paginationSchema.extend({
+  category_id: z.string().uuid().optional(),
+  category_slug: z.string().optional(),
+  material: z.string().optional(),
+  min_price: z.coerce.number().min(0).optional(),
+  max_price: z.coerce.number().min(0).optional(),
+  is_featured: z
+    .enum(["true", "false"])
+    .transform((v) => v === "true")
+    .optional(),
+  sort: z
+    .enum(["created_at", "price", "name"])
+    .default("created_at"),
+});
+
+export const searchQuerySchema = paginationSchema.extend({
+  query: z.string().min(1, "Search query is required"),
+  category_id: z.string().uuid().optional(),
+  material: z.string().optional(),
+  min_price: z.coerce.number().min(0).optional(),
+  max_price: z.coerce.number().min(0).optional(),
+});
+
+export const adminSearchQuerySchema = z.object({
+  query: z.string().min(1, "Search query is required"),
+  type: z.enum(["products", "users", "orders"]).default("products"),
+  limit: z.coerce.number().int().min(1).max(50).default(10),
+});
+
+export type PublicProductQueryInput = z.infer<typeof publicProductQuerySchema>;
+export type SearchQueryInput = z.infer<typeof searchQuerySchema>;
+export type AdminSearchQueryInput = z.infer<typeof adminSearchQuerySchema>;

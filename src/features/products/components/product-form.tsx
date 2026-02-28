@@ -39,6 +39,7 @@ type ProductFormValues = {
   weight?: string | null;
   stock: number;
   is_active: boolean;
+  is_featured?: boolean;
   images?: { url: string; public_id: string; is_primary: boolean }[];
 };
 import { useUploadImage, useDeleteImage } from "@/features/products/api/upload-image";
@@ -160,6 +161,7 @@ export function ProductForm({
       price: Number(data.price),
       compare_price: data.compare_price ? Number(data.compare_price) : null,
       stock: Number(data.stock),
+      is_featured: data.is_featured ?? false,
       images: images.length > 0 ? images : undefined,
     });
   });

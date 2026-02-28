@@ -260,23 +260,23 @@
                     "priority": "P1",
                     "impact": "high",
                     "effort": "medium",
-                    "status": "not_started",
+                    "status": "done",
                     "description": "Create a powerful search API endpoint for products using Supabase full-text search with filters.",
                     "subtasks": [
                         {
                             "id": "TASK-A07-A",
                             "title": "Add tsvector column and GIN index to products table for full-text search",
-                            "status": "not_started"
+                            "status": "done"
                         },
                         {
                             "id": "TASK-A07-B",
                             "title": "Create GET /api/products/search endpoint with query, category, price range, material filters",
-                            "status": "not_started"
+                            "status": "done"
                         },
                         {
                             "id": "TASK-A07-C",
                             "title": "Create admin search API (GET /api/admin/search) for products, users, and orders",
-                            "status": "not_started"
+                            "status": "done"
                         }
                     ]
                 },
@@ -286,28 +286,28 @@
                     "priority": "P0",
                     "impact": "very_high",
                     "effort": "low",
-                    "status": "not_started",
+                    "status": "done",
                     "description": "Create public (no-auth) API routes for storefront product browsing — listing, detail, and featured products.",
                     "subtasks": [
                         {
                             "id": "TASK-A08-A",
                             "title": "Create GET /api/products (public list with pagination, sorting, filtering by category/material/price)",
-                            "status": "not_started"
+                            "status": "done"
                         },
                         {
                             "id": "TASK-A08-B",
                             "title": "Create GET /api/products/[slug] (public detail with images, related products)",
-                            "status": "not_started"
+                            "status": "done"
                         },
                         {
                             "id": "TASK-A08-C",
                             "title": "Create GET /api/products/featured (curated or auto-selected featured products)",
-                            "status": "not_started"
+                            "status": "done"
                         },
                         {
                             "id": "TASK-A08-D",
                             "title": "Create GET /api/categories (public category list with product counts)",
-                            "status": "not_started"
+                            "status": "done"
                         }
                     ]
                 },
