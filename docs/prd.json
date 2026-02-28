@@ -239,18 +239,18 @@
                     "priority": "P0",
                     "impact": "high",
                     "effort": "low",
-                    "status": "not_started",
+                    "status": "done",
                     "description": "admin/page.tsx fetches limit: 100 products & users to compute aggregate stats. Create a dedicated GET /api/admin/stats endpoint with aggregate SQL.",
                     "subtasks": [
                         {
                             "id": "TASK-A06-A",
                             "title": "Create stats-service.ts with aggregate SQL (total products, active, out of stock, inventory value, total users, total orders, revenue)",
-                            "status": "not_started"
+                            "status": "done"
                         },
                         {
                             "id": "TASK-A06-B",
                             "title": "Create GET /api/admin/stats route handler",
-                            "status": "not_started"
+                            "status": "done"
                         }
                     ]
                 },

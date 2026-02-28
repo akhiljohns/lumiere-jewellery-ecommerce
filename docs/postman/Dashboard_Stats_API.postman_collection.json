@@ -1,0 +1,43 @@
+{
+  "info": {
+    "name": "Dashboard Stats API",
+    "_postman_id": "dashboard-stats-api",
+    "description": "TASK-A06: Dashboard aggregate statistics endpoint.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "14. Admin — Dashboard Stats",
+      "item": [
+        {
+          "name": "14.1 Get Dashboard Stats",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "  const json = pm.response.json();",
+                  "  pm.test('Has products stats', () => pm.expect(json.data.products).to.have.property('total'));",
+                  "  pm.test('Has users stats', () => pm.expect(json.data.users).to.have.property('total'));",
+                  "  pm.test('Has orders stats', () => pm.expect(json.data.orders).to.have.property('total'));",
+                  "  pm.test('Has revenue', () => pm.expect(json.data.orders).to.have.property('revenue'));",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/admin/stats",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "stats"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
