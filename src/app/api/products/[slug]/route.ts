@@ -1,16 +1,19 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getProductBySlug } from "@/features/storefront/services/storefront-service";
+import { rateLimitMiddleware, rateLimitResponse } from "@/lib/rate-limit";
 
 /**
  * GET /api/products/:slug
  * Public product detail with images, category, and related products.
- * No authentication required.
+ * No authentication required. Rate limited: 120 req/min.
  */
 export async function GET(
-  _request: NextRequest,
+  request: NextRequest,
   { params }: { params: Promise<{ slug: string }> },
 ) {
   try {
+    const rl = rateLimitMiddleware(request, "public");
+    if (!rl.success) return rateLimitResponse(rl);
     const { slug } = await params;
     const result = await getProductBySlug(slug);
 

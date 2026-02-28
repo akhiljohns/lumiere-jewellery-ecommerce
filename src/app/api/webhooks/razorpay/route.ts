@@ -2,9 +2,13 @@ import { NextRequest, NextResponse } from "next/server";
 import { verifyWebhookSignature } from "@/lib/razorpay";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { logToDiscord } from "@/lib/discord";
+import { rateLimitMiddleware, rateLimitResponse } from "@/lib/rate-limit";
 
 export async function POST(request: NextRequest) {
   try {
+    const rl = rateLimitMiddleware(request, "webhook");
+    if (!rl.success) return rateLimitResponse(rl);
+
     const body = await request.text();
     const signature = request.headers.get("x-razorpay-signature");
 

@@ -497,18 +497,18 @@
                     "priority": "P1",
                     "impact": "high",
                     "effort": "low",
-                    "status": "not_started",
+                    "status": "done",
                     "description": "Add rate limiting to /api/auth/login and /api/auth/register to prevent brute-force attacks.",
                     "subtasks": [
                         {
                             "id": "TASK-B01-A",
                             "title": "Implement in-memory rate limiter (Map with TTL) or Upstash Redis",
-                            "status": "not_started"
+                            "status": "done"
                         },
                         {
                             "id": "TASK-B01-B",
                             "title": "Apply rate limiting middleware to auth endpoints and return 429 on threshold",
-                            "status": "not_started"
+                            "status": "done"
                         }
                     ]
                 },

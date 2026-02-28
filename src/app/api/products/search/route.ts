@@ -1,14 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
 import { searchQuerySchema } from "@/lib/validators";
 import { searchProducts } from "@/features/storefront/services/storefront-service";
+import { rateLimitMiddleware, rateLimitResponse } from "@/lib/rate-limit";
 
 /**
  * GET /api/products/search
  * Full-text search using PostgreSQL tsvector with filters.
- * No authentication required.
+ * No authentication required. Rate limited: 120 req/min.
  */
 export async function GET(request: NextRequest) {
   try {
+    const rl = rateLimitMiddleware(request, "public");
+    if (!rl.success) return rateLimitResponse(rl);
     const { searchParams } = new URL(request.url);
     const queryInput = {
       query: searchParams.get("query") ?? searchParams.get("q") ?? undefined,

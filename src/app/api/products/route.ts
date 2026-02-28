@@ -1,14 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
 import { publicProductQuerySchema } from "@/lib/validators";
 import { getPublicProducts } from "@/features/storefront/services/storefront-service";
+import { rateLimitMiddleware, rateLimitResponse } from "@/lib/rate-limit";
 
 /**
  * GET /api/products
  * Public product listing with pagination, sorting, and filtering.
- * No authentication required.
+ * No authentication required. Rate limited: 120 req/min.
  */
 export async function GET(request: NextRequest) {
   try {
+    const rl = rateLimitMiddleware(request, "public");
+    if (!rl.success) return rateLimitResponse(rl);
     const { searchParams } = new URL(request.url);
     const queryInput = {
       page: searchParams.get("page") ?? undefined,

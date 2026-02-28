@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { verifyToken } from "@/lib/jwt";
+import { rateLimitMiddleware, rateLimitResponse, addRateLimitHeaders } from "@/lib/rate-limit";
 
 /**
  * Next.js Edge Proxy
@@ -7,13 +8,29 @@ import { verifyToken } from "@/lib/jwt";
  * Protects:
  *   - /admin/*   pages  → redirects to /login
  *   - /api/admin/* routes → returns 401 JSON
+ *
+ * Rate limits:
+ *   - /api/auth/*     → auth tier (10 req / 15 min)
+ *   - /api/admin/ai/* → ai tier (20 req / min)
+ *   - /api/admin/*    → admin tier (100 req / min)
+ *   - /api/customer/* → customer tier (60 req / min)
  */
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const token = request.cookies.get("admin-token")?.value;
 
+  // ── Rate limit auth endpoints ──
+  if (pathname.startsWith("/api/auth")) {
+    const rl = rateLimitMiddleware(request, "auth");
+    if (!rl.success) return rateLimitResponse(rl);
+  }
+
   // ── Protect admin API routes ──
   if (pathname.startsWith("/api/admin")) {
+    // Rate limit AI endpoints more aggressively
+    const tier = pathname.startsWith("/api/admin/ai") ? "ai" as const : "admin" as const;
+    const rl = rateLimitMiddleware(request, tier);
+    if (!rl.success) return rateLimitResponse(rl);
     if (!token) {
       return NextResponse.json(
         { error: "Authentication required" },
@@ -44,6 +61,9 @@ export async function proxy(request: NextRequest) {
 
   // ── Protect customer API routes ──
   if (pathname.startsWith("/api/customer")) {
+    const rl = rateLimitMiddleware(request, "customer");
+    if (!rl.success) return rateLimitResponse(rl);
+
     const customerToken = request.cookies.get("customer-token")?.value;
 
     if (!customerToken) {
@@ -99,5 +119,5 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/admin/:path*", "/api/admin/:path*", "/api/customer/:path*", "/login"],
+  matcher: ["/admin/:path*", "/api/admin/:path*", "/api/customer/:path*", "/api/auth/:path*", "/login"],
 };
