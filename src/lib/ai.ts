@@ -129,3 +129,129 @@ Return ONLY the alt text string, no quotes, no extra text.`;
 
   return altText;
 }
+
+// ── Suggest Category & Material ────────────────────
+
+interface SuggestCategoryInput {
+  name: string;
+  description?: string | null;
+  categories: string[];
+}
+
+interface SuggestCategoryOutput {
+  suggested_category: string | null;
+  suggested_material: string | null;
+  confidence: number;
+  tags: string[];
+}
+
+export async function suggestCategory(
+  input: SuggestCategoryInput,
+): Promise<SuggestCategoryOutput> {
+  const ai = getAI();
+
+  const categoryList = input.categories.length > 0
+    ? input.categories.join(", ")
+    : "Rings, Necklaces, Earrings, Bracelets, Bangles, Pendants, Chains, Anklets, Nose Pins, Mangalsutras, Toe Rings";
+
+  const prompt = `You are a jewellery product classification expert for an Indian jewellery e-commerce store.
+
+Given this product information, classify it:
+- Name: ${input.name}
+${input.description ? `- Description: ${input.description}` : ""}
+
+Available categories: ${categoryList}
+
+Common jewellery materials: Gold, Silver, Platinum, Diamond, Rose Gold, White Gold, 22K Gold, 18K Gold, 14K Gold, Sterling Silver, Kundan, Meenakari, Pearl, Ruby, Emerald, Sapphire, American Diamond, Oxidized Silver, Brass, Copper
+
+Return a JSON object with exactly these fields:
+1. "suggested_category" — The best matching category from the available list, or null if none match well.
+2. "suggested_material" — The most likely material based on the product name/description.
+3. "confidence" — A number from 0 to 1 indicating how confident you are in the classification.
+4. "tags" — An array of 3-6 relevant attribute tags (e.g., "handcrafted", "traditional", "lightweight", "statement piece").
+
+Return ONLY valid JSON, no markdown fences or extra text.`;
+
+  const response = await ai.models.generateContent({
+    model: "gemini-2.0-flash",
+    contents: prompt,
+    config: {
+      temperature: 0.3,
+      maxOutputTokens: 300,
+    },
+  });
+
+  const text = response.text?.trim() ?? "";
+  const cleaned = text.replace(/^```(?:json)?\n?/i, "").replace(/\n?```$/i, "").trim();
+
+  try {
+    const parsed = JSON.parse(cleaned) as SuggestCategoryOutput;
+    return {
+      suggested_category: parsed.suggested_category ?? null,
+      suggested_material: parsed.suggested_material ?? null,
+      confidence: typeof parsed.confidence === "number" ? Math.min(1, Math.max(0, parsed.confidence)) : 0,
+      tags: Array.isArray(parsed.tags) ? parsed.tags : [],
+    };
+  } catch {
+    throw new Error("Failed to parse AI response as JSON");
+  }
+}
+
+// ── Auto-Tag by Occasion ───────────────────────────
+
+interface AutoTagInput {
+  name: string;
+  category?: string | null;
+  material?: string | null;
+  description?: string | null;
+}
+
+interface AutoTagOutput {
+  occasions: string[];
+  styles: string[];
+  gifting: string[];
+}
+
+export async function autoTagProduct(
+  input: AutoTagInput,
+): Promise<AutoTagOutput> {
+  const ai = getAI();
+
+  const prompt = `You are a jewellery merchandising expert for an Indian jewellery e-commerce store.
+
+Analyze this product and generate occasion-based, style, and gifting tags:
+- Name: ${input.name}
+${input.category ? `- Category: ${input.category}` : ""}
+${input.material ? `- Material: ${input.material}` : ""}
+${input.description ? `- Description: ${input.description}` : ""}
+
+Return a JSON object with exactly these fields:
+1. "occasions" — Array of 2-5 occasion tags from: wedding, engagement, anniversary, festival, daily wear, party, office, puja, mehendi, sangeet, reception, casual, formal, bridal
+2. "styles" — Array of 2-4 style tags from: traditional, modern, contemporary, ethnic, indo-western, minimalist, statement, vintage, bohemian, classic, royal, temple
+3. "gifting" — Array of 1-3 gifting tags from: birthday gift, valentine gift, anniversary gift, wedding gift, mothers day, diwali gift, rakhi gift, housewarming, self purchase, bridesmaids gift
+
+Return ONLY valid JSON, no markdown fences or extra text.`;
+
+  const response = await ai.models.generateContent({
+    model: "gemini-2.0-flash",
+    contents: prompt,
+    config: {
+      temperature: 0.4,
+      maxOutputTokens: 300,
+    },
+  });
+
+  const text = response.text?.trim() ?? "";
+  const cleaned = text.replace(/^```(?:json)?\n?/i, "").replace(/\n?```$/i, "").trim();
+
+  try {
+    const parsed = JSON.parse(cleaned) as AutoTagOutput;
+    return {
+      occasions: Array.isArray(parsed.occasions) ? parsed.occasions : [],
+      styles: Array.isArray(parsed.styles) ? parsed.styles : [],
+      gifting: Array.isArray(parsed.gifting) ? parsed.gifting : [],
+    };
+  } catch {
+    throw new Error("Failed to parse AI response as JSON");
+  }
+}

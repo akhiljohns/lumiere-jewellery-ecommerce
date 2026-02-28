@@ -374,18 +374,18 @@
                     "priority": "P3",
                     "impact": "medium",
                     "effort": "medium",
-                    "status": "not_started",
+                    "status": "done",
                     "description": "API to auto-suggest category or material based on product name using LLM zero-shot classification.",
                     "subtasks": [
                         {
                             "id": "TASK-A11-A",
                             "title": "Create POST /api/admin/ai/suggest-category endpoint (input: product name → output: suggested category, material, tags)",
-                            "status": "not_started"
+                            "status": "done"
                         },
                         {
                             "id": "TASK-A11-B",
                             "title": "Create POST /api/admin/ai/auto-tag endpoint for occasion-based tagging (wedding, everyday, festive)",
-                            "status": "not_started"
+                            "status": "done"
                         }
                     ]
                 },

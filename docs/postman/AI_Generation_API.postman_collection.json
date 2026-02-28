@@ -1,7 +1,7 @@
 {
   "info": {
     "name": "AI Generation API",
-    "description": "AI-powered product description and image alt text generation endpoints.",
+    "description": "AI-powered product description, image alt text, category suggestion, and occasion tagging endpoints.",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "item": [
@@ -146,6 +146,165 @@
               "raw": "{{base_url}}/api/admin/ai/generate-alt-text",
               "host": ["{{base_url}}"],
               "path": ["api", "admin", "ai", "generate-alt-text"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 400', () => pm.response.to.have.status(400));"
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "18. AI Smart Categorization",
+      "item": [
+        {
+          "name": "18.1 Suggest Category & Material",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Cookie", "value": "admin-token={{admin_token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"22K Gold Kundan Choker Necklace\",\n  \"description\": \"Handcrafted traditional choker with kundan stones and meenakari work\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/admin/ai/suggest-category",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "ai", "suggest-category"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "const json = pm.response.json();",
+                  "pm.test('Has suggested_category', () => pm.expect(json.data).to.have.property('suggested_category'));",
+                  "pm.test('Has suggested_material', () => pm.expect(json.data).to.have.property('suggested_material'));",
+                  "pm.test('Has confidence', () => pm.expect(json.data.confidence).to.be.a('number'));",
+                  "pm.test('Has tags', () => pm.expect(json.data.tags).to.be.an('array'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "18.2 Suggest Category — Name Only",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Cookie", "value": "admin-token={{admin_token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Diamond Solitaire Engagement Ring\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/admin/ai/suggest-category",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "ai", "suggest-category"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "18.3 Auto-Tag by Occasion",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Cookie", "value": "admin-token={{admin_token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Pearl Drop Earrings\",\n  \"category\": \"Earrings\",\n  \"material\": \"Sterling Silver\",\n  \"description\": \"Elegant freshwater pearl drop earrings with rhodium plating\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/admin/ai/auto-tag",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "ai", "auto-tag"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));",
+                  "const json = pm.response.json();",
+                  "pm.test('Has occasions', () => pm.expect(json.data.occasions).to.be.an('array'));",
+                  "pm.test('Has styles', () => pm.expect(json.data.styles).to.be.an('array'));",
+                  "pm.test('Has gifting', () => pm.expect(json.data.gifting).to.be.an('array'));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "18.4 Auto-Tag — Name Only",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Cookie", "value": "admin-token={{admin_token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Heavy Gold Bridal Necklace Set\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/admin/ai/auto-tag",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "ai", "auto-tag"]
+            }
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test('Status 200', () => pm.response.to.have.status(200));"
+                ]
+              }
+            }
+          ]
+        },
+        {
+          "name": "18.5 Suggest Category — Missing Name (400)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" },
+              { "key": "Cookie", "value": "admin-token={{admin_token}}" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"description\": \"a gold ring\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/admin/ai/suggest-category",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "ai", "suggest-category"]
             }
           },
           "event": [

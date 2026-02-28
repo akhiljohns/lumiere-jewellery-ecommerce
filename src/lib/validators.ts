@@ -321,3 +321,18 @@ export const aiGenerateAltTextSchema = z.object({
 
 export type AIGenerateDescriptionInput = z.infer<typeof aiGenerateDescriptionSchema>;
 export type AIGenerateAltTextInput = z.infer<typeof aiGenerateAltTextSchema>;
+
+export const aiSuggestCategorySchema = z.object({
+  name: z.string().min(1, "Product name is required").max(200),
+  description: z.string().optional().nullable(),
+});
+
+export const aiAutoTagSchema = z.object({
+  name: z.string().min(1, "Product name is required").max(200),
+  category: z.string().optional().nullable(),
+  material: z.string().optional().nullable(),
+  description: z.string().optional().nullable(),
+});
+
+export type AISuggestCategoryInput = z.infer<typeof aiSuggestCategorySchema>;
+export type AIAutoTagInput = z.infer<typeof aiAutoTagSchema>;
