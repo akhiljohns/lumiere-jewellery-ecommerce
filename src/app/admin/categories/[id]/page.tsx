@@ -3,7 +3,7 @@
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import { Pencil } from "lucide-react";
-import Image from "next/image";
+import { CloudinaryImage } from "@/components/cloudinary-image";
 
 import { Badge } from "@/components/ui/badge";
 import { buttonVariants } from "@/components/ui/button";
@@ -100,10 +100,12 @@ export default function ViewCategoryPage() {
           <CardContent>
             {category.image_url ? (
               <div className="relative aspect-square w-full overflow-hidden rounded-lg border bg-muted/30">
-                <Image
+                <CloudinaryImage
                   src={category.image_url}
                   alt={category.name}
                   fill
+                  crop="fill"
+                  sizes="(max-width: 1024px) 100vw, 33vw"
                   className="object-cover"
                 />
               </div>

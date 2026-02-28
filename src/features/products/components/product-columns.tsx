@@ -2,7 +2,7 @@
 
 import type { ColumnDef } from "@tanstack/react-table";
 import { Eye, Pencil, Trash2 } from "lucide-react";
-import Image from "next/image";
+import { CloudinaryImage } from "@/components/cloudinary-image";
 import Link from "next/link";
 
 import { Badge } from "@/components/ui/badge";
@@ -30,11 +30,12 @@ export function getProductColumns(
       cell: ({ row }) => {
         const primary = getPrimaryImage(row.original.product_images);
         return primary ? (
-          <Image
+          <CloudinaryImage
             src={primary.url}
             alt={row.original.name}
             width={44}
             height={44}
+            crop="fill"
             className="size-11 rounded-md object-cover"
           />
         ) : (

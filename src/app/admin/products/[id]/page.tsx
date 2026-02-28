@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useParams } from "next/navigation";
 import Link from "next/link";
 import { ChevronLeft, ChevronRight, Pencil } from "lucide-react";
-import Image from "next/image";
+import { CloudinaryImage } from "@/components/cloudinary-image";
 
 import { Badge } from "@/components/ui/badge";
 import { Button, buttonVariants } from "@/components/ui/button";
@@ -125,10 +125,12 @@ export default function ViewProductPage() {
               <div className="space-y-3">
                 <div className="relative aspect-square w-full overflow-hidden rounded-lg border bg-muted/30">
                   {selectedImage && (
-                    <Image
+                    <CloudinaryImage
                       src={selectedImage.url}
                       alt={product.name}
                       fill
+                      crop="fill"
+                      sizes="(max-width: 1024px) 100vw, 33vw"
                       className="object-cover transition-opacity duration-200"
                       key={selectedImage.id}
                     />
@@ -178,10 +180,12 @@ export default function ViewProductPage() {
                             : "border-transparent opacity-60 hover:border-border"
                         }`}
                       >
-                        <Image
+                        <CloudinaryImage
                           src={img.url}
                           alt={`Product image ${index + 1}`}
-                          fill
+                          width={64}
+                          height={64}
+                          crop="fill"
                           className="object-cover"
                         />
                       </button>

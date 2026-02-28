@@ -3,7 +3,7 @@
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2, Upload, X } from "lucide-react";
-import Image from "next/image";
+import { CloudinaryImage } from "@/components/cloudinary-image";
 import { useCallback, useRef, useState } from "react";
 import { toast } from "sonner";
 
@@ -304,10 +304,12 @@ export function ProductForm({
                 key={img.public_id}
                 className="group relative size-20 rounded-md border overflow-hidden"
               >
-                <Image
+                <CloudinaryImage
                   src={img.url}
                   alt="Product"
-                  fill
+                  width={80}
+                  height={80}
+                  crop="fill"
                   className="object-cover"
                 />
                 {img.is_primary && (

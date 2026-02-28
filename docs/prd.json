@@ -607,18 +607,18 @@
                     "priority": "P1",
                     "impact": "medium",
                     "effort": "low",
-                    "status": "not_started",
+                    "status": "done",
                     "description": "Configure next/image with Cloudinary loader for automatic format conversion (WebP/AVIF), resizing, and lazy loading.",
                     "subtasks": [
                         {
                             "id": "TASK-B06-A",
                             "title": "Set image.remotePatterns in next.config.ts for Cloudinary domains",
-                            "status": "not_started"
+                            "status": "done"
                         },
                         {
                             "id": "TASK-B06-B",
                             "title": "Configure next-cloudinary CldImage component with sizes and placeholder blur",
-                            "status": "not_started"
+                            "status": "done"
                         }
                     ]
                 },
