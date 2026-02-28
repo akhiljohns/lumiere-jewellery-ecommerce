@@ -1,0 +1,91 @@
+{
+  "info": {
+    "name": "Wishlist API",
+    "_postman_id": "wishlist-api",
+    "description": "TASK-A05: Wishlist API — toggle, list, remove, and check endpoints.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "13. Customer Wishlist",
+      "item": [
+        {
+          "name": "13.1 Toggle Wishlist (Add)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "  const json = pm.response.json();",
+                  "  pm.test('Product toggled', () => pm.expect(json.data.added).to.be.a('boolean'));",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"product_id\": \"{{product_id}}\"\n}"
+            },
+            "url": { "raw": "{{base_url}}/api/customer/wishlist", "host": ["{{base_url}}"], "path": ["api", "customer", "wishlist"] }
+          }
+        },
+        {
+          "name": "13.2 List Wishlist",
+          "request": {
+            "method": "GET",
+            "url": { "raw": "{{base_url}}/api/customer/wishlist", "host": ["{{base_url}}"], "path": ["api", "customer", "wishlist"] }
+          }
+        },
+        {
+          "name": "13.3 Check Single Product",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/customer/wishlist/check?product_id={{product_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "customer", "wishlist", "check"],
+              "query": [{ "key": "product_id", "value": "{{product_id}}" }]
+            }
+          }
+        },
+        {
+          "name": "13.4 Check Multiple Products",
+          "request": {
+            "method": "GET",
+            "url": {
+              "raw": "{{base_url}}/api/customer/wishlist/check?product_ids={{product_id}},{{product_id_2}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "customer", "wishlist", "check"],
+              "query": [{ "key": "product_ids", "value": "{{product_id}},{{product_id_2}}" }]
+            }
+          }
+        },
+        {
+          "name": "13.5 Remove from Wishlist",
+          "request": {
+            "method": "DELETE",
+            "url": { "raw": "{{base_url}}/api/customer/wishlist/{{product_id}}", "host": ["{{base_url}}"], "path": ["api", "customer", "wishlist", "{{product_id}}"] }
+          }
+        },
+        {
+          "name": "13.6 Toggle Wishlist (Remove)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"product_id\": \"{{product_id}}\"\n}"
+            },
+            "url": { "raw": "{{base_url}}/api/customer/wishlist", "host": ["{{base_url}}"], "path": ["api", "customer", "wishlist"] }
+          }
+        }
+      ]
+    }
+  ]
+}

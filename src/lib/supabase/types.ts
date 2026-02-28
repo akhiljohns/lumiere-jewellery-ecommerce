@@ -432,6 +432,26 @@ export interface Database {
           created_at?: string;
         };
       };
+      wishlists: {
+        Row: {
+          id: string;
+          customer_id: string;
+          product_id: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          customer_id: string;
+          product_id: string;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          customer_id?: string;
+          product_id?: string;
+          created_at?: string;
+        };
+      };
     };
   };
 }
@@ -505,3 +525,7 @@ export type OrderItemInsert =
   Database["public"]["Tables"]["order_items"]["Insert"];
 export type OrderItemUpdate =
   Database["public"]["Tables"]["order_items"]["Update"];
+
+export type Wishlist = Database["public"]["Tables"]["wishlists"]["Row"];
+export type WishlistInsert =
+  Database["public"]["Tables"]["wishlists"]["Insert"];

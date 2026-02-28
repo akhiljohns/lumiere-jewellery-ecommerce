@@ -162,48 +162,48 @@
                     "priority": "P0",
                     "impact": "very_high",
                     "effort": "high",
-                    "status": "not_started",
+                    "status": "done",
                     "description": "Order creation from cart, order lifecycle management, and payment integration.",
                     "subtasks": [
                         {
                             "id": "TASK-A04-A",
                             "title": "Create orders and order_items tables with proper status enum (pending, confirmed, processing, shipped, delivered, cancelled, refunded)",
-                            "status": "not_started"
+                            "status": "done"
                         },
                         {
                             "id": "TASK-A04-B",
                             "title": "Create addresses table for shipping/billing addresses",
-                            "status": "not_started"
+                            "status": "done"
                         },
                         {
                             "id": "TASK-A04-C",
                             "title": "Create order Zod validators (checkout schema, status update schema)",
-                            "status": "not_started"
+                            "status": "done"
                         },
                         {
                             "id": "TASK-A04-D",
                             "title": "Create order service (create from cart, get by id, list by user, update status, cancel)",
-                            "status": "not_started"
+                            "status": "done"
                         },
                         {
                             "id": "TASK-A04-E",
                             "title": "Create checkout API route — validate stock, create order, decrement stock atomically (transaction)",
-                            "status": "not_started"
+                            "status": "done"
                         },
                         {
                             "id": "TASK-A04-F",
                             "title": "Integrate payment gateway (Razorpay for INR) — create order, verify payment, webhook handler",
-                            "status": "not_started"
+                            "status": "done"
                         },
                         {
                             "id": "TASK-A04-G",
                             "title": "Create admin order management API routes (list all, update status, get details)",
-                            "status": "not_started"
+                            "status": "done"
                         },
                         {
                             "id": "TASK-A04-H",
                             "title": "Add Discord notifications for new orders and status changes",
-                            "status": "not_started"
+                            "status": "done"
                         }
                     ]
                 },
@@ -213,23 +213,23 @@
                     "priority": "P1",
                     "impact": "medium",
                     "effort": "low",
-                    "status": "not_started",
+                    "status": "done",
                     "description": "Allow authenticated customers to save products to their wishlist.",
                     "subtasks": [
                         {
                             "id": "TASK-A05-A",
                             "title": "Create wishlists table (user_id, product_id, created_at)",
-                            "status": "not_started"
+                            "status": "done"
                         },
                         {
                             "id": "TASK-A05-B",
                             "title": "Create wishlist service (add, remove, list, check if product is wishlisted)",
-                            "status": "not_started"
+                            "status": "done"
                         },
                         {
                             "id": "TASK-A05-C",
                             "title": "Create wishlist API routes (GET list, POST toggle, DELETE remove)",
-                            "status": "not_started"
+                            "status": "done"
                         }
                     ]
                 },
