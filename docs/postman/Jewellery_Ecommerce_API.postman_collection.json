@@ -1913,9 +1913,9 @@
                   "    pm.expect(json.message).to.eql('Registration successful');",
                   "});",
                   "",
-                  "pm.test('Response has customer-token cookie', function () {",
-                  "    const cookie = pm.cookies.get('customer-token');",
-                  "    pm.expect(cookie).to.not.be.undefined;",
+                  "pm.test('Message tells user to verify email', function () {",
+                  "    const json = pm.response.json();",
+                  "    pm.expect(json.message).to.include('verify');",
                   "});",
                   "",
                   "const json = pm.response.json();",
@@ -2051,27 +2051,21 @@
           }
         },
         {
-          "name": "7.5 Customer Login",
+          "name": "7.5 Customer Login — Unverified",
           "event": [
             {
               "listen": "test",
               "script": {
                 "type": "text/javascript",
                 "exec": [
-                  "pm.test('Status is 200', function () {",
-                  "    pm.response.to.have.status(200);",
+                  "pm.test('Status is 403', function () {",
+                  "    pm.response.to.have.status(403);",
                   "});",
                   "",
-                  "pm.test('Response has customer data', function () {",
+                  "pm.test('Returns email not verified error', function () {",
                   "    const json = pm.response.json();",
-                  "    pm.expect(json.data).to.have.property('id');",
-                  "    pm.expect(json.data.role).to.eql('customer');",
-                  "    pm.expect(json.message).to.eql('Login successful');",
-                  "});",
-                  "",
-                  "pm.test('Response has customer-token cookie', function () {",
-                  "    const cookie = pm.cookies.get('customer-token');",
-                  "    pm.expect(cookie).to.not.be.undefined;",
+                  "    pm.expect(json.error).to.include('verify');",
+                  "    pm.expect(json.code).to.eql('EMAIL_NOT_VERIFIED');",
                   "});"
                 ]
               }
@@ -2091,7 +2085,7 @@
               "host": ["{{base_url}}"],
               "path": ["api", "auth", "customer-login"]
             },
-            "description": "Logs in with customer credentials. Sets `customer-token` cookie."
+            "description": "Attempts login with unverified customer. Should return 403 with EMAIL_NOT_VERIFIED code."
           }
         },
         {

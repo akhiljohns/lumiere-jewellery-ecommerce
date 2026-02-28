@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { loginSchema } from "@/lib/validators";
-import { authenticateCustomer } from "@/features/auth/services/customer-auth-service";
+import {
+  authenticateCustomer,
+  EmailNotVerifiedError,
+} from "@/features/auth/services/customer-auth-service";
 import { signCustomerToken } from "@/lib/jwt";
 
 export async function POST(request: NextRequest) {
@@ -45,7 +48,16 @@ export async function POST(request: NextRequest) {
     });
 
     return response;
-  } catch {
+  } catch (err) {
+    if (err instanceof EmailNotVerifiedError) {
+      return NextResponse.json(
+        {
+          error: err.message,
+          code: "EMAIL_NOT_VERIFIED",
+        },
+        { status: 403 },
+      );
+    }
     return NextResponse.json(
       { error: "Internal server error" },
       { status: 500 },

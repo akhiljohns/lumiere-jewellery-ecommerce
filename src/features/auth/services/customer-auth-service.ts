@@ -7,6 +7,13 @@ import {
   sendPasswordResetEmail,
 } from "@/lib/email";
 
+export class EmailNotVerifiedError extends Error {
+  constructor() {
+    super("Please verify your email address before logging in");
+    this.name = "EmailNotVerifiedError";
+  }
+}
+
 /** Token expiry durations in milliseconds. */
 const VERIFICATION_EXPIRY_MS = 24 * 60 * 60 * 1000; // 24 hours
 const RESET_EXPIRY_MS = 60 * 60 * 1000; // 1 hour
@@ -104,6 +111,10 @@ export async function authenticateCustomer(
 
   const isValid = await compare(password, user.password_hash);
   if (!isValid) return null;
+
+  if (!user.email_verified) {
+    throw new EmailNotVerifiedError();
+  }
 
   return sanitize(user);
 }
