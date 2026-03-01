@@ -1,11 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auditLogQuerySchema } from "@/lib/validators";
 import { getAuditLogs } from "@/features/audit/services/audit-service";
-import {
-  requirePermission,
-  ForbiddenError,
-  forbiddenResponse,
-} from "@/lib/api-auth";
+import { requirePermission } from "@/lib/api-auth";
+import { AppError, ErrorCode, errorResponse } from "@/lib/errors";
 
 /**
  * GET /api/admin/audit-logs
@@ -31,9 +28,10 @@ export async function GET(request: NextRequest) {
 
     const parsed = auditLogQuerySchema.safeParse(queryInput);
     if (!parsed.success) {
-      return NextResponse.json(
-        { error: "Invalid query parameters", details: parsed.error.issues },
-        { status: 400 },
+      throw new AppError(
+        ErrorCode.VALIDATION_ERROR,
+        "Invalid query parameters",
+        parsed.error.issues,
       );
     }
 
@@ -41,9 +39,6 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json(result, { status: 200 });
   } catch (err) {
-    if (err instanceof ForbiddenError) return forbiddenResponse(err.message);
-    const message =
-      err instanceof Error ? err.message : "Internal server error";
-    return NextResponse.json({ error: message }, { status: 500 });
+    return errorResponse(err);
   }
 }

@@ -2,11 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { aiSuggestCategorySchema } from "@/lib/validators";
 import { suggestCategory } from "@/lib/ai";
 import { createAdminClient } from "@/lib/supabase/admin";
-import {
-  requirePermission,
-  ForbiddenError,
-  forbiddenResponse,
-} from "@/lib/api-auth";
+import { requirePermission } from "@/lib/api-auth";
+import { AppError, ErrorCode, errorResponse } from "@/lib/errors";
 
 /**
  * POST /api/admin/ai/suggest-category
@@ -20,9 +17,10 @@ export async function POST(request: NextRequest) {
 
     const parsed = aiSuggestCategorySchema.safeParse(body);
     if (!parsed.success) {
-      return NextResponse.json(
-        { error: "Validation failed", details: parsed.error.issues },
-        { status: 400 },
+      throw new AppError(
+        ErrorCode.VALIDATION_ERROR,
+        "Validation failed",
+        parsed.error.issues,
       );
     }
 
@@ -43,9 +41,6 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ data: result }, { status: 200 });
   } catch (err) {
-    if (err instanceof ForbiddenError) return forbiddenResponse(err.message);
-    const message =
-      err instanceof Error ? err.message : "Internal server error";
-    return NextResponse.json({ error: message }, { status: 500 });
+    return errorResponse(err);
   }
 }

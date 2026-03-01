@@ -6,7 +6,8 @@ import {
   deleteUser,
 } from "@/features/users/services/user-service";
 import { logAdminAction, logAdminError, diffFields } from "@/lib/discord";
-import { requirePermission, ForbiddenError, forbiddenResponse } from "@/lib/api-auth";
+import { requirePermission } from "@/lib/api-auth";
+import { AppError, ErrorCode, errorResponse } from "@/lib/errors";
 
 interface RouteParams {
   params: Promise<{ id: string }>;
@@ -23,15 +24,12 @@ export async function GET(_request: NextRequest, { params }: RouteParams) {
     const user = await getUserById(id);
 
     if (!user) {
-      return NextResponse.json({ error: "User not found" }, { status: 404 });
+      throw new AppError(ErrorCode.NOT_FOUND, "User not found");
     }
 
     return NextResponse.json({ data: user }, { status: 200 });
   } catch (err) {
-    if (err instanceof ForbiddenError) return forbiddenResponse(err.message);
-    const message =
-      err instanceof Error ? err.message : "Internal server error";
-    return NextResponse.json({ error: message }, { status: 500 });
+    return errorResponse(err);
   }
 }
 
@@ -49,16 +47,17 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
 
     const parsed = userUpdateSchema.safeParse(body);
     if (!parsed.success) {
-      return NextResponse.json(
-        { error: "Validation failed", details: parsed.error.issues },
-        { status: 400 },
+      throw new AppError(
+        ErrorCode.VALIDATION_ERROR,
+        "Validation failed",
+        parsed.error.issues,
       );
     }
 
     // Verify user exists
     const existing = await getUserById(id);
     if (!existing) {
-      return NextResponse.json({ error: "User not found" }, { status: 404 });
+      throw new AppError(ErrorCode.NOT_FOUND, "User not found");
     }
 
     const user = await updateUser(id, parsed.data);
@@ -85,11 +84,8 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
       { status: 200 },
     );
   } catch (err) {
-    if (err instanceof ForbiddenError) return forbiddenResponse(err.message);
-    const message =
-      err instanceof Error ? err.message : "Internal server error";
-    logAdminError("Update User", message, actor);
-    return NextResponse.json({ error: message }, { status: 500 });
+    if (!(err instanceof AppError)) logAdminError("Update User", err instanceof Error ? err.message : "Unknown error", actor);
+    return errorResponse(err);
   }
 }
 
@@ -107,15 +103,15 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
     // Verify user exists
     const existing = await getUserById(id);
     if (!existing) {
-      return NextResponse.json({ error: "User not found" }, { status: 404 });
+      throw new AppError(ErrorCode.NOT_FOUND, "User not found");
     }
 
     // Prevent self-delete
     const currentUserId = request.headers.get("x-user-id");
     if (currentUserId === id) {
-      return NextResponse.json(
-        { error: "You cannot delete your own account" },
-        { status: 400 },
+      throw new AppError(
+        ErrorCode.BAD_REQUEST,
+        "You cannot delete your own account",
       );
     }
 
@@ -132,10 +128,7 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
       { status: 200 },
     );
   } catch (err) {
-    if (err instanceof ForbiddenError) return forbiddenResponse(err.message);
-    const message =
-      err instanceof Error ? err.message : "Internal server error";
-    logAdminError("Delete User", message, actor);
-    return NextResponse.json({ error: message }, { status: 500 });
+    if (!(err instanceof AppError)) logAdminError("Delete User", err instanceof Error ? err.message : "Unknown error", actor);
+    return errorResponse(err);
   }
 }

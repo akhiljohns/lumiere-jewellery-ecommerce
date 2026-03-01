@@ -2,7 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { userCreateSchema, paginationSchema } from "@/lib/validators";
 import { getUsers, createUser } from "@/features/users/services/user-service";
 import { logAdminAction, logAdminError } from "@/lib/discord";
-import { requirePermission, ForbiddenError, forbiddenResponse } from "@/lib/api-auth";
+import { requirePermission } from "@/lib/api-auth";
+import { AppError, ErrorCode, errorResponse } from "@/lib/errors";
 
 /**
  * GET /api/admin/users
@@ -22,9 +23,10 @@ export async function GET(request: NextRequest) {
 
     const parsed = paginationSchema.safeParse(queryInput);
     if (!parsed.success) {
-      return NextResponse.json(
-        { error: "Invalid query parameters", details: parsed.error.issues },
-        { status: 400 },
+      throw new AppError(
+        ErrorCode.VALIDATION_ERROR,
+        "Invalid query parameters",
+        parsed.error.issues,
       );
     }
 
@@ -36,10 +38,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json(result, { status: 200 });
   } catch (err) {
-    if (err instanceof ForbiddenError) return forbiddenResponse(err.message);
-    const message =
-      err instanceof Error ? err.message : "Internal server error";
-    return NextResponse.json({ error: message }, { status: 500 });
+    return errorResponse(err);
   }
 }
 
@@ -56,9 +55,10 @@ export async function POST(request: NextRequest) {
 
     const parsed = userCreateSchema.safeParse(body);
     if (!parsed.success) {
-      return NextResponse.json(
-        { error: "Validation failed", details: parsed.error.issues },
-        { status: 400 },
+      throw new AppError(
+        ErrorCode.VALIDATION_ERROR,
+        "Validation failed",
+        parsed.error.issues,
       );
     }
 
@@ -76,10 +76,7 @@ export async function POST(request: NextRequest) {
       { status: 201 },
     );
   } catch (err) {
-    if (err instanceof ForbiddenError) return forbiddenResponse(err.message);
-    const message =
-      err instanceof Error ? err.message : "Internal server error";
-    logAdminError("Create User", message, actor);
-    return NextResponse.json({ error: message }, { status: 500 });
+    if (!(err instanceof AppError)) logAdminError("Create User", err instanceof Error ? err.message : "Unknown error", actor);
+    return errorResponse(err);
   }
 }

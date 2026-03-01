@@ -581,23 +581,23 @@
                     "priority": "P1",
                     "impact": "medium",
                     "effort": "low",
-                    "status": "not_started",
+                    "status": "done",
                     "description": "Create a shared AppError class with error codes and standardize API error responses.",
                     "subtasks": [
                         {
                             "id": "TASK-B05-A",
                             "title": "Create shared AppError class with error codes (NOT_FOUND, UNAUTHORIZED, VALIDATION_ERROR, etc.)",
-                            "status": "not_started"
+                            "status": "done"
                         },
                         {
                             "id": "TASK-B05-B",
                             "title": "Create API error response helper that maps AppError to consistent JSON { error, code, details }",
-                            "status": "not_started"
+                            "status": "done"
                         },
                         {
                             "id": "TASK-B05-C",
                             "title": "Refactor all API routes to use AppError and standardized responses",
-                            "status": "not_started"
+                            "status": "done"
                         }
                     ]
                 },
