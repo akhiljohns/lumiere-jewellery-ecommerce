@@ -80,7 +80,7 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
       ...(changes.length === 0 && !hasImageChanges
         ? [{ name: "Changes", value: "no field changes detected" }]
         : []),
-    ]);
+    ], { resource_id: id, actor_id: request.headers.get("x-user-id") ?? undefined });
 
     return NextResponse.json(
       { data: product, message: "Product updated successfully" },
@@ -119,7 +119,7 @@ export async function DELETE(_request: NextRequest, { params }: RouteParams) {
       { name: "ID", value: id, inline: true },
       { name: "Category", value: existing.categories?.name ?? "none", inline: true },
       { name: "Price", value: `₹${existing.price}`, inline: true },
-    ]);
+    ], { resource_id: id, actor_id: _request.headers.get("x-user-id") ?? undefined });
 
     return NextResponse.json(
       { message: "Product deleted successfully" },

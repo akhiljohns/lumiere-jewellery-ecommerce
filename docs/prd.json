@@ -317,28 +317,28 @@
                     "priority": "P1",
                     "impact": "medium",
                     "effort": "low",
-                    "status": "not_started",
+                    "status": "done",
                     "description": "Discord webhooks are fire-and-forget. Add an audit_logs table to persist all admin actions in the database.",
                     "subtasks": [
                         {
                             "id": "TASK-A09-A",
                             "title": "Create audit_logs table schema (action, resource, resource_id, actor_id, actor_email, details jsonb, ip_address, timestamp)",
-                            "status": "not_started"
+                            "status": "done"
                         },
                         {
                             "id": "TASK-A09-B",
                             "title": "Create audit log service (create entry, list with filters/pagination)",
-                            "status": "not_started"
+                            "status": "done"
                         },
                         {
                             "id": "TASK-A09-C",
                             "title": "Update logAdminAction to write to database alongside Discord",
-                            "status": "not_started"
+                            "status": "done"
                         },
                         {
                             "id": "TASK-A09-D",
                             "title": "Create GET /api/admin/audit-logs route with filters (actor, resource, date range)",
-                            "status": "not_started"
+                            "status": "done"
                         }
                     ]
                 },

@@ -73,7 +73,7 @@ export async function POST(request: NextRequest) {
       { name: "Price", value: `₹${parsed.data.price}`, inline: true },
       { name: "Stock", value: String(parsed.data.stock ?? 0), inline: true },
       { name: "Active", value: parsed.data.is_active !== false ? "Yes" : "No", inline: true },
-    ]);
+    ], { resource_id: product.id, actor_id: request.headers.get("x-user-id") ?? undefined });
 
     return NextResponse.json(
       { data: product, message: "Product created successfully" },

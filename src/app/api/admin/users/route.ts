@@ -69,7 +69,7 @@ export async function POST(request: NextRequest) {
       { name: "Name", value: parsed.data.full_name ?? "—", inline: true },
       { name: "Role", value: parsed.data.role ?? "customer", inline: true },
       { name: "Active", value: parsed.data.is_active !== false ? "Yes" : "No", inline: true },
-    ]);
+    ], { resource_id: user.id, actor_id: request.headers.get("x-user-id") ?? undefined });
 
     return NextResponse.json(
       { data: user, message: "User created successfully" },

@@ -64,7 +64,7 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
       ...(parsed.data.cancelled_reason
         ? [{ name: "Reason", value: parsed.data.cancelled_reason, inline: false }]
         : []),
-    ]);
+    ], { resource_id: id, actor_id: request.headers.get("x-user-id") ?? undefined });
 
     return NextResponse.json(
       { data: order, message: "Order status updated successfully" },

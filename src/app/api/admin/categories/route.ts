@@ -84,7 +84,7 @@ export async function POST(request: NextRequest) {
         value: parsed.data.is_active !== false ? "Yes" : "No",
         inline: true,
       },
-    ]);
+    ], { resource_id: category.id, actor_id: request.headers.get("x-user-id") ?? undefined });
 
     return NextResponse.json(
       { data: category, message: "Category created successfully" },

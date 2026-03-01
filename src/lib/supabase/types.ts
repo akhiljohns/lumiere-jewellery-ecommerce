@@ -456,6 +456,41 @@ export interface Database {
           created_at?: string;
         };
       };
+      audit_logs: {
+        Row: {
+          id: string;
+          action: string;
+          resource: string;
+          resource_id: string | null;
+          actor_id: string | null;
+          actor_email: string;
+          details: Record<string, unknown>;
+          ip_address: string | null;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          action: string;
+          resource: string;
+          resource_id?: string | null;
+          actor_id?: string | null;
+          actor_email: string;
+          details?: Record<string, unknown>;
+          ip_address?: string | null;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          action?: string;
+          resource?: string;
+          resource_id?: string | null;
+          actor_id?: string | null;
+          actor_email?: string;
+          details?: Record<string, unknown>;
+          ip_address?: string | null;
+          created_at?: string;
+        };
+      };
     };
   };
 }
@@ -533,3 +568,7 @@ export type OrderItemUpdate =
 export type Wishlist = Database["public"]["Tables"]["wishlists"]["Row"];
 export type WishlistInsert =
   Database["public"]["Tables"]["wishlists"]["Insert"];
+
+export type AuditLog = Database["public"]["Tables"]["audit_logs"]["Row"];
+export type AuditLogInsert =
+  Database["public"]["Tables"]["audit_logs"]["Insert"];

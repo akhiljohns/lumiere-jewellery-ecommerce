@@ -86,7 +86,7 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
       ...(changes.length === 0
         ? [{ name: "Changes", value: "no field changes detected" }]
         : []),
-    ]);
+    ], { resource_id: id, actor_id: request.headers.get("x-user-id") ?? undefined });
 
     return NextResponse.json(
       { data: category, message: "Category updated successfully" },
@@ -127,7 +127,7 @@ export async function DELETE(_request: NextRequest, { params }: RouteParams) {
     logAdminAction("deleted", "Category", existing.name, actor, [
       { name: "ID", value: id, inline: true },
       { name: "Slug", value: existing.slug, inline: true },
-    ]);
+    ], { resource_id: id, actor_id: _request.headers.get("x-user-id") ?? undefined });
 
     return NextResponse.json(
       { message: "Category deleted successfully" },

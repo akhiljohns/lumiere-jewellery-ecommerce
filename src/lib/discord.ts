@@ -1,3 +1,5 @@
+import { createAuditLog } from "@/features/audit/services/audit-service";
+
 const DISCORD_WEBHOOK_URL = process.env.DISCORD_WEBHOOK_URL;
 
 type LogLevel = "info" | "success" | "warning" | "error";
@@ -75,8 +77,29 @@ export function logAdminAction(
   identifier: string,
   actor: string,
   extra?: { name: string; value: string; inline?: boolean }[],
+  opts?: { resource_id?: string; actor_id?: string; ip_address?: string },
 ) {
   const level: LogLevel = action === "deleted" ? "warning" : "success";
+
+  // Persist to database (fire-and-forget)
+  const details: Record<string, unknown> = { identifier };
+  if (extra) {
+    for (const field of extra) {
+      details[field.name] = field.value;
+    }
+  }
+
+  createAuditLog({
+    action,
+    resource,
+    resource_id: opts?.resource_id ?? null,
+    actor_id: opts?.actor_id ?? null,
+    actor_email: actor,
+    details,
+    ip_address: opts?.ip_address ?? null,
+  }).catch(() => {
+    // Silently fail — audit persistence must never break the app
+  });
 
   return logToDiscord({
     title: `${resource} ${action}`,
