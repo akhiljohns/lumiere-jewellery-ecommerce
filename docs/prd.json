@@ -953,28 +953,28 @@
                     "priority": "P0",
                     "impact": "very_high",
                     "effort": "high",
-                    "status": "not_started",
+                    "status": "done",
                     "description": "Shopping cart page and multi-step checkout flow with payment.",
                     "subtasks": [
                         {
                             "id": "TASK-C06-A",
                             "title": "Cart page with item list, quantity controls, remove button, and order summary",
-                            "status": "not_started"
+                            "status": "done"
                         },
                         {
                             "id": "TASK-C06-B",
                             "title": "Checkout step 1: Shipping address form",
-                            "status": "not_started"
+                            "status": "done"
                         },
                         {
                             "id": "TASK-C06-C",
                             "title": "Checkout step 2: Order review and payment",
-                            "status": "not_started"
+                            "status": "done"
                         },
                         {
                             "id": "TASK-C06-D",
                             "title": "Order confirmation page with order details and tracking",
-                            "status": "not_started"
+                            "status": "done"
                         }
                     ]
                 },
