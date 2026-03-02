@@ -248,7 +248,7 @@ export async function sendPasswordResetEmail(
   name: string | null,
   token: string,
 ) {
-  const url = `${APP_URL}/api/auth/reset-password?token=${token}`;
+  const url = `${APP_URL}/reset-password?token=${token}`;
   const greeting = name ? `Hi ${name},` : "Hi,";
 
   const html = layout(`
