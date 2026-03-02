@@ -1068,23 +1068,25 @@
                     "priority": "P1",
                     "impact": "high",
                     "effort": "medium",
-                    "status": "not_started",
+                    "status": "done",
+                    "completedAt": "2026-03-02",
+                    "summary": "Added admin order list page with DataTable, status/payment filters, search by order number, and pagination via nuqs. Order detail page shows items table with product images, price breakdown, status timeline, customer info, shipping address, and status update with ConfirmDialog. Uses existing useGetOrders, useGetOrder, useUpdateOrderStatus hooks. Added Orders to admin sidebar menu.",
                     "description": "Admin pages for viewing, filtering, and managing customer orders.",
                     "subtasks": [
                         {
                             "id": "TASK-C09-A",
                             "title": "Order list page with data table (status filter, date range, search by customer)",
-                            "status": "not_started"
+                            "status": "done"
                         },
                         {
                             "id": "TASK-C09-B",
                             "title": "Order detail page (items, customer info, shipping address, status timeline)",
-                            "status": "not_started"
+                            "status": "done"
                         },
                         {
                             "id": "TASK-C09-C",
                             "title": "Order status update UI with confirmation dialog",
-                            "status": "not_started"
+                            "status": "done"
                         }
                     ]
                 },
