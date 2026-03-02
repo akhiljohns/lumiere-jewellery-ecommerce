@@ -1221,23 +1221,25 @@
                     "priority": "P2",
                     "impact": "medium",
                     "effort": "medium",
-                    "status": "not_started",
+                    "status": "done",
+                    "completedAt": "2026-03-02",
+                    "summary": "Added loading.tsx skeleton files for all admin route segments (dashboard, products, orders, categories, users, roles, audit-logs) and key storefront routes (products, cart, checkout, profile, orders). Uses reusable TableSkeleton for table pages and custom skeleton layouts matching each page's structure. Suspense boundaries already in place via Next.js App Router loading.tsx convention.",
                     "description": "Add loading.tsx with Skeleton UIs in each route segment for instant shell rendering.",
                     "subtasks": [
                         {
                             "id": "TASK-C15-A",
                             "title": "Add loading.tsx with skeleton components in each admin route segment",
-                            "status": "not_started"
+                            "status": "done"
                         },
                         {
                             "id": "TASK-C15-B",
                             "title": "Add loading.tsx with skeleton components in each storefront route segment",
-                            "status": "not_started"
+                            "status": "done"
                         },
                         {
                             "id": "TASK-C15-C",
                             "title": "Wrap data-fetching sections in Suspense boundaries with React.cache() deduplication",
-                            "status": "not_started"
+                            "status": "done"
                         }
                     ]
                 },
