@@ -1096,18 +1096,20 @@
                     "priority": "P1",
                     "impact": "high",
                     "effort": "low",
-                    "status": "not_started",
+                    "status": "done",
+                    "completedAt": "2026-03-02",
+                    "summary": "Already implemented. Category list page with DataTable, search, parent name display. Create/edit forms with parent selector (prevents self-parenting/circular refs), image URL, sort order, active toggle. Detail page with image sidebar. All pages have permission guards, loading skeletons, error states.",
                     "description": "Admin pages for managing categories with hierarchy display.",
                     "subtasks": [
                         {
                             "id": "TASK-C10-A",
                             "title": "Category list page with parent-child hierarchy display",
-                            "status": "not_started"
+                            "status": "done"
                         },
                         {
                             "id": "TASK-C10-B",
                             "title": "Category create/edit form with parent selector and image upload",
-                            "status": "not_started"
+                            "status": "done"
                         }
                     ]
                 },
@@ -1117,13 +1119,15 @@
                     "priority": "P2",
                     "impact": "medium",
                     "effort": "low",
-                    "status": "not_started",
+                    "status": "done",
+                    "completedAt": "2026-03-02",
+                    "summary": "Added audit log list page with DataTable, search, action filter (created/updated/deleted), resource filter (Product/User/Category/Order), pagination. Created React Query hook, types, column definitions. Added Audit Logs entry to admin sidebar with audit.view permission guard.",
                     "description": "Admin page to view and filter persisted audit logs.",
                     "subtasks": [
                         {
                             "id": "TASK-C11-A",
                             "title": "Audit log list page with filters (actor, resource, date range) and pagination",
-                            "status": "not_started"
+                            "status": "done"
                         }
                     ]
                 },
