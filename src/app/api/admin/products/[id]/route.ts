@@ -6,9 +6,8 @@ import {
   deleteProduct,
 } from "@/features/products/services/product-service";
 import { logAdminAction, logAdminError, diffFields } from "@/lib/discord";
-import { requirePermission } from "@/lib/api-auth";
+import { requirePermission, ForbiddenError, forbiddenResponse } from "@/lib/api-auth";
 import { revalidateProductCache } from "@/lib/cache";
-import { AppError, ErrorCode, errorResponse } from "@/lib/errors";
 
 interface RouteParams {
   params: Promise<{ id: string }>;
@@ -25,12 +24,15 @@ export async function GET(_request: NextRequest, { params }: RouteParams) {
     const product = await getProductById(id);
 
     if (!product) {
-      throw new AppError(ErrorCode.NOT_FOUND, "Product not found");
+      return NextResponse.json({ error: "Product not found" }, { status: 404 });
     }
 
     return NextResponse.json({ data: product }, { status: 200 });
   } catch (err) {
-    return errorResponse(err);
+    if (err instanceof ForbiddenError) return forbiddenResponse(err.message);
+    const message =
+      err instanceof Error ? err.message : "Internal server error";
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }
 
@@ -48,17 +50,16 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
 
     const parsed = productUpdateSchema.safeParse(body);
     if (!parsed.success) {
-      throw new AppError(
-        ErrorCode.VALIDATION_ERROR,
-        "Validation failed",
-        parsed.error.issues,
+      return NextResponse.json(
+        { error: "Validation failed", details: parsed.error.issues },
+        { status: 400 },
       );
     }
 
     // Verify product exists
     const existing = await getProductById(id);
     if (!existing) {
-      throw new AppError(ErrorCode.NOT_FOUND, "Product not found");
+      return NextResponse.json({ error: "Product not found" }, { status: 404 });
     }
 
     const product = await updateProduct(id, parsed.data);
@@ -79,15 +80,18 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
       ...(changes.length === 0 && !hasImageChanges
         ? [{ name: "Changes", value: "no field changes detected" }]
         : []),
-    ], { resource_id: id, actor_id: request.headers.get("x-user-id") ?? undefined });
+    ]);
 
     return NextResponse.json(
       { data: product, message: "Product updated successfully" },
       { status: 200 },
     );
   } catch (err) {
-    if (!(err instanceof AppError)) logAdminError("Update Product", err instanceof Error ? err.message : "Unknown error", actor);
-    return errorResponse(err);
+    if (err instanceof ForbiddenError) return forbiddenResponse(err.message);
+    const message =
+      err instanceof Error ? err.message : "Internal server error";
+    logAdminError("Update Product", message, actor);
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }
 
@@ -105,7 +109,7 @@ export async function DELETE(_request: NextRequest, { params }: RouteParams) {
     // Verify product exists
     const existing = await getProductById(id);
     if (!existing) {
-      throw new AppError(ErrorCode.NOT_FOUND, "Product not found");
+      return NextResponse.json({ error: "Product not found" }, { status: 404 });
     }
 
     await deleteProduct(id);
@@ -115,14 +119,17 @@ export async function DELETE(_request: NextRequest, { params }: RouteParams) {
       { name: "ID", value: id, inline: true },
       { name: "Category", value: existing.categories?.name ?? "none", inline: true },
       { name: "Price", value: `₹${existing.price}`, inline: true },
-    ], { resource_id: id, actor_id: _request.headers.get("x-user-id") ?? undefined });
+    ]);
 
     return NextResponse.json(
       { message: "Product deleted successfully" },
       { status: 200 },
     );
   } catch (err) {
-    if (!(err instanceof AppError)) logAdminError("Delete Product", err instanceof Error ? err.message : "Unknown error", actor);
-    return errorResponse(err);
+    if (err instanceof ForbiddenError) return forbiddenResponse(err.message);
+    const message =
+      err instanceof Error ? err.message : "Internal server error";
+    logAdminError("Delete Product", message, actor);
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }

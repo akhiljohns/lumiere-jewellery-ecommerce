@@ -1,8 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { aiAutoTagSchema } from "@/lib/validators";
 import { autoTagProduct } from "@/lib/ai";
-import { requirePermission } from "@/lib/api-auth";
-import { AppError, ErrorCode, errorResponse } from "@/lib/errors";
+import {
+  requirePermission,
+  ForbiddenError,
+  forbiddenResponse,
+} from "@/lib/api-auth";
 
 /**
  * POST /api/admin/ai/auto-tag
@@ -16,10 +19,9 @@ export async function POST(request: NextRequest) {
 
     const parsed = aiAutoTagSchema.safeParse(body);
     if (!parsed.success) {
-      throw new AppError(
-        ErrorCode.VALIDATION_ERROR,
-        "Validation failed",
-        parsed.error.issues,
+      return NextResponse.json(
+        { error: "Validation failed", details: parsed.error.issues },
+        { status: 400 },
       );
     }
 
@@ -27,6 +29,9 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ data: result }, { status: 200 });
   } catch (err) {
-    return errorResponse(err);
+    if (err instanceof ForbiddenError) return forbiddenResponse(err.message);
+    const message =
+      err instanceof Error ? err.message : "Internal server error";
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }

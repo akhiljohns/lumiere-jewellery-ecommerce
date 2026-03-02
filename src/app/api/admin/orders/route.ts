@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { orderQuerySchema } from "@/lib/validators";
 import { getAllOrders } from "@/features/orders/services/order-service";
-import { requirePermission } from "@/lib/api-auth";
-import { errorResponse } from "@/lib/errors";
+import { requirePermission, ForbiddenError, forbiddenResponse } from "@/lib/api-auth";
 
 export async function GET(request: NextRequest) {
   try {
@@ -18,6 +17,9 @@ export async function GET(request: NextRequest) {
       { status: 200 },
     );
   } catch (err) {
-    return errorResponse(err);
+    if (err instanceof ForbiddenError) return forbiddenResponse(err.message);
+    const message =
+      err instanceof Error ? err.message : "Internal server error";
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }

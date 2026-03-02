@@ -317,28 +317,28 @@
                     "priority": "P1",
                     "impact": "medium",
                     "effort": "low",
-                    "status": "done",
+                    "status": "not_started",
                     "description": "Discord webhooks are fire-and-forget. Add an audit_logs table to persist all admin actions in the database.",
                     "subtasks": [
                         {
                             "id": "TASK-A09-A",
                             "title": "Create audit_logs table schema (action, resource, resource_id, actor_id, actor_email, details jsonb, ip_address, timestamp)",
-                            "status": "done"
+                            "status": "not_started"
                         },
                         {
                             "id": "TASK-A09-B",
                             "title": "Create audit log service (create entry, list with filters/pagination)",
-                            "status": "done"
+                            "status": "not_started"
                         },
                         {
                             "id": "TASK-A09-C",
                             "title": "Update logAdminAction to write to database alongside Discord",
-                            "status": "done"
+                            "status": "not_started"
                         },
                         {
                             "id": "TASK-A09-D",
                             "title": "Create GET /api/admin/audit-logs route with filters (actor, resource, date range)",
-                            "status": "done"
+                            "status": "not_started"
                         }
                     ]
                 },
@@ -581,23 +581,23 @@
                     "priority": "P1",
                     "impact": "medium",
                     "effort": "low",
-                    "status": "done",
+                    "status": "not_started",
                     "description": "Create a shared AppError class with error codes and standardize API error responses.",
                     "subtasks": [
                         {
                             "id": "TASK-B05-A",
                             "title": "Create shared AppError class with error codes (NOT_FOUND, UNAUTHORIZED, VALIDATION_ERROR, etc.)",
-                            "status": "done"
+                            "status": "not_started"
                         },
                         {
                             "id": "TASK-B05-B",
                             "title": "Create API error response helper that maps AppError to consistent JSON { error, code, details }",
-                            "status": "done"
+                            "status": "not_started"
                         },
                         {
                             "id": "TASK-B05-C",
                             "title": "Refactor all API routes to use AppError and standardized responses",
-                            "status": "done"
+                            "status": "not_started"
                         }
                     ]
                 },
@@ -839,35 +839,33 @@
                     "priority": "P0",
                     "impact": "very_high",
                     "effort": "high",
-                    "status": "done",
-                    "completedAt": "2026-02-28",
-                    "summary": "Built storefront homepage with (storefront) route group, hero section with gradient overlay and CTA, featured products Framer Motion carousel, category grid with glassmorphism cards, sticky navbar with search/cart/user menu, and 3-column footer. SSR via storefront-service.ts for SEO.",
+                    "status": "not_started",
                     "description": "Build the customer-facing homepage with hero, featured products, and category grid.",
                     "subtasks": [
                         {
                             "id": "TASK-C03-A",
                             "title": "Hero section with lifestyle image, amber-gold gradient overlay, and CTA",
-                            "status": "done"
+                            "status": "not_started"
                         },
                         {
                             "id": "TASK-C03-B",
                             "title": "Featured / trending products carousel powered by Framer Motion",
-                            "status": "done"
+                            "status": "not_started"
                         },
                         {
                             "id": "TASK-C03-C",
                             "title": "Category grid with hover zoom and glassmorphism cards",
-                            "status": "done"
+                            "status": "not_started"
                         },
                         {
                             "id": "TASK-C03-D",
                             "title": "Footer with store info, links, and social media",
-                            "status": "done"
+                            "status": "not_started"
                         },
                         {
                             "id": "TASK-C03-E",
                             "title": "Storefront navbar with logo, search, cart icon (with count badge), and user menu",
-                            "status": "done"
+                            "status": "not_started"
                         }
                     ]
                 },
@@ -877,35 +875,33 @@
                     "priority": "P0",
                     "impact": "very_high",
                     "effort": "medium",
-                    "status": "done",
-                    "completedAt": "2026-02-28",
-                    "summary": "Built product listing page at /products with nuqs URL-state filters (category, material, price range), sort controls (newest/price/name), responsive product grid with stagger animations, pagination with ellipsis, quick-view modal with add-to-cart, and mobile Sheet filter sidebar.",
+                    "status": "not_started",
                     "description": "Product catalog page with filters, sorting, pagination, and grid/list view toggle.",
                     "subtasks": [
                         {
                             "id": "TASK-C04-A",
                             "title": "Product grid with cards (image, name, price, compare price, wishlist button)",
-                            "status": "done"
+                            "status": "not_started"
                         },
                         {
                             "id": "TASK-C04-B",
                             "title": "Filter sidebar (category, material, price range, in-stock only)",
-                            "status": "done"
+                            "status": "not_started"
                         },
                         {
                             "id": "TASK-C04-C",
                             "title": "Sort controls (price low/high, newest, name A-Z)",
-                            "status": "done"
+                            "status": "not_started"
                         },
                         {
                             "id": "TASK-C04-D",
                             "title": "Pagination with URL query params (nuqs)",
-                            "status": "done"
+                            "status": "not_started"
                         },
                         {
                             "id": "TASK-C04-E",
                             "title": "Quick-view modal for browsing without leaving the listing page",
-                            "status": "done"
+                            "status": "not_started"
                         }
                     ]
                 },
@@ -915,35 +911,33 @@
                     "priority": "P0",
                     "impact": "very_high",
                     "effort": "medium",
-                    "status": "done",
-                    "completedAt": "2026-02-28",
-                    "summary": "Built product detail page at /products/[slug] with SSR via getProductBySlug, cursor-tracking zoom-on-hover image gallery with thumbnail strip, product info section (name, price, discount badge, description, material, weight, stock), quantity selector with stock clamping and add-to-cart, breadcrumbs nav, related products grid, and SEO metadata with generateMetadata.",
+                    "status": "not_started",
                     "description": "Individual product page with image gallery, details, reviews, and add-to-cart.",
                     "subtasks": [
                         {
                             "id": "TASK-C05-A",
                             "title": "Image gallery with zoom-on-hover and thumbnail navigation",
-                            "status": "done"
+                            "status": "not_started"
                         },
                         {
                             "id": "TASK-C05-B",
                             "title": "Product info section (name, price, compare price, description, material, weight, stock status)",
-                            "status": "done"
+                            "status": "not_started"
                         },
                         {
                             "id": "TASK-C05-C",
                             "title": "Add to cart button with quantity selector and stock validation",
-                            "status": "done"
+                            "status": "not_started"
                         },
                         {
                             "id": "TASK-C05-D",
                             "title": "Breadcrumbs navigation",
-                            "status": "done"
+                            "status": "not_started"
                         },
                         {
                             "id": "TASK-C05-E",
                             "title": "Related products section",
-                            "status": "done"
+                            "status": "not_started"
                         }
                     ]
                 },
@@ -953,28 +947,28 @@
                     "priority": "P0",
                     "impact": "very_high",
                     "effort": "high",
-                    "status": "done",
+                    "status": "not_started",
                     "description": "Shopping cart page and multi-step checkout flow with payment.",
                     "subtasks": [
                         {
                             "id": "TASK-C06-A",
                             "title": "Cart page with item list, quantity controls, remove button, and order summary",
-                            "status": "done"
+                            "status": "not_started"
                         },
                         {
                             "id": "TASK-C06-B",
                             "title": "Checkout step 1: Shipping address form",
-                            "status": "done"
+                            "status": "not_started"
                         },
                         {
                             "id": "TASK-C06-C",
                             "title": "Checkout step 2: Order review and payment",
-                            "status": "done"
+                            "status": "not_started"
                         },
                         {
                             "id": "TASK-C06-D",
                             "title": "Order confirmation page with order details and tracking",
-                            "status": "done"
+                            "status": "not_started"
                         }
                     ]
                 },

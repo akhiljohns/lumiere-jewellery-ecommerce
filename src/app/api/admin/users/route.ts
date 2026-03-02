@@ -2,8 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { userCreateSchema, paginationSchema } from "@/lib/validators";
 import { getUsers, createUser } from "@/features/users/services/user-service";
 import { logAdminAction, logAdminError } from "@/lib/discord";
-import { requirePermission } from "@/lib/api-auth";
-import { AppError, ErrorCode, errorResponse } from "@/lib/errors";
+import { requirePermission, ForbiddenError, forbiddenResponse } from "@/lib/api-auth";
 
 /**
  * GET /api/admin/users
@@ -23,10 +22,9 @@ export async function GET(request: NextRequest) {
 
     const parsed = paginationSchema.safeParse(queryInput);
     if (!parsed.success) {
-      throw new AppError(
-        ErrorCode.VALIDATION_ERROR,
-        "Invalid query parameters",
-        parsed.error.issues,
+      return NextResponse.json(
+        { error: "Invalid query parameters", details: parsed.error.issues },
+        { status: 400 },
       );
     }
 
@@ -38,7 +36,10 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json(result, { status: 200 });
   } catch (err) {
-    return errorResponse(err);
+    if (err instanceof ForbiddenError) return forbiddenResponse(err.message);
+    const message =
+      err instanceof Error ? err.message : "Internal server error";
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }
 
@@ -55,10 +56,9 @@ export async function POST(request: NextRequest) {
 
     const parsed = userCreateSchema.safeParse(body);
     if (!parsed.success) {
-      throw new AppError(
-        ErrorCode.VALIDATION_ERROR,
-        "Validation failed",
-        parsed.error.issues,
+      return NextResponse.json(
+        { error: "Validation failed", details: parsed.error.issues },
+        { status: 400 },
       );
     }
 
@@ -69,14 +69,17 @@ export async function POST(request: NextRequest) {
       { name: "Name", value: parsed.data.full_name ?? "—", inline: true },
       { name: "Role", value: parsed.data.role ?? "customer", inline: true },
       { name: "Active", value: parsed.data.is_active !== false ? "Yes" : "No", inline: true },
-    ], { resource_id: user.id, actor_id: request.headers.get("x-user-id") ?? undefined });
+    ]);
 
     return NextResponse.json(
       { data: user, message: "User created successfully" },
       { status: 201 },
     );
   } catch (err) {
-    if (!(err instanceof AppError)) logAdminError("Create User", err instanceof Error ? err.message : "Unknown error", actor);
-    return errorResponse(err);
+    if (err instanceof ForbiddenError) return forbiddenResponse(err.message);
+    const message =
+      err instanceof Error ? err.message : "Internal server error";
+    logAdminError("Create User", message, actor);
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }

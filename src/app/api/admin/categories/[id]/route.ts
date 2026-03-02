@@ -6,9 +6,12 @@ import {
   deleteCategory,
 } from "@/features/categories/services/category-service";
 import { logAdminAction, logAdminError, diffFields } from "@/lib/discord";
-import { requirePermission } from "@/lib/api-auth";
+import {
+  requirePermission,
+  ForbiddenError,
+  forbiddenResponse,
+} from "@/lib/api-auth";
 import { revalidateCategoryCache } from "@/lib/cache";
-import { AppError, ErrorCode, errorResponse } from "@/lib/errors";
 
 interface RouteParams {
   params: Promise<{ id: string }>;
@@ -25,12 +28,18 @@ export async function GET(_request: NextRequest, { params }: RouteParams) {
     const category = await getCategoryById(id);
 
     if (!category) {
-      throw new AppError(ErrorCode.NOT_FOUND, "Category not found");
+      return NextResponse.json(
+        { error: "Category not found" },
+        { status: 404 },
+      );
     }
 
     return NextResponse.json({ data: category }, { status: 200 });
   } catch (err) {
-    return errorResponse(err);
+    if (err instanceof ForbiddenError) return forbiddenResponse(err.message);
+    const message =
+      err instanceof Error ? err.message : "Internal server error";
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }
 
@@ -48,17 +57,19 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
 
     const parsed = categoryUpdateSchema.safeParse(body);
     if (!parsed.success) {
-      throw new AppError(
-        ErrorCode.VALIDATION_ERROR,
-        "Validation failed",
-        parsed.error.issues,
+      return NextResponse.json(
+        { error: "Validation failed", details: parsed.error.issues },
+        { status: 400 },
       );
     }
 
     // Verify category exists
     const existing = await getCategoryById(id);
     if (!existing) {
-      throw new AppError(ErrorCode.NOT_FOUND, "Category not found");
+      return NextResponse.json(
+        { error: "Category not found" },
+        { status: 404 },
+      );
     }
 
     const category = await updateCategory(id, parsed.data);
@@ -75,15 +86,18 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
       ...(changes.length === 0
         ? [{ name: "Changes", value: "no field changes detected" }]
         : []),
-    ], { resource_id: id, actor_id: request.headers.get("x-user-id") ?? undefined });
+    ]);
 
     return NextResponse.json(
       { data: category, message: "Category updated successfully" },
       { status: 200 },
     );
   } catch (err) {
-    if (!(err instanceof AppError)) logAdminError("Update Category", err instanceof Error ? err.message : "Unknown error", actor);
-    return errorResponse(err);
+    if (err instanceof ForbiddenError) return forbiddenResponse(err.message);
+    const message =
+      err instanceof Error ? err.message : "Internal server error";
+    logAdminError("Update Category", message, actor);
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }
 
@@ -101,7 +115,10 @@ export async function DELETE(_request: NextRequest, { params }: RouteParams) {
     // Verify category exists
     const existing = await getCategoryById(id);
     if (!existing) {
-      throw new AppError(ErrorCode.NOT_FOUND, "Category not found");
+      return NextResponse.json(
+        { error: "Category not found" },
+        { status: 404 },
+      );
     }
 
     await deleteCategory(id);
@@ -110,14 +127,17 @@ export async function DELETE(_request: NextRequest, { params }: RouteParams) {
     logAdminAction("deleted", "Category", existing.name, actor, [
       { name: "ID", value: id, inline: true },
       { name: "Slug", value: existing.slug, inline: true },
-    ], { resource_id: id, actor_id: _request.headers.get("x-user-id") ?? undefined });
+    ]);
 
     return NextResponse.json(
       { message: "Category deleted successfully" },
       { status: 200 },
     );
   } catch (err) {
-    if (!(err instanceof AppError)) logAdminError("Delete Category", err instanceof Error ? err.message : "Unknown error", actor);
-    return errorResponse(err);
+    if (err instanceof ForbiddenError) return forbiddenResponse(err.message);
+    const message =
+      err instanceof Error ? err.message : "Internal server error";
+    logAdminError("Delete Category", message, actor);
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }

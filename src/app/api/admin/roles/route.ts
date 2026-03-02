@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getRoles, createRole } from "@/features/roles/services/role-service";
-import { AppError, ErrorCode, errorResponse } from "@/lib/errors";
 
 /**
  * GET /api/admin/roles
@@ -12,7 +11,8 @@ export async function GET(_request: NextRequest) {
     const result = await getRoles();
     return NextResponse.json(result, { status: 200 });
   } catch (err) {
-    return errorResponse(err);
+    const message = err instanceof Error ? err.message : "Internal server error";
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }
 
@@ -25,7 +25,10 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
 
     if (!body.name || typeof body.name !== "string") {
-      throw new AppError(ErrorCode.VALIDATION_ERROR, "Role name is required");
+      return NextResponse.json(
+        { error: "Role name is required" },
+        { status: 400 },
+      );
     }
 
     const role = await createRole({
@@ -39,6 +42,7 @@ export async function POST(request: NextRequest) {
       { status: 201 },
     );
   } catch (err) {
-    return errorResponse(err);
+    const message = err instanceof Error ? err.message : "Internal server error";
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }

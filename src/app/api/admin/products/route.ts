@@ -5,9 +5,8 @@ import {
   createProduct,
 } from "@/features/products/services/product-service";
 import { logAdminAction, logAdminError } from "@/lib/discord";
-import { requirePermission } from "@/lib/api-auth";
+import { requirePermission, ForbiddenError, forbiddenResponse } from "@/lib/api-auth";
 import { revalidateProductCache } from "@/lib/cache";
-import { AppError, ErrorCode, errorResponse } from "@/lib/errors";
 
 /**
  * GET /api/admin/products
@@ -28,10 +27,9 @@ export async function GET(request: NextRequest) {
 
     const parsed = productQuerySchema.safeParse(queryInput);
     if (!parsed.success) {
-      throw new AppError(
-        ErrorCode.VALIDATION_ERROR,
-        "Invalid query parameters",
-        parsed.error.issues,
+      return NextResponse.json(
+        { error: "Invalid query parameters", details: parsed.error.issues },
+        { status: 400 },
       );
     }
 
@@ -39,7 +37,10 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json(result, { status: 200 });
   } catch (err) {
-    return errorResponse(err);
+    if (err instanceof ForbiddenError) return forbiddenResponse(err.message);
+    const message =
+      err instanceof Error ? err.message : "Internal server error";
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }
 
@@ -56,10 +57,9 @@ export async function POST(request: NextRequest) {
 
     const parsed = productCreateSchema.safeParse(body);
     if (!parsed.success) {
-      throw new AppError(
-        ErrorCode.VALIDATION_ERROR,
-        "Validation failed",
-        parsed.error.issues,
+      return NextResponse.json(
+        { error: "Validation failed", details: parsed.error.issues },
+        { status: 400 },
       );
     }
 
@@ -73,14 +73,17 @@ export async function POST(request: NextRequest) {
       { name: "Price", value: `₹${parsed.data.price}`, inline: true },
       { name: "Stock", value: String(parsed.data.stock ?? 0), inline: true },
       { name: "Active", value: parsed.data.is_active !== false ? "Yes" : "No", inline: true },
-    ], { resource_id: product.id, actor_id: request.headers.get("x-user-id") ?? undefined });
+    ]);
 
     return NextResponse.json(
       { data: product, message: "Product created successfully" },
       { status: 201 },
     );
   } catch (err) {
-    if (!(err instanceof AppError)) logAdminError("Create Product", err instanceof Error ? err.message : "Unknown error", actor);
-    return errorResponse(err);
+    if (err instanceof ForbiddenError) return forbiddenResponse(err.message);
+    const message =
+      err instanceof Error ? err.message : "Internal server error";
+    logAdminError("Create Product", message, actor);
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }

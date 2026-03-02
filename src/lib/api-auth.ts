@@ -1,10 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { SUPER_ADMIN_ROLE } from "@/lib/permissions";
-import { AppError, ErrorCode } from "@/lib/errors";
 
-export class ForbiddenError extends AppError {
+export class ForbiddenError extends Error {
   constructor(message = "Insufficient permissions") {
-    super(ErrorCode.FORBIDDEN, message);
+    super(message);
     this.name = "ForbiddenError";
   }
 }
@@ -30,8 +29,5 @@ export function requirePermission(
 }
 
 export function forbiddenResponse(message = "Insufficient permissions") {
-  return NextResponse.json(
-    { error: message, code: ErrorCode.FORBIDDEN },
-    { status: 403 },
-  );
+  return NextResponse.json({ error: message }, { status: 403 });
 }

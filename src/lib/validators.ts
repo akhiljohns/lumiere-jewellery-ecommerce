@@ -347,16 +347,3 @@ export const aiAutoTagSchema = z.object({
 
 export type AISuggestCategoryInput = z.infer<typeof aiSuggestCategorySchema>;
 export type AIAutoTagInput = z.infer<typeof aiAutoTagSchema>;
-
-// ── Audit Logs ───────────────────────────────────────
-
-export const auditLogQuerySchema = paginationSchema.extend({
-  actor_email: z.string().email().optional(),
-  resource: z.string().optional(),
-  action: z.enum(["created", "updated", "deleted"]).optional(),
-  resource_id: z.string().optional(),
-  date_from: z.string().optional(),
-  date_to: z.string().optional(),
-});
-
-export type AuditLogQueryInput = z.infer<typeof auditLogQuerySchema>;
