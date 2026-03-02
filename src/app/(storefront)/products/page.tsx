@@ -4,7 +4,7 @@ import { ProductListingClient } from "@/features/storefront/components/listing/p
 import { ProductGridSkeleton } from "@/features/storefront/components/listing/product-grid-skeleton";
 
 export const metadata: Metadata = {
-  title: "All Products — Jewellery Store",
+  title: "All Products — Lumière",
   description: "Browse our complete collection of handcrafted jewellery. Filter by category, material, and price.",
 };
 

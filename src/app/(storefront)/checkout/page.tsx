@@ -327,7 +327,7 @@ export default function CheckoutPage() {
           key: order.razorpay_key_id,
           amount: order.total * 100,
           currency: "INR",
-          name: "Jewellery Store",
+          name: "Lumière",
           description: `Order #${order.order_number}`,
           order_id: order.razorpay_order_id,
           handler: async (response: {

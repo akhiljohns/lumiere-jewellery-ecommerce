@@ -8,7 +8,7 @@ const cspHeader = `
   default-src 'self';
   script-src 'self' 'unsafe-inline' https://checkout.razorpay.com;
   style-src 'self' 'unsafe-inline';
-  img-src 'self' https://res.cloudinary.com data: blob:;
+  img-src 'self' https://res.cloudinary.com https://images.unsplash.com data: blob:;
   font-src 'self' https://fonts.gstatic.com;
   connect-src 'self' https://*.supabase.co;
   frame-src https://checkout.razorpay.com;
@@ -33,6 +33,10 @@ const nextConfig: NextConfig = {
       {
         protocol: "https",
         hostname: "res.cloudinary.com",
+      },
+      {
+        protocol: "https",
+        hostname: "images.unsplash.com",
       },
     ],
   },

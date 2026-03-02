@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Gem, Loader2 } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -119,12 +119,9 @@ export default function CustomerSignInPage() {
   return (
     <div className="flex min-h-[60vh] flex-col items-center justify-center px-4 py-12">
       <div className="flex w-full max-w-sm flex-col gap-6">
-        <div className="flex items-center gap-2 self-center font-medium">
-          <div className="flex size-8 items-center justify-center rounded-md bg-primary text-primary-foreground">
-            <Gem className="size-4" />
-          </div>
-          <span className="text-lg font-semibold tracking-tight text-foreground">
-            Jewellery Store
+        <div className="self-center">
+          <span className="font-display text-2xl font-semibold tracking-wide text-foreground">
+            LUMIÈRE
           </span>
         </div>
 

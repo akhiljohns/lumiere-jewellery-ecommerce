@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { Gem, Instagram, Facebook, Twitter, Mail } from "lucide-react";
+import { Instagram, Facebook, Twitter, Mail } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 
 const shopLinks = [
@@ -37,18 +37,14 @@ export function StorefrontFooter() {
         <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-5">
           {/* Brand column */}
           <div className="space-y-4 lg:col-span-2">
-            <Link href="/" className="flex items-center gap-2">
-              <div className="flex size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-                <Gem className="size-4" />
-              </div>
-              <span className="font-display text-lg font-bold text-foreground">
-                Jewellery Store
+            <Link href="/" className="inline-block">
+              <span className="font-display text-2xl font-semibold tracking-wide text-foreground">
+                LUMIÈRE
               </span>
             </Link>
             <p className="max-w-xs text-sm leading-relaxed text-muted-foreground">
-              Discover exquisite handcrafted jewellery. Timeless designs crafted
-              with care, precision, and love for those who appreciate the finer
-              things.
+              Crafting timeless elegance since 1985. Each piece tells a story of
+              artistry, passion, and enduring beauty.
             </p>
             <div className="flex items-center gap-3">
               {socialLinks.map((social) => (
@@ -126,7 +122,7 @@ export function StorefrontFooter() {
 
         <div className="flex flex-col items-center justify-between gap-3 sm:flex-row">
           <p className="text-xs text-muted-foreground">
-            &copy; {new Date().getFullYear()} Jewellery Store. All rights
+            &copy; {new Date().getFullYear()} Lumière Jewellery. All rights
             reserved.
           </p>
           <div className="flex items-center gap-4">

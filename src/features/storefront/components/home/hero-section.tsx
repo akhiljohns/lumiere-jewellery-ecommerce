@@ -1,11 +1,11 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { ArrowRight, Sparkles } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { CloudinaryImage } from "@/components/cloudinary-image";
 import { heroContainer, heroItem, heroImage } from "../motion-variants";
 
 interface HeroSectionProps {
@@ -36,10 +36,9 @@ export function HeroSection({ heroImageUrl }: HeroSectionProps) {
 
           <motion.h1
             variants={heroItem}
-            className="font-display text-4xl font-bold tracking-tight text-foreground sm:text-5xl lg:text-6xl"
+            className="font-display text-4xl font-semibold leading-tight tracking-tight text-foreground sm:text-5xl lg:text-6xl"
           >
-            Timeless Elegance,
-            <br />
+            Timeless Elegance,{" "}
             <span className="text-primary">Crafted for You</span>
           </motion.h1>
 
@@ -47,16 +46,17 @@ export function HeroSection({ heroImageUrl }: HeroSectionProps) {
             variants={heroItem}
             className="mx-auto max-w-lg text-base leading-relaxed text-muted-foreground lg:mx-0"
           >
-            Discover our curated collection of handcrafted jewellery, where
-            every piece tells a unique story of elegance and artistry.
+            Discover our exquisite collection of handcrafted jewellery, where
+            tradition meets contemporary design. Each piece tells a unique story
+            of artistry and passion.
           </motion.p>
 
           <motion.div
             variants={heroItem}
-            className="flex items-center justify-center gap-3 lg:justify-start"
+            className="flex flex-wrap items-center justify-center gap-3 lg:justify-start"
           >
             <Link href="/products">
-              <Button size="lg">
+              <Button size="lg" className="gap-2">
                 Explore Collection
                 <ArrowRight className="size-4" />
               </Button>
@@ -76,15 +76,15 @@ export function HeroSection({ heroImageUrl }: HeroSectionProps) {
           animate="visible"
           className="flex justify-center lg:justify-end"
         >
-          <div className="relative aspect-[4/5] w-full max-w-md overflow-hidden rounded-2xl bg-muted">
+          <div className="relative aspect-[4/5] w-full max-w-md overflow-hidden rounded-2xl bg-muted shadow-lg">
             {heroImageUrl ? (
-              <CloudinaryImage
+              <Image
                 src={heroImageUrl}
-                alt="Featured jewellery collection"
+                alt="Elegant jewellery showcase"
                 fill
-                crop="fill"
                 sizes="(max-width: 1024px) 80vw, 40vw"
                 className="object-cover"
+                priority
               />
             ) : (
               <div className="flex h-full items-center justify-center">
@@ -96,6 +96,9 @@ export function HeroSection({ heroImageUrl }: HeroSectionProps) {
                 </div>
               </div>
             )}
+            {/* Decorative elements */}
+            <div className="absolute -bottom-4 -left-4 size-24 rounded-full bg-primary/20 blur-2xl" />
+            <div className="absolute -right-4 -top-4 size-32 rounded-full bg-primary/20 blur-2xl" />
           </div>
         </motion.div>
       </div>

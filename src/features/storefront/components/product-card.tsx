@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
 
@@ -8,6 +9,7 @@ import { PriceDisplay } from "./price-display";
 import { WishlistButton } from "./wishlist-button";
 import { AddToCartButton } from "./add-to-cart-button";
 import { staggerItem, cardHover } from "./motion-variants";
+import { getPlaceholderImage } from "./placeholder-images";
 import { getPrimaryImage } from "@/lib/utils";
 import type { PublicProduct } from "@/features/storefront/types";
 
@@ -39,9 +41,13 @@ export function ProductCard({ product, onQuickView }: ProductCardProps) {
                 className="object-cover transition-transform duration-500 ease-out group-hover:scale-105"
               />
             ) : (
-              <div className="flex h-full items-center justify-center text-muted-foreground transition-colors duration-200 group-hover:text-foreground/60">
-                No image
-              </div>
+              <Image
+                src={getPlaceholderImage(product.id)}
+                alt={product.name}
+                fill
+                sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                className="object-cover transition-transform duration-500 ease-out group-hover:scale-105"
+              />
             )}
 
             {/* Stock badges */}

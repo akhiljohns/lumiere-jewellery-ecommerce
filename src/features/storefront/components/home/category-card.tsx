@@ -1,9 +1,11 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
 
 import { CloudinaryImage } from "@/components/cloudinary-image";
+import { getPlaceholderImage } from "../placeholder-images";
 import { staggerItem, cardHover } from "../motion-variants";
 import type { CategoryWithCount } from "@/features/storefront/types";
 
@@ -29,9 +31,13 @@ export function CategoryCard({ category }: CategoryCardProps) {
               className="object-cover transition-transform duration-500 group-hover:scale-105"
             />
           ) : (
-            <div className="flex h-full items-center justify-center text-3xl font-bold text-muted-foreground/30">
-              {category.name.charAt(0)}
-            </div>
+            <Image
+              src={getPlaceholderImage(category.id)}
+              alt={category.name}
+              fill
+              sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+              className="object-cover transition-transform duration-500 group-hover:scale-105"
+            />
           )}
 
           {/* Gradient overlay */}

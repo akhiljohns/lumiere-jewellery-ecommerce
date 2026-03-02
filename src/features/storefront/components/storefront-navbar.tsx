@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
-  Gem,
   Search,
   ShoppingBag,
   User,
@@ -58,12 +57,9 @@ export function StorefrontNavbar() {
       <header className="sticky top-0 z-40 border-b border-border bg-background/95 backdrop-blur-sm">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6">
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-2">
-            <div className="flex size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-              <Gem className="size-4" />
-            </div>
-            <span className="font-display text-lg font-bold tracking-tight text-foreground">
-              Jewellery Store
+          <Link href="/" className="flex items-center">
+            <span className="font-display text-2xl font-semibold tracking-wide text-foreground md:text-3xl">
+              LUMIÈRE
             </span>
           </Link>
 

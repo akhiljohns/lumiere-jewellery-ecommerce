@@ -16,8 +16,8 @@ const cormorant = Cormorant_Garamond({
 });
 
 export const metadata: Metadata = {
-  title: "Jewellery Store",
-  description: "Premium jewellery e-commerce store",
+  title: "Lumière — Handcrafted Jewellery",
+  description: "Crafting timeless elegance. Discover our exquisite collection of handcrafted jewellery.",
 };
 
 const themeScript = `(function(){try{var t=localStorage.getItem("color-theme");if(t&&JSON.parse(t)==="dark"){document.documentElement.classList.add("dark")}}catch(e){}})()`;

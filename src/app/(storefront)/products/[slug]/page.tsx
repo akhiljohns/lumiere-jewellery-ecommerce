@@ -18,14 +18,14 @@ export async function generateMetadata({
   const result = await getProductBySlug(slug);
 
   if (!result) {
-    return { title: "Product Not Found — Jewellery Store" };
+    return { title: "Product Not Found — Lumière" };
   }
 
   const { product } = result;
   const primaryImage = getPrimaryImage(product.product_images);
 
   return {
-    title: `${product.name} — Jewellery Store`,
+    title: `${product.name} — Lumière`,
     description:
       product.description ??
       `Shop ${product.name} for ${formatCurrency(product.price)}. ${product.material ? `Made with ${product.material}.` : ""} Browse our handcrafted jewellery collection.`,
