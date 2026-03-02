@@ -399,7 +399,7 @@ export default function CheckoutPage() {
       <h1 className="text-2xl font-bold text-foreground">Checkout</h1>
 
       {/* Step indicator */}
-      <div className="mt-6 flex items-center gap-4">
+      <div className="mt-6 flex flex-wrap items-center gap-3 sm:gap-4">
         {steps.map((s, i) => {
           const isActive = step === s.key;
           const isPast =

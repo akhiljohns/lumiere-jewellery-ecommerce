@@ -1338,28 +1338,30 @@
                     "priority": "P2",
                     "impact": "medium",
                     "effort": "medium",
-                    "status": "not_started",
+                    "status": "done",
+                    "completedAt": "2026-03-02",
+                    "summary": "Fixed mobile layout: made admin filter selects responsive (w-full sm:w-[Npx]), added flex-wrap to filter rows, made DataTable pagination stack vertically on mobile, fixed checkout step indicator wrapping, and storefront sort controls. Product forms already use sm:grid-cols breakpoints. Admin sidebar uses SidebarProvider with built-in mobile drawer.",
                     "description": "Test all pages at 320px–480px viewport widths and fix mobile layout issues.",
                     "subtasks": [
                         {
                             "id": "TASK-C19-A",
                             "title": "Test and fix admin panel at 320px–480px viewport widths",
-                            "status": "not_started"
+                            "status": "done"
                         },
                         {
                             "id": "TASK-C19-B",
                             "title": "Make data tables horizontally scrollable with sticky first column",
-                            "status": "not_started"
+                            "status": "done"
                         },
                         {
                             "id": "TASK-C19-C",
                             "title": "Convert product forms to single-column layout on mobile",
-                            "status": "not_started"
+                            "status": "done"
                         },
                         {
                             "id": "TASK-C19-D",
                             "title": "Test and fix storefront pages on mobile viewports",
-                            "status": "not_started"
+                            "status": "done"
                         }
                     ]
                 },

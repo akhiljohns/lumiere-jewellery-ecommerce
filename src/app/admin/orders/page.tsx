@@ -102,7 +102,7 @@ export default function OrdersPage() {
       </div>
 
       <div className="flex flex-wrap items-center gap-3">
-        <div className="relative max-w-sm flex-1">
+        <div className="relative min-w-0 flex-1 basis-48">
           <Search className="absolute left-2 top-1/2 size-3.5 -translate-y-1/2 text-muted-foreground" />
           <Input
             placeholder="Search by order number..."
@@ -118,7 +118,7 @@ export default function OrdersPage() {
             setPage(1);
           }}
         >
-          <SelectTrigger className="w-[160px]">
+          <SelectTrigger className="w-full sm:w-[160px]">
             <Filter className="size-3.5 text-muted-foreground" />
             <SelectValue placeholder="Order status" />
           </SelectTrigger>
@@ -140,7 +140,7 @@ export default function OrdersPage() {
             setPage(1);
           }}
         >
-          <SelectTrigger className="w-[160px]">
+          <SelectTrigger className="w-full sm:w-[160px]">
             <Filter className="size-3.5 text-muted-foreground" />
             <SelectValue placeholder="Payment status" />
           </SelectTrigger>

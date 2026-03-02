@@ -76,7 +76,7 @@ export default function AuditLogsPage() {
       </div>
 
       <div className="flex flex-wrap items-center gap-3">
-        <div className="relative max-w-sm flex-1">
+        <div className="relative min-w-0 flex-1 basis-48">
           <Search className="absolute left-2 top-1/2 size-3.5 -translate-y-1/2 text-muted-foreground" />
           <Input
             placeholder="Search by email, resource..."
@@ -92,7 +92,7 @@ export default function AuditLogsPage() {
             setPage(1);
           }}
         >
-          <SelectTrigger className="w-[140px]">
+          <SelectTrigger className="w-full sm:w-[140px]">
             <Filter className="size-3.5 text-muted-foreground" />
             <SelectValue placeholder="Action" />
           </SelectTrigger>
@@ -110,7 +110,7 @@ export default function AuditLogsPage() {
             setPage(1);
           }}
         >
-          <SelectTrigger className="w-[140px]">
+          <SelectTrigger className="w-full sm:w-[140px]">
             <Filter className="size-3.5 text-muted-foreground" />
             <SelectValue placeholder="Resource" />
           </SelectTrigger>
