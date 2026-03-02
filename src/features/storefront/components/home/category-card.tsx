@@ -16,9 +16,9 @@ export function CategoryCard({ category }: CategoryCardProps) {
     <motion.div variants={staggerItem} {...cardHover}>
       <Link
         href={`/products?category=${category.slug}`}
-        className="group relative block overflow-hidden rounded-lg border border-border"
+        className="group relative block overflow-hidden rounded-lg"
       >
-        <div className="relative aspect-square overflow-hidden bg-muted">
+        <div className="relative aspect-[3/4] overflow-hidden bg-muted">
           {category.image_url ? (
             <CloudinaryImage
               src={category.image_url}
@@ -26,27 +26,28 @@ export function CategoryCard({ category }: CategoryCardProps) {
               fill
               crop="fill"
               sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-              className="object-cover transition-transform duration-500 group-hover:scale-110"
+              className="object-cover transition-transform duration-500 group-hover:scale-105"
             />
           ) : (
-            <div className="flex h-full items-center justify-center text-2xl font-bold text-muted-foreground/30">
+            <div className="flex h-full items-center justify-center text-3xl font-bold text-muted-foreground/30">
               {category.name.charAt(0)}
             </div>
           )}
 
-          {/* Glassmorphism overlay */}
-          <div className="absolute inset-0 bg-gradient-to-t from-background/80 to-transparent" />
+          {/* Gradient overlay */}
+          <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/30 to-transparent" />
 
-          <div className="absolute inset-x-0 bottom-0 p-3">
-            <div className="rounded-md bg-card/60 px-3 py-2 backdrop-blur-sm">
-              <h3 className="text-sm font-semibold text-foreground">
-                {category.name}
-              </h3>
-              <p className="text-[0.625rem] text-muted-foreground">
-                {category.product_count}{" "}
-                {category.product_count === 1 ? "product" : "products"}
-              </p>
-            </div>
+          <div className="absolute inset-x-0 bottom-0 p-4">
+            <h3 className="font-display text-lg font-bold text-foreground">
+              {category.name}
+            </h3>
+            <p className="text-xs text-muted-foreground">
+              {category.product_count}{" "}
+              {category.product_count === 1 ? "product" : "products"}
+            </p>
+            <span className="mt-1.5 inline-block text-xs font-medium text-primary">
+              Shop now &rarr;
+            </span>
           </div>
         </div>
       </Link>

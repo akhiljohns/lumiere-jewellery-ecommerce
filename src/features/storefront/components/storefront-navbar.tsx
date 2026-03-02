@@ -39,6 +39,7 @@ import { cn } from "@/lib/utils";
 const navLinks = [
   { href: "/", label: "Home" },
   { href: "/products", label: "Shop" },
+  { href: "/products?is_featured=true", label: "Collections" },
 ];
 
 export function StorefrontNavbar() {
@@ -55,13 +56,13 @@ export function StorefrontNavbar() {
   return (
     <>
       <header className="sticky top-0 z-40 border-b border-border bg-background/95 backdrop-blur-sm">
-        <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-4 sm:px-6">
+        <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-2">
             <div className="flex size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground">
               <Gem className="size-4" />
             </div>
-            <span className="text-sm font-semibold tracking-tight text-foreground">
+            <span className="font-display text-lg font-bold tracking-tight text-foreground">
               Jewellery Store
             </span>
           </Link>
@@ -74,7 +75,7 @@ export function StorefrontNavbar() {
                 href={link.href}
                 aria-current={pathname === link.href ? "page" : undefined}
                 className={cn(
-                  "rounded-md px-3 py-1.5 text-xs font-medium transition-colors hover:bg-muted hover:text-foreground",
+                  "rounded-md px-3 py-1.5 text-sm font-medium transition-colors hover:bg-muted hover:text-foreground",
                   pathname === link.href
                     ? "text-foreground"
                     : "text-muted-foreground",

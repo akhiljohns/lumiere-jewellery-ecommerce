@@ -1,12 +1,11 @@
 "use client";
 
-import { useRef } from "react";
+import Link from "next/link";
 import { motion } from "framer-motion";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 
-import { Button } from "@/components/ui/button";
 import { ProductCard } from "../product-card";
-import { staggerContainer } from "../motion-variants";
+import { staggerContainer, sectionHeading } from "../motion-variants";
 import type { PublicProduct } from "@/features/storefront/types";
 
 interface FeaturedProductsSectionProps {
@@ -16,73 +15,58 @@ interface FeaturedProductsSectionProps {
 export function FeaturedProductsSection({
   products,
 }: FeaturedProductsSectionProps) {
-  const scrollRef = useRef<HTMLDivElement>(null);
-
   if (products.length === 0) return null;
 
-  function scroll(direction: "left" | "right") {
-    if (!scrollRef.current) return;
-    const amount = scrollRef.current.offsetWidth * 0.6;
-    scrollRef.current.scrollBy({
-      left: direction === "left" ? -amount : amount,
-      behavior: "smooth",
-    });
-  }
+  const displayed = products.slice(0, 4);
 
   return (
-    <section className="py-12">
+    <section className="py-16">
       <div className="mx-auto max-w-7xl px-4 sm:px-6">
-        <div className="mb-6 flex items-center justify-between">
-          <div>
-            <h2 className="text-lg font-semibold text-foreground">
-              Featured Collection
+        <div className="mb-8 flex items-end justify-between">
+          <motion.div
+            variants={sectionHeading}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
+          >
+            <h2 className="font-display text-2xl font-bold text-foreground sm:text-3xl">
+              Featured Pieces
             </h2>
-            <p className="text-xs text-muted-foreground">
+            <p className="mt-1 text-sm text-muted-foreground">
               Handpicked pieces you&apos;ll love
             </p>
-          </div>
-          <div className="hidden gap-1 sm:flex">
-            <Button variant="outline" size="icon-sm" onClick={() => scroll("left")}>
-              <ChevronLeft className="size-3.5" />
-            </Button>
-            <Button variant="outline" size="icon-sm" onClick={() => scroll("right")}>
-              <ChevronRight className="size-3.5" />
-            </Button>
-          </div>
+          </motion.div>
+
+          <Link
+            href="/products"
+            className="hidden items-center gap-1 text-sm font-medium text-primary transition-colors hover:text-primary/80 sm:flex"
+          >
+            View All
+            <ArrowRight className="size-4" />
+          </Link>
         </div>
 
-        {/* Mobile: 2-column grid */}
         <motion.div
           variants={staggerContainer}
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, amount: 0.2 }}
-          className="grid grid-cols-2 gap-3 sm:hidden"
+          className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4"
         >
-          {products.map((product) => (
-            <div key={product.id}>
-              <ProductCard product={product} />
-            </div>
+          {displayed.map((product) => (
+            <ProductCard key={product.id} product={product} />
           ))}
         </motion.div>
 
-        {/* Desktop: horizontal scroll carousel */}
-        <motion.div
-          ref={scrollRef}
-          variants={staggerContainer}
-          initial="hidden"
-          whileInView="visible"
-          viewport={{ once: true, amount: 0.2 }}
-          className="hidden gap-4 overflow-x-auto pb-4 scrollbar-none [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:flex"
-          drag="x"
-          dragConstraints={scrollRef}
-        >
-          {products.map((product) => (
-            <div key={product.id} className="w-[220px] shrink-0 md:w-[240px]">
-              <ProductCard product={product} />
-            </div>
-          ))}
-        </motion.div>
+        <div className="mt-6 text-center sm:hidden">
+          <Link
+            href="/products"
+            className="inline-flex items-center gap-1 text-sm font-medium text-primary"
+          >
+            View All Products
+            <ArrowRight className="size-4" />
+          </Link>
+        </div>
       </div>
     </section>
   );

@@ -9,7 +9,7 @@ const cspHeader = `
   script-src 'self' 'unsafe-inline' https://checkout.razorpay.com;
   style-src 'self' 'unsafe-inline';
   img-src 'self' https://res.cloudinary.com data: blob:;
-  font-src 'self';
+  font-src 'self' https://fonts.gstatic.com;
   connect-src 'self' https://*.supabase.co;
   frame-src https://checkout.razorpay.com;
   object-src 'none';

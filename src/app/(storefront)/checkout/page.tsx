@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { ArrowLeft, MapPin, CreditCard, Check, Loader2, ShoppingBag } from "lucide-react";
+import { ArrowLeft, MapPin, CreditCard, Check, Loader2, ShoppingBag, ShieldCheck, Truck, RotateCcw } from "lucide-react";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -211,7 +211,7 @@ export default function CheckoutPage() {
     return (
       <div className="mx-auto max-w-2xl px-4 py-16 text-center">
         <ShoppingBag className="mx-auto h-16 w-16 text-muted-foreground/50" />
-        <h1 className="mt-4 text-2xl font-bold text-foreground">
+        <h1 className="mt-4 font-display text-2xl font-bold text-foreground">
           Your cart is empty
         </h1>
         <p className="mt-2 text-muted-foreground">
@@ -396,7 +396,7 @@ export default function CheckoutPage() {
         Back to Cart
       </Link>
 
-      <h1 className="text-2xl font-bold text-foreground">Checkout</h1>
+      <h1 className="font-display text-2xl font-bold text-foreground">Checkout</h1>
 
       {/* Step indicator */}
       <div className="mt-6 flex flex-wrap items-center gap-3 sm:gap-4">
@@ -440,7 +440,7 @@ export default function CheckoutPage() {
         <div className="lg:col-span-2">
           {step === "address" && (
             <div className="rounded-lg border border-border bg-card p-6">
-              <h2 className="text-lg font-semibold text-foreground">
+              <h2 className="font-display text-lg font-semibold text-foreground">
                 Shipping Address
               </h2>
 
@@ -571,7 +571,7 @@ export default function CheckoutPage() {
 
               {/* Cart items review */}
               <div className="rounded-lg border border-border bg-card p-6">
-                <h2 className="text-lg font-semibold text-foreground">
+                <h2 className="font-display text-lg font-semibold text-foreground">
                   Order Items
                 </h2>
                 <div className="mt-3 divide-y divide-border">
@@ -614,7 +614,7 @@ export default function CheckoutPage() {
 
               {/* Payment method */}
               <div className="rounded-lg border border-border bg-card p-6">
-                <h2 className="text-lg font-semibold text-foreground">
+                <h2 className="font-display text-lg font-semibold text-foreground">
                   Payment Method
                 </h2>
                 <div className="mt-3 space-y-3">
@@ -687,7 +687,7 @@ export default function CheckoutPage() {
         {/* Right Column — Order Summary */}
         <div className="lg:col-span-1">
           <div className="rounded-lg border border-border bg-card p-6 sticky top-24">
-            <h2 className="text-lg font-semibold text-foreground">
+            <h2 className="font-display text-lg font-semibold text-foreground">
               Order Summary
             </h2>
             <Separator className="my-4" />
@@ -710,6 +710,22 @@ export default function CheckoutPage() {
             <div className="flex justify-between text-base font-semibold">
               <span>Total</span>
               <span>{formatCurrency(subtotal)}</span>
+            </div>
+
+            {/* Trust badges */}
+            <div className="mt-6 grid grid-cols-3 gap-2">
+              {[
+                { icon: ShieldCheck, label: "Secure Payment" },
+                { icon: Truck, label: "Insured Delivery" },
+                { icon: RotateCcw, label: "30-Day Returns" },
+              ].map((badge) => (
+                <div key={badge.label} className="flex flex-col items-center gap-1 text-center">
+                  <badge.icon className="size-4 text-muted-foreground" />
+                  <span className="text-[0.625rem] leading-tight text-muted-foreground">
+                    {badge.label}
+                  </span>
+                </div>
+              ))}
             </div>
           </div>
         </div>

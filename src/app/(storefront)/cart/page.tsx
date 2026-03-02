@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Minus, Plus, Trash2, ShoppingBag, ArrowLeft } from "lucide-react";
+import { Minus, Plus, Trash2, ShoppingBag, ArrowLeft, ShieldCheck, Truck, RotateCcw } from "lucide-react";
 import { toast } from "sonner";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -9,6 +9,14 @@ import { CloudinaryImage } from "@/components/cloudinary-image";
 import { PriceDisplay } from "@/features/storefront/components/price-display";
 import { useCartStore, type LocalCartItem } from "@/stores/cart-store";
 import { formatCurrency } from "@/lib/utils";
+
+const GST_RATE = 0.03;
+
+const trustBadges = [
+  { icon: ShieldCheck, label: "Secure Payment" },
+  { icon: Truck, label: "Insured Delivery" },
+  { icon: RotateCcw, label: "30-Day Returns" },
+];
 
 function CartItemRow({ item }: { item: LocalCartItem }) {
   const updateQuantity = useCartStore((s) => s.updateQuantity);
@@ -19,14 +27,14 @@ function CartItemRow({ item }: { item: LocalCartItem }) {
       {/* Image */}
       <Link
         href={`/products/${item.slug}`}
-        className="relative h-24 w-24 flex-shrink-0 overflow-hidden rounded-md bg-muted"
+        className="relative h-28 w-28 flex-shrink-0 overflow-hidden rounded-md bg-muted"
       >
         {item.image_url ? (
           <CloudinaryImage
             src={item.image_url}
             alt={item.name}
-            width={96}
-            height={96}
+            width={112}
+            height={112}
             crop="fill"
             className="h-full w-full object-cover"
           />
@@ -118,12 +126,14 @@ export default function CartPage() {
 
   const subtotal = getSubtotal();
   const itemCount = getItemCount();
+  const estimatedTax = Math.round(subtotal * GST_RATE * 100) / 100;
+  const total = subtotal + estimatedTax;
 
   if (items.length === 0) {
     return (
       <div className="mx-auto max-w-2xl px-4 py-16 text-center">
         <ShoppingBag className="mx-auto h-16 w-16 text-muted-foreground/50" />
-        <h1 className="mt-4 text-2xl font-bold text-foreground">
+        <h1 className="mt-4 font-display text-2xl font-bold text-foreground">
           Your cart is empty
         </h1>
         <p className="mt-2 text-muted-foreground">
@@ -139,7 +149,7 @@ export default function CartPage() {
   return (
     <div className="mx-auto max-w-6xl px-4 py-8">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-foreground">
+        <h1 className="font-display text-2xl font-bold text-foreground">
           Shopping Cart ({itemCount} {itemCount === 1 ? "item" : "items"})
         </h1>
         <Button
@@ -172,7 +182,7 @@ export default function CartPage() {
         {/* Order Summary */}
         <div className="lg:col-span-1">
           <div className="rounded-lg border border-border bg-card p-6 sticky top-24">
-            <h2 className="text-lg font-semibold text-foreground">
+            <h2 className="font-display text-lg font-semibold text-foreground">
               Order Summary
             </h2>
             <Separator className="my-4" />
@@ -181,6 +191,10 @@ export default function CartPage() {
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Subtotal</span>
                 <span className="font-medium">{formatCurrency(subtotal)}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Est. GST (3%)</span>
+                <span className="font-medium">{formatCurrency(estimatedTax)}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Shipping</span>
@@ -194,12 +208,24 @@ export default function CartPage() {
 
             <div className="flex justify-between text-base font-semibold">
               <span>Total</span>
-              <span>{formatCurrency(subtotal)}</span>
+              <span>{formatCurrency(total)}</span>
             </div>
 
             <Link href="/checkout" className={buttonVariants({ size: "lg", className: "mt-6 w-full" })}>
               Proceed to Checkout
             </Link>
+
+            {/* Trust badges */}
+            <div className="mt-6 grid grid-cols-3 gap-2">
+              {trustBadges.map((badge) => (
+                <div key={badge.label} className="flex flex-col items-center gap-1 text-center">
+                  <badge.icon className="size-4 text-muted-foreground" />
+                  <span className="text-[0.625rem] leading-tight text-muted-foreground">
+                    {badge.label}
+                  </span>
+                </div>
+              ))}
+            </div>
           </div>
         </div>
       </div>

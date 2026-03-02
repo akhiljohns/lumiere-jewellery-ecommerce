@@ -128,7 +128,10 @@ The project uses **shadcn/ui Mira style** with **amber primary**, **gray base co
 
 2. **Icons**: ONLY use `lucide-react` icons. Never use other icon libraries (heroicons, react-icons, fontawesome, etc.).
 
-3. **Font**: Inter is the sole typeface, loaded via `next/font/google` and set as `--font-inter`. Use `font-sans` to apply it. Never import or reference Geist or other fonts.
+3. **Fonts**: Two typefaces loaded via `next/font/google`:
+   - **Inter** (`--font-inter`, `font-sans`) — body text and UI
+   - **Cormorant Garamond** (`--font-cormorant`, `font-display`) — storefront headings and premium typography
+   Use `font-display` class on all storefront section headings, page titles, product card titles, and hero text. Never import or reference Geist or other fonts.
 
 4. **Components**: Always prefer shadcn/ui components (`@/components/ui/*`). When adding new components, use `npx shadcn@latest add <component>`.
 
@@ -167,7 +170,7 @@ The project uses **shadcn/ui Mira style** with **amber primary**, **gray base co
 - Color contrast — light mode `--muted-foreground` and `--destructive` adjusted to pass WCAG AA 4.5:1 ratio (TASK-B12)
 
 **Phase C — UI Implementations (partial):**
-- Storefront Homepage — hero section, featured products carousel, category grid, navbar, footer (TASK-C03)
+- Storefront Homepage — 2-column hero, features strip, featured products grid, category grid, newsletter CTA, multi-column footer, refined navbar (TASK-C03)
 - Product Listing Page — filter sidebar (category/material/price), sort controls, product grid, pagination via nuqs, quick-view modal (TASK-C04)
 - Product Detail Page — image gallery with zoom-on-hover, product info, add-to-cart with quantity selector, breadcrumbs, related products (TASK-C05)
 
@@ -175,10 +178,12 @@ The project uses **shadcn/ui Mira style** with **amber primary**, **gray base co
 
 - **Route group**: `(storefront)` at `src/app/(storefront)/` — maps to `/` without URL segment.
 - **Shared components**: `src/features/storefront/components/` — ProductCard, PriceDisplay, WishlistButton, AddToCartButton, SearchOverlay, StorefrontNavbar, StorefrontFooter, motion-variants.
-- **Homepage**: Server Component calling `getFeaturedProducts()` + `getPublicCategories()` directly. Client leaf components for carousel and animations.
+- **Homepage**: Server Component calling `getFeaturedProducts()` + `getPublicCategories()` directly. 5 sections: HeroSection, FeaturesStrip, FeaturedProductsSection (grid), CategoryGridSection, NewsletterSection.
+- **Product cards**: `aspect-[4/5]` portrait, 500ms/scale-105 hover zoom, stock badges, serif title via `font-display`, full-width Add to Cart button below the Link (not nested). Category cards use `aspect-[3/4]`.
+- **Storefront section pattern**: `py-16`, `max-w-7xl`, serif heading via `font-display`, optional "View All" link, `sectionHeading` entrance animation.
 - **Product Listing**: Fully client-side with `useGetStorefrontProducts()` + `nuqs` URL state for filters/sort/pagination. Wrapped in `<Suspense>` for SSR compatibility.
 - **Product Detail**: Server Component with `getProductBySlug()` + `generateMetadata()` for SEO. Client components for gallery, cart, and wishlist.
-- **Animation presets**: `motion-variants.ts` exports `fadeInUp`, `staggerContainer`, `staggerItem`, `cardHover` for consistent Framer Motion animations.
+- **Animation presets**: `motion-variants.ts` exports `fadeInUp`, `staggerContainer`, `staggerItem`, `cardHover`, `heroContainer`, `heroItem`, `heroImage`, `sectionHeading` for consistent Framer Motion animations. Use `heroContainer`/`heroItem` for hero text stagger, `heroImage` for hero image entrance, `sectionHeading` for section title fade-in.
 - **Cart integration**: Map `PublicProduct` → `LocalCartItem` via `{ product_id, quantity, name, slug, price, compare_price, image_url (from getPrimaryImage), stock, is_active }`.
 - **Customer auth detection**: Navbar calls `useGetProfile()` — if data exists, show user menu; if null, show Sign in link.
 
