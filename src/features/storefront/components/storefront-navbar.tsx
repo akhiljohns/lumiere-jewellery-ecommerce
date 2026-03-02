@@ -123,7 +123,7 @@ export function StorefrontNavbar() {
                     </Button>
                   }
                 />
-                <DropdownMenuContent align="end">
+                <DropdownMenuContent align="end" className="min-w-56">
                   <div className="px-2 py-1.5">
                     <p className="text-xs font-medium">{user.full_name}</p>
                     <p className="text-[0.625rem] text-muted-foreground">
