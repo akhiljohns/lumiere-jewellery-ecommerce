@@ -1,10 +1,11 @@
 "use client";
 
 import { useState } from "react";
-import { Minus, Plus, ShoppingCart } from "lucide-react";
+import Link from "next/link";
+import { Minus, Plus, ShoppingCart, Check } from "lucide-react";
 import { toast } from "sonner";
 
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { useCartStore } from "@/stores/cart-store";
 import { getPrimaryImage } from "@/lib/utils";
 import type { PublicProduct } from "@/features/storefront/types";
@@ -22,6 +23,9 @@ export function AddToCartButton({
 }: AddToCartButtonProps) {
   const [quantity, setQuantity] = useState(1);
   const addItem = useCartStore((s) => s.addItem);
+  const isInCart = useCartStore((s) =>
+    s.items.some((i) => i.product_id === product.id),
+  );
   const outOfStock = product.stock <= 0;
 
   function handleAdd() {
@@ -41,6 +45,24 @@ export function AddToCartButton({
 
     toast.success(`${product.name} added to cart`);
     setQuantity(1);
+  }
+
+  if (isInCart) {
+    return (
+      <div className="flex items-center gap-2">
+        <Link
+          href="/cart"
+          className={buttonVariants({
+            variant: "secondary",
+            size: "lg",
+            className: fullWidth ? "flex-1" : "",
+          })}
+        >
+          <Check className="size-4" />
+          Go to Cart
+        </Link>
+      </div>
+    );
   }
 
   return (
