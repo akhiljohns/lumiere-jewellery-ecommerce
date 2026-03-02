@@ -30,7 +30,7 @@ export function CategoryGridSection({ categories }: CategoryGridSectionProps) {
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, amount: 0.2 }}
-          className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4"
+          className="grid grid-cols-2 gap-3 sm:gap-4 sm:grid-cols-3 lg:grid-cols-4"
         >
           {categories.map((category) => (
             <CategoryCard key={category.id} category={category} />

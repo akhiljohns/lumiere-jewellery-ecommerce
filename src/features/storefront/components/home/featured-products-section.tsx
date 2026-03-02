@@ -51,18 +51,34 @@ export function FeaturedProductsSection({
           </div>
         </div>
 
+        {/* Mobile: 2-column grid */}
+        <motion.div
+          variants={staggerContainer}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true, amount: 0.2 }}
+          className="grid grid-cols-2 gap-3 sm:hidden"
+        >
+          {products.map((product) => (
+            <div key={product.id}>
+              <ProductCard product={product} />
+            </div>
+          ))}
+        </motion.div>
+
+        {/* Desktop: horizontal scroll carousel */}
         <motion.div
           ref={scrollRef}
           variants={staggerContainer}
           initial="hidden"
           whileInView="visible"
           viewport={{ once: true, amount: 0.2 }}
-          className="flex gap-4 overflow-x-auto pb-4 scrollbar-none [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+          className="hidden gap-4 overflow-x-auto pb-4 scrollbar-none [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden sm:flex"
           drag="x"
           dragConstraints={scrollRef}
         >
           {products.map((product) => (
-            <div key={product.id} className="w-[200px] shrink-0 sm:w-[220px]">
+            <div key={product.id} className="w-[220px] shrink-0 md:w-[240px]">
               <ProductCard product={product} />
             </div>
           ))}
