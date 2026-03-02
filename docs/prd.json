@@ -1437,18 +1437,20 @@
                     "priority": "P2",
                     "impact": "medium",
                     "effort": "low",
-                    "status": "not_started",
+                    "status": "done",
+                    "completedAt": "2026-03-02",
+                    "summary": "Created reusable ErrorBoundaryContent component with error icon, message, digest ID, back link, and retry button. Added error.tsx files for admin (root + products/orders/users/categories) and storefront (root) route segments.",
                     "description": "Global error boundary component and error.tsx files for granular error recovery in admin routes.",
                     "subtasks": [
                         {
                             "id": "TASK-C22-A",
                             "title": "Implement global error boundary component for admin pages",
-                            "status": "not_started"
+                            "status": "done"
                         },
                         {
                             "id": "TASK-C22-B",
                             "title": "Add error.tsx files in each admin and storefront route segment",
-                            "status": "not_started"
+                            "status": "done"
                         }
                     ]
                 },
