@@ -14,12 +14,15 @@ interface AddToCartButtonProps {
   product: PublicProduct;
   showQuantity?: boolean;
   fullWidth?: boolean;
+  /** Use "lg" for product detail page, "default" for cards/quick-view */
+  controlSize?: "default" | "lg";
 }
 
 export function AddToCartButton({
   product,
   showQuantity = true,
   fullWidth = false,
+  controlSize = "default",
 }: AddToCartButtonProps) {
   const [quantity, setQuantity] = useState(1);
   const addItem = useCartStore((s) => s.addItem);
@@ -47,15 +50,22 @@ export function AddToCartButton({
     setQuantity(1);
   }
 
+  const isLarge = controlSize === "lg";
+  const iconCls = isLarge ? "size-4" : "size-3";
+  const qtyBtnSize = isLarge ? "icon" : "icon-sm";
+  const qtyTextCls = isLarge
+    ? "min-w-[3rem] text-center text-sm font-medium"
+    : "min-w-[2rem] text-center text-xs font-medium";
+
   if (isInCart) {
     return (
-      <div className="flex items-center gap-2">
+      <div className={fullWidth ? "w-full" : "flex items-center gap-2"}>
         <Link
           href="/cart"
           className={buttonVariants({
             variant: "secondary",
             size: "lg",
-            className: fullWidth ? "flex-1" : "",
+            className: `cursor-pointer ${fullWidth ? "w-full" : ""}`,
           })}
         >
           <Check className="size-4" />
@@ -65,40 +75,52 @@ export function AddToCartButton({
     );
   }
 
+  if (outOfStock) {
+    return (
+      <Button disabled className={fullWidth ? "w-full" : ""} size="lg">
+        Out of Stock
+      </Button>
+    );
+  }
+
   return (
-    <div className="flex items-center gap-2">
-      {showQuantity && !outOfStock && (
-        <div className="flex items-center rounded-md border border-border">
-          <Button
-            variant="ghost"
-            size="icon-sm"
-            onClick={() => setQuantity((q) => Math.max(1, q - 1))}
-            disabled={quantity <= 1}
-          >
-            <Minus className="size-3" />
-          </Button>
-          <span className="min-w-[2rem] text-center text-xs font-medium">
-            {quantity}
-          </span>
-          <Button
-            variant="ghost"
-            size="icon-sm"
-            onClick={() => setQuantity((q) => Math.min(product.stock, q + 1))}
-            disabled={quantity >= product.stock}
-          >
-            <Plus className="size-3" />
-          </Button>
+    <div className={fullWidth ? "space-y-3" : "flex items-center gap-2"}>
+      {showQuantity && (
+        <div className="flex items-center gap-3">
+          <div className="flex items-center rounded-md border border-border">
+            <Button
+              variant="ghost"
+              size={qtyBtnSize}
+              onClick={() => setQuantity((q) => Math.max(1, q - 1))}
+              disabled={quantity <= 1}
+            >
+              <Minus className={iconCls} />
+            </Button>
+            <span className={qtyTextCls}>{quantity}</span>
+            <Button
+              variant="ghost"
+              size={qtyBtnSize}
+              onClick={() => setQuantity((q) => Math.min(product.stock, q + 1))}
+              disabled={quantity >= product.stock}
+            >
+              <Plus className={iconCls} />
+            </Button>
+          </div>
+          {isLarge && (
+            <p className="text-xs text-muted-foreground">
+              {product.stock} available
+            </p>
+          )}
         </div>
       )}
 
       <Button
         onClick={handleAdd}
-        disabled={outOfStock}
-        className={fullWidth ? "flex-1" : ""}
+        className={`cursor-pointer ${fullWidth ? "w-full" : ""}`}
         size="lg"
       >
         <ShoppingCart className="size-4" />
-        {outOfStock ? "Out of Stock" : "Add to Cart"}
+        Add to Cart
       </Button>
     </div>
   );

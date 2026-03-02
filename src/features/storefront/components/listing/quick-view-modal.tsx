@@ -70,7 +70,7 @@ export function QuickViewModal({ product, onClose }: QuickViewModalProps) {
             )}
 
             <div className="mt-auto space-y-2">
-              <AddToCartButton product={product} showQuantity={false} />
+              <AddToCartButton product={product} showQuantity={false} fullWidth />
               <Link
                 href={`/products/${product.slug}`}
                 onClick={onClose}
