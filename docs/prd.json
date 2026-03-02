@@ -446,23 +446,25 @@
                     "priority": "P3",
                     "impact": "medium",
                     "effort": "medium",
-                    "status": "not_started",
+                    "status": "done",
+                    "completedAt": "2026-03-02",
+                    "summary": "Built inventory alerts service with sales velocity analysis from order history, stock-out prediction (days until stockout), restock recommendations with urgency levels (critical/warning/low), and Discord notification for low-stock alerts. Created GET/POST /api/admin/inventory/alerts endpoints.",
                     "description": "Backend logic to predict stock-outs and generate restock recommendations.",
                     "subtasks": [
                         {
                             "id": "TASK-A14-A",
                             "title": "Build stock-out prediction service based on sales velocity trends",
-                            "status": "not_started"
+                            "status": "done"
                         },
                         {
                             "id": "TASK-A14-B",
                             "title": "Create scheduled job / cron for low-stock alerts to Discord",
-                            "status": "not_started"
+                            "status": "done"
                         },
                         {
                             "id": "TASK-A14-C",
                             "title": "Create GET /api/admin/inventory/alerts endpoint",
-                            "status": "not_started"
+                            "status": "done"
                         }
                     ]
                 },
