@@ -446,7 +446,7 @@ export default function CheckoutPage() {
 
               {!isAuthenticated && (
                 <p className="mt-1 text-sm text-muted-foreground">
-                  <Link href="/login" className="text-primary hover:underline">
+                  <Link href="/signin" className="text-primary hover:underline">
                     Sign in
                   </Link>{" "}
                   to save your address for future orders.

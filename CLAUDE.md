@@ -6,6 +6,13 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 - **Never add `Co-Authored-By` footer** to any git commit message.
 - **Use reusable global components**: Always prefer shared components from `components/` for loaders, buttons, badges, skeletons, and other common UI elements. Never inline one-off loading spinners or skeleton markup in pages — create or extend a reusable component in `components/` instead (e.g. `PageLoader`, `FormSkeleton`, `DetailSkeleton`, `TableSkeleton`). Skeletons are the preferred loading pattern over spinners for page and section loading states.
+- NEVER use `cd /path && command` compound style
+- Always use the working directory parameter or run commands directly
+- The project root is: N:/documents/coding-projects/personal/jewellery-ecommerce
+- Assume all commands run from project root already
+- Run `git status` not `cd ... && git status`
+- Run `npm run build` not `cd ... && npm run build`
+
 
 ## Commands
 

@@ -127,6 +127,10 @@ export function StorefrontNavbar() {
                     </p>
                   </div>
                   <DropdownMenuSeparator />
+                  <DropdownMenuItem render={<Link href="/profile" />}>
+                    <User className="size-3.5" />
+                    My Account
+                  </DropdownMenuItem>
                   <DropdownMenuItem render={<Link href="/orders" />}>
                     <Package className="size-3.5" />
                     My Orders
@@ -143,7 +147,7 @@ export function StorefrontNavbar() {
                 </DropdownMenuContent>
               </DropdownMenu>
             ) : (
-              <Link href="/login" className="hidden md:block">
+              <Link href="/signin" className="hidden md:block">
                 <Button variant="outline" size="sm">
                   Sign in
                 </Button>
@@ -182,7 +186,7 @@ export function StorefrontNavbar() {
                   ))}
                   {!user && (
                     <Link
-                      href="/login"
+                      href="/signin"
                       onClick={() => setMobileMenuOpen(false)}
                       className="rounded-md px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:bg-muted"
                     >

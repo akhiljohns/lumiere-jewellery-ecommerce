@@ -984,28 +984,30 @@
                     "priority": "P0",
                     "impact": "high",
                     "effort": "medium",
-                    "status": "not_started",
+                    "status": "done",
+                    "completedAt": "2026-03-02",
+                    "summary": "Built customer auth pages: signin with email/password and CSRF, register with email verification flow, forgot-password and reset-password with token validation, profile page with edit mode and recent orders, orders listing with pagination, and logout handler. Updated navbar with My Account link and fixed /login routes to /signin.",
                     "description": "Login, register, forgot password, and profile pages for customers.",
                     "subtasks": [
                         {
                             "id": "TASK-C07-A",
                             "title": "Customer login page",
-                            "status": "not_started"
+                            "status": "done"
                         },
                         {
                             "id": "TASK-C07-B",
                             "title": "Customer registration page",
-                            "status": "not_started"
+                            "status": "done"
                         },
                         {
                             "id": "TASK-C07-C",
                             "title": "Forgot password page and reset password page",
-                            "status": "not_started"
+                            "status": "done"
                         },
                         {
                             "id": "TASK-C07-D",
                             "title": "Customer profile page (edit name, phone, password, view order history)",
-                            "status": "not_started"
+                            "status": "done"
                         }
                     ]
                 },
