@@ -69,6 +69,7 @@ export function StorefrontNavbar() {
               <Link
                 key={link.href}
                 href={link.href}
+                aria-current={pathname === link.href ? "page" : undefined}
                 className={cn(
                   "rounded-md px-3 py-1.5 text-xs font-medium transition-colors hover:bg-muted hover:text-foreground",
                   pathname === link.href

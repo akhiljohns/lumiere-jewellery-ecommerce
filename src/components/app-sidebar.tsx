@@ -72,7 +72,7 @@ export function AppSidebar({
                       tooltip={item.title}
                       isActive={isActive}
                       className="transition-colors duration-150"
-                      render={<Link href={item.href} />}
+                      render={<Link href={item.href} aria-current={isActive ? "page" : undefined} />}
                     >
                       <item.icon />
                       <span>{item.title}</span>

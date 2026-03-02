@@ -10,7 +10,7 @@ import {
 
 export function PageLoader({ message = "Loading..." }: { message?: string }) {
   return (
-    <div className="flex flex-col items-center justify-center py-12 gap-3">
+    <div role="status" aria-label={message} className="flex flex-col items-center justify-center py-12 gap-3">
       <Loader2 className="size-6 animate-spin text-muted-foreground" />
       <p className="text-sm text-muted-foreground">{message}</p>
     </div>
@@ -20,7 +20,7 @@ export function PageLoader({ message = "Loading..." }: { message?: string }) {
 /** Skeleton for edit pages that show a card with a form */
 export function FormSkeleton({ fields = 5 }: { fields?: number }) {
   return (
-    <div className="flex flex-col gap-6">
+    <div role="status" aria-label="Loading form" className="flex flex-col gap-6">
       {/* Page header skeleton */}
       <div className="flex items-center gap-3">
         <Skeleton className="size-8 rounded-md" />
@@ -59,7 +59,7 @@ export function DetailSkeleton({
   hasSidebar?: boolean;
 }) {
   return (
-    <div className="flex flex-col gap-6">
+    <div role="status" aria-label="Loading details" className="flex flex-col gap-6">
       {/* Page header skeleton */}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
@@ -106,7 +106,7 @@ export function DetailSkeleton({
 
 export function TableSkeleton({ rows = 5 }: { rows?: number }) {
   return (
-    <div className="space-y-3">
+    <div role="status" aria-label="Loading table data" className="space-y-3">
       <div className="flex items-center justify-between">
         <Skeleton className="h-7 w-64" />
         <Skeleton className="h-7 w-28" />

@@ -34,6 +34,9 @@ export default async function AdminLayout({
 
   return (
     <SidebarProvider>
+      <a href="#main-content" className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded-md focus:bg-primary focus:px-4 focus:py-2 focus:text-primary-foreground focus:outline-none">
+        Skip to main content
+      </a>
       <GlobalKeyboardHandler />
       <AdminCommandPalette />
       <AppSidebar user={user} />
@@ -57,7 +60,7 @@ export default async function AdminLayout({
             <DarkModeSwitcher />
           </div>
         </header>
-        <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
+        <div id="main-content" className="flex flex-1 flex-col gap-4 p-4 pt-0">
           {children}
         </div>
       </SidebarInset>

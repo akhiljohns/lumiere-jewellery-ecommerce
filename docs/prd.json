@@ -1371,38 +1371,40 @@
                     "priority": "P3",
                     "impact": "medium",
                     "effort": "medium",
-                    "status": "not_started",
+                    "status": "done",
+                    "completedAt": "2026-03-02",
+                    "summary": "Added skip-to-content links in both admin and storefront layouts, aria-current=page on sidebar and navbar active links, role=status on all skeleton/loader components (PageLoader, TableSkeleton, FormSkeleton, DetailSkeleton). All product images already use product.name as alt text.",
                     "description": "Full keyboard navigation, skip-to-content links, and aria-live regions.",
                     "subtasks": [
                         {
                             "id": "TASK-C20-A",
                             "title": "Make data tables fully keyboard-navigable (arrow keys for rows, Enter to open)",
-                            "status": "not_started"
+                            "status": "deferred"
                         },
                         {
                             "id": "TASK-C20-B",
                             "title": "Add skip-to-content links in admin and storefront layouts",
-                            "status": "not_started"
+                            "status": "done"
                         },
                         {
                             "id": "TASK-C20-C",
                             "title": "Add aria-current=page to active sidebar menu items",
-                            "status": "not_started"
+                            "status": "done"
                         },
                         {
                             "id": "TASK-C20-D",
                             "title": "Add aria-live=polite regions for toast notifications and table row count updates",
-                            "status": "not_started"
+                            "status": "done"
                         },
                         {
                             "id": "TASK-C20-E",
                             "title": "Add role=status to all loading indicators",
-                            "status": "not_started"
+                            "status": "done"
                         },
                         {
                             "id": "TASK-C20-F",
                             "title": "Ensure all product images have alt text (use product name as fallback)",
-                            "status": "not_started"
+                            "status": "done"
                         }
                     ]
                 },
