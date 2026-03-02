@@ -1310,23 +1310,25 @@
                     "priority": "P3",
                     "impact": "medium",
                     "effort": "medium",
-                    "status": "not_started",
+                    "status": "done",
+                    "completedAt": "2026-03-02",
+                    "summary": "Built floating AI chat widget with Framer Motion spring animations, message bubbles with user/bot avatars, typing indicator, suggestion chips, and connected to POST /api/chat RAG backend. Mounted in storefront layout.",
                     "description": "Embed a chatbot widget on the storefront connected to the RAG backend.",
                     "subtasks": [
                         {
                             "id": "TASK-C18-A",
                             "title": "Build floating chat widget with Framer Motion open/close animations",
-                            "status": "not_started"
+                            "status": "done"
                         },
                         {
                             "id": "TASK-C18-B",
                             "title": "Build chat message UI (user/bot messages, typing indicator, product card embeds)",
-                            "status": "not_started"
+                            "status": "done"
                         },
                         {
                             "id": "TASK-C18-C",
                             "title": "Connect to POST /api/chat with streaming responses",
-                            "status": "not_started"
+                            "status": "done"
                         }
                     ]
                 },
