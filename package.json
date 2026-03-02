@@ -1,6 +1,6 @@
 {
-  "name": "jewellery-ecommerce",
-  "version": "0.1.0",
+  "name": "lumiere-jewellery",
+  "version": "1.0.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
