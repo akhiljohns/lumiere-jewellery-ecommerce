@@ -65,7 +65,7 @@ export function PricingSuggestionsWidget() {
             {topSuggestions.map((suggestion) => (
               <Link
                 key={suggestion.product_id}
-                href={`/admin/products/${suggestion.product_slug}/edit`}
+                href={`/admin/products/${suggestion.product_id}/edit`}
                 className="flex items-start justify-between gap-3 rounded-md border border-border p-3 transition-colors hover:bg-muted/50"
               >
                 <div className="min-w-0 flex-1">
