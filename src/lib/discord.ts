@@ -79,7 +79,8 @@ export function logAdminAction(
   extra?: { name: string; value: string; inline?: boolean }[],
   opts?: { resource_id?: string; actor_id?: string; ip_address?: string },
 ) {
-  const level: LogLevel = action === "deleted" ? "warning" : "success";
+  const level: LogLevel =
+    action === "deleted" ? "warning" : action === "updated" ? "info" : "success";
 
   // Persist to database (fire-and-forget)
   const details: Record<string, unknown> = { identifier };
