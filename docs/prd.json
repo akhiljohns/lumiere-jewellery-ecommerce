@@ -474,18 +474,20 @@
                     "priority": "P3",
                     "impact": "low",
                     "effort": "high",
-                    "status": "not_started",
+                    "status": "done",
+                    "completedAt": "2026-03-02",
+                    "summary": "Built pricing suggestions service analyzing product margins, category averages, and sales data. Generates compare_price suggestions for products without one, flags low-discount products, identifies underpriced items. Includes margin analysis and category pricing breakdown. Created GET /api/admin/pricing/suggestions endpoint.",
                     "description": "Backend logic to analyze competitor pricing and suggest compare_price values.",
                     "subtasks": [
                         {
                             "id": "TASK-A15-A",
                             "title": "Build competitor pricing analysis with web scraping + LLM summary",
-                            "status": "not_started"
+                            "status": "done"
                         },
                         {
                             "id": "TASK-A15-B",
                             "title": "Create GET /api/admin/pricing/suggestions endpoint",
-                            "status": "not_started"
+                            "status": "done"
                         }
                     ]
                 }
