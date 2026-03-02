@@ -2,7 +2,7 @@
 
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader2, Upload, X } from "lucide-react";
+import { Loader2, Upload, X, Sparkles } from "lucide-react";
 import { CloudinaryImage } from "@/components/cloudinary-image";
 import { useCallback, useRef, useState } from "react";
 import { toast } from "sonner";
@@ -43,6 +43,7 @@ type ProductFormValues = {
   images?: { url: string; public_id: string; is_primary: boolean }[];
 };
 import { useUploadImage, useDeleteImage } from "@/features/products/api/upload-image";
+import { fetchApi } from "@/lib/api-client";
 
 interface ProductImage {
   url: string;
@@ -72,10 +73,14 @@ export function ProductForm({
   const uploadImage = useUploadImage();
   const deleteImage = useDeleteImage();
 
+  const [aiGenerating, setAiGenerating] = useState<"description" | "category" | null>(null);
+
   const {
     register,
     handleSubmit,
     control,
+    setValue,
+    getValues,
     formState: { errors },
   } = useForm<ProductFormValues>({
     resolver: zodResolver(productCreateSchema) as any,
@@ -155,6 +160,77 @@ export function ProductForm({
     );
   }, []);
 
+  const handleGenerateDescription = useCallback(async () => {
+    const name = getValues("name");
+    if (!name) {
+      toast.error("Enter a product name first");
+      return;
+    }
+    setAiGenerating("description");
+    try {
+      const categoryId = getValues("category_id");
+      const category = categories.find((c) => c.id === categoryId);
+      const result = await fetchApi<{
+        data: { description: string };
+      }>("/api/admin/ai/generate-description", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name,
+          category: category?.name ?? null,
+          material: getValues("material") || null,
+          price: getValues("price") || null,
+          weight: getValues("weight") || null,
+        }),
+      });
+      setValue("description", result.data.description, { shouldDirty: true });
+      toast.success("Description generated");
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Failed to generate description");
+    } finally {
+      setAiGenerating(null);
+    }
+  }, [getValues, setValue, categories]);
+
+  const handleSuggestCategory = useCallback(async () => {
+    const name = getValues("name");
+    if (!name) {
+      toast.error("Enter a product name first");
+      return;
+    }
+    setAiGenerating("category");
+    try {
+      const result = await fetchApi<{
+        data: { suggested_category: string | null; suggested_material: string | null };
+      }>("/api/admin/ai/suggest-category", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name,
+          description: getValues("description") || null,
+        }),
+      });
+      if (result.data.suggested_category) {
+        const match = categories.find(
+          (c) => c.name.toLowerCase() === result.data.suggested_category!.toLowerCase(),
+        );
+        if (match) {
+          setValue("category_id", match.id, { shouldDirty: true });
+          toast.success(`Category set to "${match.name}"`);
+        } else {
+          toast.info(`AI suggested "${result.data.suggested_category}" but no matching category found`);
+        }
+      }
+      if (result.data.suggested_material) {
+        setValue("material", result.data.suggested_material, { shouldDirty: true });
+      }
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Failed to suggest category");
+    } finally {
+      setAiGenerating(null);
+    }
+  }, [getValues, setValue, categories]);
+
   const onFormSubmit = handleSubmit((data) => {
     onSubmit({
       ...data,
@@ -183,7 +259,24 @@ export function ProductForm({
           </Field>
 
           <Field>
-            <FieldLabel>Category</FieldLabel>
+            <div className="flex items-center justify-between">
+              <FieldLabel>Category</FieldLabel>
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={handleSuggestCategory}
+                disabled={aiGenerating === "category"}
+                className="h-auto px-2 py-0.5 text-xs text-muted-foreground hover:text-primary"
+              >
+                {aiGenerating === "category" ? (
+                  <Loader2 className="mr-1 size-3 animate-spin" />
+                ) : (
+                  <Sparkles className="mr-1 size-3" />
+                )}
+                Suggest
+              </Button>
+            </div>
             <Controller
               control={control}
               name="category_id"
@@ -212,7 +305,24 @@ export function ProductForm({
         </div>
 
         <Field>
-          <FieldLabel htmlFor="description">Description</FieldLabel>
+          <div className="flex items-center justify-between">
+            <FieldLabel htmlFor="description">Description</FieldLabel>
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={handleGenerateDescription}
+              disabled={aiGenerating === "description"}
+              className="h-auto px-2 py-0.5 text-xs text-muted-foreground hover:text-primary"
+            >
+              {aiGenerating === "description" ? (
+                <Loader2 className="mr-1 size-3 animate-spin" />
+              ) : (
+                <Sparkles className="mr-1 size-3" />
+              )}
+              Generate
+            </Button>
+          </div>
           <Textarea
             id="description"
             placeholder="Describe the product..."

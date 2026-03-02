@@ -1282,23 +1282,25 @@
                     "priority": "P2",
                     "impact": "medium",
                     "effort": "low",
-                    "status": "not_started",
+                    "status": "done",
+                    "completedAt": "2026-03-02",
+                    "summary": "Added AI generate description button (Sparkles icon) next to description field and AI suggest category/material button next to category field in ProductForm. Both call Gemini-backed APIs with loading states and toast feedback.",
                     "description": "Add 'Generate with AI' buttons on product create/edit form connected to AI APIs.",
                     "subtasks": [
                         {
                             "id": "TASK-C17-A",
                             "title": "Add '✨ Generate' button next to description field → calls generate-description API",
-                            "status": "not_started"
+                            "status": "done"
                         },
                         {
                             "id": "TASK-C17-B",
                             "title": "Add auto-suggest for category and material → calls suggest-category API",
-                            "status": "not_started"
+                            "status": "done"
                         },
                         {
                             "id": "TASK-C17-C",
                             "title": "Add auto-generate alt text button for uploaded images → calls generate-alt-text API",
-                            "status": "not_started"
+                            "status": "deferred"
                         }
                     ]
                 },
