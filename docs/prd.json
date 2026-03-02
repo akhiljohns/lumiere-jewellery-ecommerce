@@ -1160,23 +1160,25 @@
                     "priority": "P2",
                     "impact": "medium",
                     "effort": "medium",
-                    "status": "not_started",
+                    "status": "done",
+                    "completedAt": "2026-03-02",
+                    "summary": "Built AdminCommandPalette using shadcn/ui Command dialog with Ctrl+K/Cmd+K shortcut. Shows navigation items when no query, searches products/users/orders in parallel with 300ms debounce via admin search API. Results navigate to detail pages on select. Mounted in admin layout.",
                     "description": "Build spotlight / command-palette search dialog for admin panel.",
                     "subtasks": [
                         {
                             "id": "TASK-C13-A",
                             "title": "Build Cmd+K dialog component with shadcn/ui Command",
-                            "status": "not_started"
+                            "status": "done"
                         },
                         {
                             "id": "TASK-C13-B",
                             "title": "Integrate with GlobalKeyboardHandler for Ctrl+K / ⌘K shortcut",
-                            "status": "not_started"
+                            "status": "done"
                         },
                         {
                             "id": "TASK-C13-C",
                             "title": "Connect to admin search API with debounced results",
-                            "status": "not_started"
+                            "status": "done"
                         }
                     ]
                 },

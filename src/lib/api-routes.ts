@@ -22,6 +22,7 @@ export const ADMIN_ORDERS = "/api/admin/orders";
 export const adminOrder = (id: string) => `${ADMIN_ORDERS}/${id}`;
 
 export const ADMIN_AUDIT_LOGS = "/api/admin/audit-logs";
+export const ADMIN_SEARCH = "/api/admin/search";
 export const ADMIN_STATS = "/api/admin/stats";
 export const ADMIN_INVENTORY_ALERTS = "/api/admin/inventory/alerts";
 export const ADMIN_PRICING_SUGGESTIONS = "/api/admin/pricing/suggestions";
