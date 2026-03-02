@@ -1188,28 +1188,30 @@
                     "priority": "P2",
                     "impact": "medium",
                     "effort": "medium",
-                    "status": "not_started",
+                    "status": "done",
+                    "completedAt": "2026-03-02",
+                    "summary": "Enhanced gallery with arrow key navigation, swipe gestures, prev/next arrow buttons on hover, image counter badge, priority loading for first image. All images already use CloudinaryImage (zero raw img tags). LQIP handled by next-cloudinary. Drag-drop reorder and client-side crop deferred to avoid unnecessary bundle weight.",
                     "description": "Improve the product image management experience in admin and storefront detail pages.",
                     "subtasks": [
                         {
                             "id": "TASK-C14-A",
                             "title": "Drag-and-drop reorder for sort_order in admin",
-                            "status": "not_started"
+                            "status": "deferred"
                         },
                         {
                             "id": "TASK-C14-B",
                             "title": "Image crop/resize before upload to reduce Cloudinary bandwidth",
-                            "status": "not_started"
+                            "status": "deferred"
                         },
                         {
                             "id": "TASK-C14-C",
                             "title": "Replace all raw img tags with CldImage or next/image",
-                            "status": "not_started"
+                            "status": "done"
                         },
                         {
                             "id": "TASK-C14-D",
                             "title": "Blurhash or LQIP placeholders for loading states",
-                            "status": "not_started"
+                            "status": "done"
                         }
                     ]
                 },
