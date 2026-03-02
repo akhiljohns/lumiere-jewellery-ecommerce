@@ -2,7 +2,7 @@
 
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader2, Upload, X, Sparkles } from "lucide-react";
+import { Loader2, Upload, X, Sparkles, ScanSearch } from "lucide-react";
 import { CloudinaryImage } from "@/components/cloudinary-image";
 import { useCallback, useRef, useState } from "react";
 import { toast } from "sonner";
@@ -72,7 +72,7 @@ export function ProductForm({
   const uploadImage = useUploadImage();
   const deleteImage = useDeleteImage();
 
-  const [aiGenerating, setAiGenerating] = useState<"description" | "category" | null>(null);
+  const [aiGenerating, setAiGenerating] = useState<"description" | "category" | "analyze-image" | null>(null);
 
   const {
     register,
@@ -229,6 +229,68 @@ export function ProductForm({
       setAiGenerating(null);
     }
   }, [getValues, setValue, categories]);
+
+  const handleAnalyzeImage = useCallback(async () => {
+    if (images.length === 0) {
+      toast.error("Upload at least one image first");
+      return;
+    }
+    const primaryImage = images.find((img) => img.is_primary) ?? images[0];
+    setAiGenerating("analyze-image");
+    try {
+      const result = await fetchApi<{
+        data: {
+          description: string;
+          material: string | null;
+          suggested_fields: {
+            name: string | null;
+            category: string | null;
+            material: string | null;
+            tags: string[];
+          };
+        };
+      }>("/api/admin/ai/analyze-image", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ image_url: primaryImage.url }),
+      });
+
+      const filled: string[] = [];
+
+      if (result.data.suggested_fields.name && !getValues("name")) {
+        setValue("name", result.data.suggested_fields.name, { shouldDirty: true });
+        filled.push("name");
+      }
+      if (result.data.description) {
+        setValue("description", result.data.description, { shouldDirty: true });
+        filled.push("description");
+      }
+      const material = result.data.suggested_fields.material ?? result.data.material;
+      if (material) {
+        setValue("material", material, { shouldDirty: true });
+        filled.push("material");
+      }
+      if (result.data.suggested_fields.category) {
+        const match = categories.find(
+          (c) => c.name.toLowerCase() === result.data.suggested_fields.category!.toLowerCase(),
+        );
+        if (match) {
+          setValue("category_id", match.id, { shouldDirty: true });
+          filled.push("category");
+        }
+      }
+
+      if (filled.length > 0) {
+        toast.success(`Image analyzed — filled ${filled.join(", ")}`);
+      } else {
+        toast.info("Image analyzed but no fields were auto-filled");
+      }
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Failed to analyze image");
+    } finally {
+      setAiGenerating(null);
+    }
+  }, [images, getValues, setValue, categories]);
 
   const onFormSubmit = handleSubmit((data) => {
     onSubmit({
@@ -480,6 +542,23 @@ export function ProductForm({
             onChange={handleFileSelect}
             className="hidden"
           />
+          {images.length > 0 && (
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={handleAnalyzeImage}
+              disabled={aiGenerating === "analyze-image"}
+              className="h-auto w-fit px-2 py-1 text-xs text-muted-foreground hover:text-primary"
+            >
+              {aiGenerating === "analyze-image" ? (
+                <Loader2 className="mr-1 size-3 animate-spin" />
+              ) : (
+                <ScanSearch className="mr-1 size-3" />
+              )}
+              Analyze with AI
+            </Button>
+          )}
         </Field>
 
         <div className="flex justify-end gap-3">
