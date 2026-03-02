@@ -255,3 +255,102 @@ Return ONLY valid JSON, no markdown fences or extra text.`;
     throw new Error("Failed to parse AI response as JSON");
   }
 }
+
+// ── Analyze Image (Visual Search) ─────────────────
+
+interface AnalyzeImageOutput {
+  type: string;
+  metal_color: string | null;
+  gemstones: string[];
+  style: string;
+  material: string | null;
+  occasion: string[];
+  description: string;
+  suggested_fields: {
+    name: string | null;
+    category: string | null;
+    material: string | null;
+    tags: string[];
+  };
+}
+
+export async function analyzeImage(
+  imageUrl: string,
+): Promise<AnalyzeImageOutput> {
+  const ai = getAI();
+
+  const prompt = `You are a jewellery expert analyzing a product image for an Indian jewellery e-commerce store.
+
+Analyze this jewellery image and extract structured attributes.
+
+Return a JSON object with exactly these fields:
+1. "type" — The type of jewellery (e.g., "ring", "necklace", "earring", "bracelet", "bangle", "pendant", "chain", "anklet", "nose pin", "mangalsutra", "toe ring", "brooch", "hair accessory")
+2. "metal_color" — The visible metal color (e.g., "gold", "silver", "rose gold", "white gold", "oxidized", "two-tone") or null if unclear
+3. "gemstones" — Array of visible gemstones/stones (e.g., ["diamond", "ruby", "emerald", "pearl", "kundan", "american diamond", "meenakari"]). Empty array if none visible.
+4. "style" — The overall style (e.g., "traditional", "modern", "contemporary", "ethnic", "indo-western", "minimalist", "statement", "vintage", "temple", "bohemian")
+5. "material" — Best guess at material (e.g., "22K Gold", "Sterling Silver", "Gold Plated", "Brass", "Kundan") or null if unclear
+6. "occasion" — Array of 2-4 suitable occasions (e.g., ["wedding", "festival", "daily wear", "party", "office", "bridal"])
+7. "description" — A brief 1-2 sentence visual description of the piece
+8. "suggested_fields" — An object with:
+   - "name" — A suggested product name based on what you see, or null
+   - "category" — Suggested category, or null
+   - "material" — Suggested material for the product listing, or null
+   - "tags" — Array of 4-8 relevant product tags
+
+Return ONLY valid JSON, no markdown fences or extra text.`;
+
+  // Fetch the image and convert to base64
+  const imageResponse = await fetch(imageUrl);
+  if (!imageResponse.ok) {
+    throw new Error(`Failed to fetch image: ${imageResponse.status}`);
+  }
+  const imageBuffer = await imageResponse.arrayBuffer();
+  const base64Image = Buffer.from(imageBuffer).toString("base64");
+  const mimeType = imageResponse.headers.get("content-type") ?? "image/jpeg";
+
+  const response = await ai.models.generateContent({
+    model: "gemini-2.0-flash",
+    contents: [
+      {
+        role: "user",
+        parts: [
+          {
+            inlineData: {
+              mimeType,
+              data: base64Image,
+            },
+          },
+          { text: prompt },
+        ],
+      },
+    ],
+    config: {
+      temperature: 0.3,
+      maxOutputTokens: 600,
+    },
+  });
+
+  const text = response.text?.trim() ?? "";
+  const cleaned = text.replace(/^```(?:json)?\n?/i, "").replace(/\n?```$/i, "").trim();
+
+  try {
+    const parsed = JSON.parse(cleaned) as AnalyzeImageOutput;
+    return {
+      type: parsed.type ?? "unknown",
+      metal_color: parsed.metal_color ?? null,
+      gemstones: Array.isArray(parsed.gemstones) ? parsed.gemstones : [],
+      style: parsed.style ?? "unknown",
+      material: parsed.material ?? null,
+      occasion: Array.isArray(parsed.occasion) ? parsed.occasion : [],
+      description: parsed.description ?? "",
+      suggested_fields: {
+        name: parsed.suggested_fields?.name ?? null,
+        category: parsed.suggested_fields?.category ?? null,
+        material: parsed.suggested_fields?.material ?? null,
+        tags: Array.isArray(parsed.suggested_fields?.tags) ? parsed.suggested_fields.tags : [],
+      },
+    };
+  } catch {
+    throw new Error("Failed to parse AI response as JSON");
+  }
+}

@@ -395,18 +395,20 @@
                     "priority": "P3",
                     "impact": "low",
                     "effort": "high",
-                    "status": "not_started",
+                    "status": "done",
+                    "completedAt": "2026-03-02",
+                    "summary": "Added analyzeImage function to AI service using Gemini vision to extract jewellery attributes (type, metal_color, gemstones, style, material, occasion) and suggested product fields from uploaded images. Created POST /api/admin/ai/analyze-image endpoint with Zod validation.",
                     "description": "Use a vision model to extract jewellery attributes from uploaded images and return structured data.",
                     "subtasks": [
                         {
                             "id": "TASK-A12-A",
                             "title": "Create POST /api/admin/ai/analyze-image endpoint (input: image_url → output: type, metal_color, gemstones, style)",
-                            "status": "not_started"
+                            "status": "done"
                         },
                         {
                             "id": "TASK-A12-B",
                             "title": "Map vision analysis output to product field suggestions",
-                            "status": "not_started"
+                            "status": "done"
                         }
                     ]
                 },

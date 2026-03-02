@@ -348,6 +348,12 @@ export const aiAutoTagSchema = z.object({
 export type AISuggestCategoryInput = z.infer<typeof aiSuggestCategorySchema>;
 export type AIAutoTagInput = z.infer<typeof aiAutoTagSchema>;
 
+export const aiAnalyzeImageSchema = z.object({
+  image_url: z.string().url("Invalid image URL"),
+});
+
+export type AIAnalyzeImageInput = z.infer<typeof aiAnalyzeImageSchema>;
+
 // ── Audit Logs ───────────────────────────────────────
 
 export const auditLogQuerySchema = paginationSchema.extend({
