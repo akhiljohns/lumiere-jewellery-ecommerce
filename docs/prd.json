@@ -1460,18 +1460,20 @@
                     "priority": "P3",
                     "impact": "medium",
                     "effort": "low",
-                    "status": "not_started",
+                    "status": "done",
+                    "completedAt": "2026-03-02",
+                    "summary": "Already implemented in prior phase — InventoryAlertsWidget shows out-of-stock, critical/warning restock recommendations with days-until-stockout, and low stock products. Mounted on admin dashboard.",
                     "description": "Dashboard widget showing low-stock alerts and restock recommendations.",
                     "subtasks": [
                         {
                             "id": "TASK-C23-A",
                             "title": "Build low-stock alerts card on admin dashboard",
-                            "status": "not_started"
+                            "status": "done"
                         },
                         {
                             "id": "TASK-C23-B",
                             "title": "Build restock recommendations panel",
-                            "status": "not_started"
+                            "status": "done"
                         }
                     ]
                 },
@@ -1481,13 +1483,15 @@
                     "priority": "P3",
                     "impact": "low",
                     "effort": "low",
-                    "status": "not_started",
+                    "status": "done",
+                    "completedAt": "2026-03-02",
+                    "summary": "Built PricingSuggestionsWidget showing top pricing suggestions with priority badges, current vs suggested compare prices, discount percentages, and reasons. Links to product edit page. Mounted on admin dashboard.",
                     "description": "Dashboard widget highlighting products with improvable margins and pricing suggestions.",
                     "subtasks": [
                         {
                             "id": "TASK-C24-A",
                             "title": "Build pricing suggestions dashboard widget",
-                            "status": "not_started"
+                            "status": "done"
                         }
                     ]
                 }

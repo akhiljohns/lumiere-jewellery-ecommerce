@@ -21,6 +21,7 @@ import { RevenueChart } from "./revenue-chart";
 import { OrderStatusChart } from "./order-status-chart";
 import { TopProductsChart } from "./top-products-chart";
 import { InventoryAlertsWidget } from "./inventory-alerts-widget";
+import { PricingSuggestionsWidget } from "./pricing-suggestions-widget";
 import { RecentOrdersTimeline } from "./recent-orders-timeline";
 
 export function DashboardClient() {
@@ -109,6 +110,9 @@ export function DashboardClient() {
         <InventoryAlertsWidget />
         <RecentOrdersTimeline orders={stats.recent_orders} />
       </div>
+
+      {/* Pricing Suggestions */}
+      <PricingSuggestionsWidget />
     </div>
   );
 }
