@@ -159,7 +159,23 @@ The project uses **shadcn/ui Mira style** with **amber primary**, **gray base co
 - Form accessibility — `aria-describedby` linking inputs to error messages across all admin forms, labels and focus rings verified (TASK-B11)
 - Color contrast — light mode `--muted-foreground` and `--destructive` adjusted to pass WCAG AA 4.5:1 ratio (TASK-B12)
 
+**Phase C — UI Implementations (partial):**
+- Storefront Homepage — hero section, featured products carousel, category grid, navbar, footer (TASK-C03)
+- Product Listing Page — filter sidebar (category/material/price), sort controls, product grid, pagination via nuqs, quick-view modal (TASK-C04)
+- Product Detail Page — image gallery with zoom-on-hover, product info, add-to-cart with quantity selector, breadcrumbs, related products (TASK-C05)
+
+### Storefront Architecture
+
+- **Route group**: `(storefront)` at `src/app/(storefront)/` — maps to `/` without URL segment.
+- **Shared components**: `src/features/storefront/components/` — ProductCard, PriceDisplay, WishlistButton, AddToCartButton, SearchOverlay, StorefrontNavbar, StorefrontFooter, motion-variants.
+- **Homepage**: Server Component calling `getFeaturedProducts()` + `getPublicCategories()` directly. Client leaf components for carousel and animations.
+- **Product Listing**: Fully client-side with `useGetStorefrontProducts()` + `nuqs` URL state for filters/sort/pagination. Wrapped in `<Suspense>` for SSR compatibility.
+- **Product Detail**: Server Component with `getProductBySlug()` + `generateMetadata()` for SEO. Client components for gallery, cart, and wishlist.
+- **Animation presets**: `motion-variants.ts` exports `fadeInUp`, `staggerContainer`, `staggerItem`, `cardHover` for consistent Framer Motion animations.
+- **Cart integration**: Map `PublicProduct` → `LocalCartItem` via `{ product_id, quantity, name, slug, price, compare_price, image_url (from getPrimaryImage), stock, is_active }`.
+- **Customer auth detection**: Navbar calls `useGetProfile()` — if data exists, show user menu; if null, show Sign in link.
+
 ### Not Started
 - Phase A: Audit log persistence (A09), visual search (A12), chatbot RAG (A13), inventory alerts (A14), pricing suggestions (A15)
 - Phase B: Error standardization, testing
-- Phase C: All UI — storefront pages, TanStack Query, Zustand stores, Framer Motion animations, admin enhancements
+- Phase C (remaining): Cart & Checkout (C06), Customer Auth Pages (C07), Admin Dashboard Enhancements (C08+)

@@ -5,12 +5,9 @@ import {
   createCategory,
 } from "@/features/categories/services/category-service";
 import { logAdminAction, logAdminError } from "@/lib/discord";
-import {
-  requirePermission,
-  ForbiddenError,
-  forbiddenResponse,
-} from "@/lib/api-auth";
+import { requirePermission } from "@/lib/api-auth";
 import { revalidateCategoryCache } from "@/lib/cache";
+import { AppError, ErrorCode, errorResponse } from "@/lib/errors";
 
 /**
  * GET /api/admin/categories
@@ -32,9 +29,10 @@ export async function GET(request: NextRequest) {
 
     const parsed = categoryQuerySchema.safeParse(queryInput);
     if (!parsed.success) {
-      return NextResponse.json(
-        { error: "Invalid query parameters", details: parsed.error.issues },
-        { status: 400 },
+      throw new AppError(
+        ErrorCode.VALIDATION_ERROR,
+        "Invalid query parameters",
+        parsed.error.issues,
       );
     }
 
@@ -42,10 +40,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json(result, { status: 200 });
   } catch (err) {
-    if (err instanceof ForbiddenError) return forbiddenResponse(err.message);
-    const message =
-      err instanceof Error ? err.message : "Internal server error";
-    return NextResponse.json({ error: message }, { status: 500 });
+    return errorResponse(err);
   }
 }
 
@@ -62,9 +57,10 @@ export async function POST(request: NextRequest) {
 
     const parsed = categoryCreateSchema.safeParse(body);
     if (!parsed.success) {
-      return NextResponse.json(
-        { error: "Validation failed", details: parsed.error.issues },
-        { status: 400 },
+      throw new AppError(
+        ErrorCode.VALIDATION_ERROR,
+        "Validation failed",
+        parsed.error.issues,
       );
     }
 
@@ -84,17 +80,14 @@ export async function POST(request: NextRequest) {
         value: parsed.data.is_active !== false ? "Yes" : "No",
         inline: true,
       },
-    ]);
+    ], { resource_id: category.id, actor_id: request.headers.get("x-user-id") ?? undefined });
 
     return NextResponse.json(
       { data: category, message: "Category created successfully" },
       { status: 201 },
     );
   } catch (err) {
-    if (err instanceof ForbiddenError) return forbiddenResponse(err.message);
-    const message =
-      err instanceof Error ? err.message : "Internal server error";
-    logAdminError("Create Category", message, actor);
-    return NextResponse.json({ error: message }, { status: 500 });
+    if (!(err instanceof AppError)) logAdminError("Create Category", err instanceof Error ? err.message : "Unknown error", actor);
+    return errorResponse(err);
   }
 }

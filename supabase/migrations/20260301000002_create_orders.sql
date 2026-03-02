@@ -53,7 +53,7 @@ CREATE INDEX idx_addresses_customer_id ON addresses(customer_id);
 CREATE TRIGGER set_addresses_updated_at
   BEFORE UPDATE ON addresses
   FOR EACH ROW
-  EXECUTE FUNCTION update_updated_at_column();
+  EXECUTE FUNCTION handle_updated_at();
 
 -- ── Orders table ───────────────────────────────────────────
 
@@ -89,7 +89,7 @@ CREATE INDEX idx_orders_created_at      ON orders(created_at DESC);
 CREATE TRIGGER set_orders_updated_at
   BEFORE UPDATE ON orders
   FOR EACH ROW
-  EXECUTE FUNCTION update_updated_at_column();
+  EXECUTE FUNCTION handle_updated_at();
 
 -- ── Order Items table ──────────────────────────────────────
 

@@ -5,6 +5,7 @@ import {
   deleteRole,
 } from "@/features/roles/services/role-service";
 import { getRoleRank, SUPER_ADMIN_ROLE } from "@/lib/permissions";
+import { AppError, ErrorCode, errorResponse } from "@/lib/errors";
 
 interface RouteParams {
   params: Promise<{ id: string }>;
@@ -19,13 +20,12 @@ export async function GET(_request: NextRequest, { params }: RouteParams) {
     const role = await getRoleById(id);
 
     if (!role) {
-      return NextResponse.json({ error: "Role not found" }, { status: 404 });
+      throw new AppError(ErrorCode.NOT_FOUND, "Role not found");
     }
 
     return NextResponse.json({ data: role }, { status: 200 });
   } catch (err) {
-    const message = err instanceof Error ? err.message : "Internal server error";
-    return NextResponse.json({ error: message }, { status: 500 });
+    return errorResponse(err);
   }
 }
 
@@ -39,14 +39,14 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
 
     const existing = await getRoleById(id);
     if (!existing) {
-      return NextResponse.json({ error: "Role not found" }, { status: 404 });
+      throw new AppError(ErrorCode.NOT_FOUND, "Role not found");
     }
 
     // super_admin is permanently locked — no one can change its permissions
     if (existing.name === SUPER_ADMIN_ROLE) {
-      return NextResponse.json(
-        { error: "The super_admin role is locked and cannot be modified" },
-        { status: 403 },
+      throw new AppError(
+        ErrorCode.FORBIDDEN,
+        "The super_admin role is locked and cannot be modified",
       );
     }
 
@@ -54,9 +54,9 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
     const requesterRole = request.headers.get("x-user-role") ?? "";
     if (requesterRole !== SUPER_ADMIN_ROLE) {
       if (getRoleRank(requesterRole) <= getRoleRank(existing.name)) {
-        return NextResponse.json(
-          { error: "You cannot edit a role with equal or higher rank than your own" },
-          { status: 403 },
+        throw new AppError(
+          ErrorCode.FORBIDDEN,
+          "You cannot edit a role with equal or higher rank than your own",
         );
       }
     }
@@ -72,8 +72,7 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
       { status: 200 },
     );
   } catch (err) {
-    const message = err instanceof Error ? err.message : "Internal server error";
-    return NextResponse.json({ error: message }, { status: 500 });
+    return errorResponse(err);
   }
 }
 
@@ -86,13 +85,13 @@ export async function DELETE(_request: NextRequest, { params }: RouteParams) {
 
     const existing = await getRoleById(id);
     if (!existing) {
-      return NextResponse.json({ error: "Role not found" }, { status: 404 });
+      throw new AppError(ErrorCode.NOT_FOUND, "Role not found");
     }
 
     if (existing.is_system) {
-      return NextResponse.json(
-        { error: "System roles cannot be deleted" },
-        { status: 400 },
+      throw new AppError(
+        ErrorCode.BAD_REQUEST,
+        "System roles cannot be deleted",
       );
     }
 
@@ -103,7 +102,6 @@ export async function DELETE(_request: NextRequest, { params }: RouteParams) {
       { status: 200 },
     );
   } catch (err) {
-    const message = err instanceof Error ? err.message : "Internal server error";
-    return NextResponse.json({ error: message }, { status: 500 });
+    return errorResponse(err);
   }
 }

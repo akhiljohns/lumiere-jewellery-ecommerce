@@ -5,7 +5,8 @@ import {
   updateOrderStatus,
 } from "@/features/orders/services/order-service";
 import { logAdminAction, logAdminError } from "@/lib/discord";
-import { requirePermission, ForbiddenError, forbiddenResponse } from "@/lib/api-auth";
+import { requirePermission } from "@/lib/api-auth";
+import { AppError, ErrorCode, errorResponse } from "@/lib/errors";
 
 interface RouteParams {
   params: Promise<{ id: string }>;
@@ -18,18 +19,12 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
 
     const order = await getOrderById(id);
     if (!order) {
-      return NextResponse.json(
-        { error: "Order not found" },
-        { status: 404 },
-      );
+      throw new AppError(ErrorCode.NOT_FOUND, "Order not found");
     }
 
     return NextResponse.json({ data: order }, { status: 200 });
   } catch (err) {
-    if (err instanceof ForbiddenError) return forbiddenResponse(err.message);
-    const message =
-      err instanceof Error ? err.message : "Internal server error";
-    return NextResponse.json({ error: message }, { status: 500 });
+    return errorResponse(err);
   }
 }
 
@@ -43,18 +38,16 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
 
     const parsed = orderStatusUpdateSchema.safeParse(body);
     if (!parsed.success) {
-      return NextResponse.json(
-        { error: "Validation failed", details: parsed.error.issues },
-        { status: 400 },
+      throw new AppError(
+        ErrorCode.VALIDATION_ERROR,
+        "Validation failed",
+        parsed.error.issues,
       );
     }
 
     const existing = await getOrderById(id);
     if (!existing) {
-      return NextResponse.json(
-        { error: "Order not found" },
-        { status: 404 },
-      );
+      throw new AppError(ErrorCode.NOT_FOUND, "Order not found");
     }
 
     const order = await updateOrderStatus(id, parsed.data);
@@ -64,25 +57,14 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
       ...(parsed.data.cancelled_reason
         ? [{ name: "Reason", value: parsed.data.cancelled_reason, inline: false }]
         : []),
-    ]);
+    ], { resource_id: id, actor_id: request.headers.get("x-user-id") ?? undefined });
 
     return NextResponse.json(
       { data: order, message: "Order status updated successfully" },
       { status: 200 },
     );
   } catch (err) {
-    if (err instanceof ForbiddenError) return forbiddenResponse(err.message);
-    const message =
-      err instanceof Error ? err.message : "Internal server error";
-
-    const status =
-      message === "Order not found"
-        ? 404
-        : message.includes("Cannot transition")
-          ? 400
-          : 500;
-
-    if (status === 500) logAdminError("Update Order Status", message, actor);
-    return NextResponse.json({ error: message }, { status });
+    if (!(err instanceof AppError)) logAdminError("Update Order Status", err instanceof Error ? err.message : "Unknown error", actor);
+    return errorResponse(err);
   }
 }
