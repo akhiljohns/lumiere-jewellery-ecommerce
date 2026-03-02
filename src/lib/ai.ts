@@ -1,4 +1,5 @@
 import { GoogleGenAI } from "@google/genai";
+import { AppError, ErrorCode } from "@/lib/errors";
 
 // ── Lazy-initialized client ────────────────────────
 
@@ -8,11 +9,66 @@ function getAI(): GoogleGenAI {
   if (!_ai) {
     const apiKey = process.env.GEMINI_API_KEY;
     if (!apiKey) {
-      throw new Error("GEMINI_API_KEY environment variable is not set");
+      throw new AppError(
+        ErrorCode.BAD_REQUEST,
+        "AI features are not configured. Please set the GEMINI_API_KEY environment variable.",
+      );
     }
     _ai = new GoogleGenAI({ apiKey });
   }
   return _ai;
+}
+
+/**
+ * Wraps Gemini API calls with user-friendly error handling.
+ */
+async function callGemini<T>(fn: () => Promise<T>): Promise<T> {
+  try {
+    return await fn();
+  } catch (err: unknown) {
+    // Re-throw AppErrors as-is
+    if (err instanceof AppError) throw err;
+
+    const message = err instanceof Error ? err.message : String(err);
+
+    // Rate limit / quota exceeded
+    if (message.includes("429") || message.includes("RESOURCE_EXHAUSTED") || message.includes("quota")) {
+      throw new AppError(
+        ErrorCode.RATE_LIMITED,
+        "AI rate limit reached. Please wait a minute and try again. If this is a new API key, it may take a few minutes for your quota to activate.",
+      );
+    }
+
+    // Invalid API key
+    if (message.includes("401") || message.includes("API_KEY_INVALID") || message.includes("UNAUTHENTICATED")) {
+      throw new AppError(
+        ErrorCode.UNAUTHORIZED,
+        "Invalid Gemini API key. Please check your GEMINI_API_KEY environment variable.",
+      );
+    }
+
+    // Permission denied
+    if (message.includes("403") || message.includes("PERMISSION_DENIED")) {
+      throw new AppError(
+        ErrorCode.FORBIDDEN,
+        "Gemini API access denied. Please check your API key permissions.",
+      );
+    }
+
+    // Model not found / unavailable
+    if (message.includes("404") || message.includes("NOT_FOUND")) {
+      throw new AppError(
+        ErrorCode.INTERNAL_ERROR,
+        "AI model is currently unavailable. Please try again later.",
+      );
+    }
+
+    // Generic fallback — don't leak raw Gemini error details
+    throw new AppError(
+      ErrorCode.INTERNAL_ERROR,
+      "AI service encountered an error. Please try again.",
+    );
+  }
 }
 
 // ── Generate Product Description ───────────────────
@@ -52,30 +108,30 @@ Return a JSON object with exactly these fields:
 
 Return ONLY valid JSON, no markdown fences or extra text.`;
 
-  const response = await ai.models.generateContent({
-    model: "gemini-2.0-flash",
-    contents: prompt,
-    config: {
-      temperature: 0.7,
-      maxOutputTokens: 500,
-    },
+  return callGemini(async () => {
+    const response = await ai.models.generateContent({
+      model: "gemini-2.0-flash",
+      contents: prompt,
+      config: {
+        temperature: 0.7,
+        maxOutputTokens: 500,
+      },
+    });
+
+    const text = response.text?.trim() ?? "";
+    const cleaned = text.replace(/^```(?:json)?\n?/i, "").replace(/\n?```$/i, "").trim();
+
+    try {
+      const parsed = JSON.parse(cleaned) as GenerateDescriptionOutput;
+      return {
+        description: parsed.description ?? "",
+        meta_description: parsed.meta_description ?? "",
+        tags: Array.isArray(parsed.tags) ? parsed.tags : [],
+      };
+    } catch {
+      throw new AppError(ErrorCode.INTERNAL_ERROR, "Failed to parse AI response. Please try again.");
+    }
   });
-
-  const text = response.text?.trim() ?? "";
-
-  // Strip markdown fences if present
-  const cleaned = text.replace(/^```(?:json)?\n?/i, "").replace(/\n?```$/i, "").trim();
-
-  try {
-    const parsed = JSON.parse(cleaned) as GenerateDescriptionOutput;
-    return {
-      description: parsed.description ?? "",
-      meta_description: parsed.meta_description ?? "",
-      tags: Array.isArray(parsed.tags) ? parsed.tags : [],
-    };
-  } catch {
-    throw new Error("Failed to parse AI response as JSON");
-  }
 }
 
 // ── Generate Image Alt Text ────────────────────────
@@ -100,34 +156,36 @@ Return ONLY the alt text string, no quotes, no extra text.`;
   const base64Image = Buffer.from(imageBuffer).toString("base64");
   const mimeType = imageResponse.headers.get("content-type") ?? "image/jpeg";
 
-  const response = await ai.models.generateContent({
-    model: "gemini-2.0-flash",
-    contents: [
-      {
-        role: "user",
-        parts: [
-          {
-            inlineData: {
-              mimeType,
-              data: base64Image,
+  return callGemini(async () => {
+    const response = await ai.models.generateContent({
+      model: "gemini-2.0-flash",
+      contents: [
+        {
+          role: "user",
+          parts: [
+            {
+              inlineData: {
+                mimeType,
+                data: base64Image,
+              },
             },
-          },
-          { text: prompt },
-        ],
+            { text: prompt },
+          ],
+        },
+      ],
+      config: {
+        temperature: 0.3,
+        maxOutputTokens: 100,
       },
-    ],
-    config: {
-      temperature: 0.3,
-      maxOutputTokens: 100,
-    },
+    });
+
+    const altText = response.text?.trim() ?? "";
+    if (!altText) {
+      throw new AppError(ErrorCode.INTERNAL_ERROR, "AI returned empty alt text. Please try again.");
+    }
+
+    return altText;
   });
-
-  const altText = response.text?.trim() ?? "";
-  if (!altText) {
-    throw new Error("AI returned empty alt text");
-  }
-
-  return altText;
 }
 
 // ── Suggest Category & Material ────────────────────
@@ -172,29 +230,31 @@ Return a JSON object with exactly these fields:
 
 Return ONLY valid JSON, no markdown fences or extra text.`;
 
-  const response = await ai.models.generateContent({
-    model: "gemini-2.0-flash",
-    contents: prompt,
-    config: {
-      temperature: 0.3,
-      maxOutputTokens: 300,
-    },
+  return callGemini(async () => {
+    const response = await ai.models.generateContent({
+      model: "gemini-2.0-flash",
+      contents: prompt,
+      config: {
+        temperature: 0.3,
+        maxOutputTokens: 300,
+      },
+    });
+
+    const text = response.text?.trim() ?? "";
+    const cleaned = text.replace(/^```(?:json)?\n?/i, "").replace(/\n?```$/i, "").trim();
+
+    try {
+      const parsed = JSON.parse(cleaned) as SuggestCategoryOutput;
+      return {
+        suggested_category: parsed.suggested_category ?? null,
+        suggested_material: parsed.suggested_material ?? null,
+        confidence: typeof parsed.confidence === "number" ? Math.min(1, Math.max(0, parsed.confidence)) : 0,
+        tags: Array.isArray(parsed.tags) ? parsed.tags : [],
+      };
+    } catch {
+      throw new AppError(ErrorCode.INTERNAL_ERROR, "Failed to parse AI response. Please try again.");
+    }
   });
-
-  const text = response.text?.trim() ?? "";
-  const cleaned = text.replace(/^```(?:json)?\n?/i, "").replace(/\n?```$/i, "").trim();
-
-  try {
-    const parsed = JSON.parse(cleaned) as SuggestCategoryOutput;
-    return {
-      suggested_category: parsed.suggested_category ?? null,
-      suggested_material: parsed.suggested_material ?? null,
-      confidence: typeof parsed.confidence === "number" ? Math.min(1, Math.max(0, parsed.confidence)) : 0,
-      tags: Array.isArray(parsed.tags) ? parsed.tags : [],
-    };
-  } catch {
-    throw new Error("Failed to parse AI response as JSON");
-  }
 }
 
 // ── Auto-Tag by Occasion ───────────────────────────
@@ -232,28 +292,30 @@ Return a JSON object with exactly these fields:
 
 Return ONLY valid JSON, no markdown fences or extra text.`;
 
-  const response = await ai.models.generateContent({
-    model: "gemini-2.0-flash",
-    contents: prompt,
-    config: {
-      temperature: 0.4,
-      maxOutputTokens: 300,
-    },
+  return callGemini(async () => {
+    const response = await ai.models.generateContent({
+      model: "gemini-2.0-flash",
+      contents: prompt,
+      config: {
+        temperature: 0.4,
+        maxOutputTokens: 300,
+      },
+    });
+
+    const text = response.text?.trim() ?? "";
+    const cleaned = text.replace(/^```(?:json)?\n?/i, "").replace(/\n?```$/i, "").trim();
+
+    try {
+      const parsed = JSON.parse(cleaned) as AutoTagOutput;
+      return {
+        occasions: Array.isArray(parsed.occasions) ? parsed.occasions : [],
+        styles: Array.isArray(parsed.styles) ? parsed.styles : [],
+        gifting: Array.isArray(parsed.gifting) ? parsed.gifting : [],
+      };
+    } catch {
+      throw new AppError(ErrorCode.INTERNAL_ERROR, "Failed to parse AI response. Please try again.");
+    }
   });
-
-  const text = response.text?.trim() ?? "";
-  const cleaned = text.replace(/^```(?:json)?\n?/i, "").replace(/\n?```$/i, "").trim();
-
-  try {
-    const parsed = JSON.parse(cleaned) as AutoTagOutput;
-    return {
-      occasions: Array.isArray(parsed.occasions) ? parsed.occasions : [],
-      styles: Array.isArray(parsed.styles) ? parsed.styles : [],
-      gifting: Array.isArray(parsed.gifting) ? parsed.gifting : [],
-    };
-  } catch {
-    throw new Error("Failed to parse AI response as JSON");
-  }
 }
 
 // ── Analyze Image (Visual Search) ─────────────────
@@ -302,55 +364,57 @@ Return ONLY valid JSON, no markdown fences or extra text.`;
   // Fetch the image and convert to base64
   const imageResponse = await fetch(imageUrl);
   if (!imageResponse.ok) {
-    throw new Error(`Failed to fetch image: ${imageResponse.status}`);
+    throw new AppError(ErrorCode.BAD_REQUEST, `Failed to fetch image (HTTP ${imageResponse.status}). Please check the image URL.`);
   }
   const imageBuffer = await imageResponse.arrayBuffer();
   const base64Image = Buffer.from(imageBuffer).toString("base64");
   const mimeType = imageResponse.headers.get("content-type") ?? "image/jpeg";
 
-  const response = await ai.models.generateContent({
-    model: "gemini-2.0-flash",
-    contents: [
-      {
-        role: "user",
-        parts: [
-          {
-            inlineData: {
-              mimeType,
-              data: base64Image,
+  return callGemini(async () => {
+    const response = await ai.models.generateContent({
+      model: "gemini-2.0-flash",
+      contents: [
+        {
+          role: "user",
+          parts: [
+            {
+              inlineData: {
+                mimeType,
+                data: base64Image,
+              },
             },
-          },
-          { text: prompt },
-        ],
+            { text: prompt },
+          ],
+        },
+      ],
+      config: {
+        temperature: 0.3,
+        maxOutputTokens: 600,
       },
-    ],
-    config: {
-      temperature: 0.3,
-      maxOutputTokens: 600,
-    },
+    });
+
+    const text = response.text?.trim() ?? "";
+    const cleaned = text.replace(/^```(?:json)?\n?/i, "").replace(/\n?```$/i, "").trim();
+
+    try {
+      const parsed = JSON.parse(cleaned) as AnalyzeImageOutput;
+      return {
+        type: parsed.type ?? "unknown",
+        metal_color: parsed.metal_color ?? null,
+        gemstones: Array.isArray(parsed.gemstones) ? parsed.gemstones : [],
+        style: parsed.style ?? "unknown",
+        material: parsed.material ?? null,
+        occasion: Array.isArray(parsed.occasion) ? parsed.occasion : [],
+        description: parsed.description ?? "",
+        suggested_fields: {
+          name: parsed.suggested_fields?.name ?? null,
+          category: parsed.suggested_fields?.category ?? null,
+          material: parsed.suggested_fields?.material ?? null,
+          tags: Array.isArray(parsed.suggested_fields?.tags) ? parsed.suggested_fields.tags : [],
+        },
+      };
+    } catch {
+      throw new AppError(ErrorCode.INTERNAL_ERROR, "Failed to parse AI response. Please try again.");
+    }
   });
-
-  const text = response.text?.trim() ?? "";
-  const cleaned = text.replace(/^```(?:json)?\n?/i, "").replace(/\n?```$/i, "").trim();
-
-  try {
-    const parsed = JSON.parse(cleaned) as AnalyzeImageOutput;
-    return {
-      type: parsed.type ?? "unknown",
-      metal_color: parsed.metal_color ?? null,
-      gemstones: Array.isArray(parsed.gemstones) ? parsed.gemstones : [],
-      style: parsed.style ?? "unknown",
-      material: parsed.material ?? null,
-      occasion: Array.isArray(parsed.occasion) ? parsed.occasion : [],
-      description: parsed.description ?? "",
-      suggested_fields: {
-        name: parsed.suggested_fields?.name ?? null,
-        category: parsed.suggested_fields?.category ?? null,
-        material: parsed.suggested_fields?.material ?? null,
-        tags: Array.isArray(parsed.suggested_fields?.tags) ? parsed.suggested_fields.tags : [],
-      },
-    };
-  } catch {
-    throw new Error("Failed to parse AI response as JSON");
-  }
 }
