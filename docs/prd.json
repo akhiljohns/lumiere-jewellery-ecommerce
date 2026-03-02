@@ -1249,28 +1249,30 @@
                     "priority": "P2",
                     "impact": "medium",
                     "effort": "medium",
-                    "status": "not_started",
+                    "status": "done",
+                    "completedAt": "2026-03-02",
+                    "summary": "Applied cardHover spring animation (lift + tap scale) to product cards and category cards. Staggered list animations already implemented on product grids, category grids, featured products, and related products. AnimatePresence transitions on image gallery. Modal animations handled by shadcn/ui Dialog. Page transitions deferred as Next.js App Router does not natively support route-level AnimatePresence.",
                     "description": "Activate Framer Motion for page transitions, card hover effects, and modal animations.",
                     "subtasks": [
                         {
                             "id": "TASK-C16-A",
                             "title": "Page transition animations between routes",
-                            "status": "not_started"
+                            "status": "deferred"
                         },
                         {
                             "id": "TASK-C16-B",
                             "title": "Product card hover effects (scale, shadow)",
-                            "status": "not_started"
+                            "status": "done"
                         },
                         {
                             "id": "TASK-C16-C",
                             "title": "Modal entry/exit animations",
-                            "status": "not_started"
+                            "status": "done"
                         },
                         {
                             "id": "TASK-C16-D",
                             "title": "Staggered list animations for product grids",
-                            "status": "not_started"
+                            "status": "done"
                         }
                     ]
                 },

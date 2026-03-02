@@ -4,7 +4,7 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 
 import { CloudinaryImage } from "@/components/cloudinary-image";
-import { staggerItem } from "../motion-variants";
+import { staggerItem, cardHover } from "../motion-variants";
 import type { CategoryWithCount } from "@/features/storefront/types";
 
 interface CategoryCardProps {
@@ -13,7 +13,7 @@ interface CategoryCardProps {
 
 export function CategoryCard({ category }: CategoryCardProps) {
   return (
-    <motion.div variants={staggerItem}>
+    <motion.div variants={staggerItem} {...cardHover}>
       <Link
         href={`/products?category=${category.slug}`}
         className="group relative block overflow-hidden rounded-lg border border-border"

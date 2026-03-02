@@ -6,7 +6,7 @@ import { motion } from "framer-motion";
 import { CloudinaryImage } from "@/components/cloudinary-image";
 import { PriceDisplay } from "./price-display";
 import { WishlistButton } from "./wishlist-button";
-import { staggerItem } from "./motion-variants";
+import { staggerItem, cardHover } from "./motion-variants";
 import { getPrimaryImage } from "@/lib/utils";
 import type { PublicProduct } from "@/features/storefront/types";
 
@@ -19,7 +19,7 @@ export function ProductCard({ product, onQuickView }: ProductCardProps) {
   const primaryImage = getPrimaryImage(product.product_images);
 
   return (
-    <motion.div variants={staggerItem}>
+    <motion.div variants={staggerItem} {...cardHover}>
       <Link
         href={`/products/${product.slug}`}
         className="group block cursor-pointer overflow-hidden rounded-lg border border-border bg-card transition-[box-shadow,border-color] duration-200 hover:border-primary/30 hover:shadow-lg"
