@@ -1,60 +1,208 @@
 # Jewellery E-Commerce
 
-A full-stack jewellery e-commerce platform with an admin panel and customer storefront, built for the Indian market (INR).
+A full-stack jewellery e-commerce platform with an admin panel and customer-facing storefront, built for the Indian market (INR). Features AI-powered product management, Razorpay payments, real-time inventory analytics, and a responsive storefront with advanced filtering and search.
 
 ## Tech Stack
 
-Next.js 16 | TypeScript | Supabase (PostgreSQL) | Cloudinary | Razorpay | Gemini AI
+| Layer | Technology |
+|-------|-----------|
+| Framework | Next.js 16 (App Router), React 19, TypeScript |
+| Database | Supabase (PostgreSQL), pgvector for embeddings |
+| Styling | Tailwind CSS v4, shadcn/ui (Mira style, amber theme) |
+| Payments | Razorpay (online), Cash on Delivery |
+| Images | Cloudinary with auto AVIF/WebP optimization |
+| AI | Google Gemini 2.0 Flash, text-embedding-004 |
+| Auth | JWT (jose, HS256), HTTP-only cookies |
+| Email | Nodemailer (Gmail SMTP) |
+| State | TanStack Query v5, Zustand, nuqs (URL state) |
+| Animations | Framer Motion |
+| Charts | Recharts |
+| Notifications | Discord webhooks |
 
 ## Features
 
+### Storefront
+
+**Homepage** — Hero section, features strip, featured products grid, category showcase, and newsletter CTA. Server-rendered with Framer Motion entrance animations.
+
+**Product Listing** — Filterable product grid with category, material, and price range filters. Supports sorting (popular, newest, price), pagination via URL state, and a quick-view modal for previewing products without leaving the page.
+
+**Product Detail** — Image gallery with hover zoom, quantity selector, add-to-cart, breadcrumbs, and related products. Server-rendered with dynamic SEO metadata per product.
+
+**Search** — Full-text search powered by PostgreSQL tsvector with GIN indexing. Searches across product name, description, material, and category.
+
+**Cart** — Client-side cart with real-time stock validation. Quantity adjustment, item removal, and subtotal calculation. Guest carts merge with customer carts on login.
+
+**Checkout** — Address selection from saved addresses or inline entry. Payment via Razorpay (online) or COD. Stock is validated at checkout to prevent overselling.
+
+**Wishlist** — Add/remove products, view wishlist page, and move items to cart.
+
+**Customer Account** — Registration, login, email verification, password recovery, profile management, order history, and self-service order cancellation.
+
 ### Admin Panel
-- Dashboard with real-time stats (products, users, orders, revenue, inventory)
-- Product management with image uploads, categories, and inventory tracking
-- Category management with parent-child hierarchy
-- User and role management with granular permissions
-- Order management with status lifecycle tracking
-- AI-powered product description and image alt text generation
-- Unified search across products, users, and orders
-- Discord webhook notifications for admin actions
 
-### Customer API
-- Registration, login, email verification, and password recovery
-- Shopping cart with stock validation
-- Multi-address management
-- Checkout with Razorpay (online) and COD payment options
-- Order history and self-service cancellation
-- Wishlist (toggle, list, batch check)
+**Dashboard** — Real-time overview with product stats, user metrics, revenue trends (30-day chart), top-selling products, recent orders, inventory alerts, and pricing suggestions.
 
-### Public Storefront API
-- Product listing with filtering (category, material, price range), sorting, and pagination
-- Product detail by slug with related products
-- Featured / curated products
-- Full-text search powered by PostgreSQL tsvector
-- Category listing with product counts
+**Product Management** — Full CRUD with multi-image upload (Cloudinary), primary image selection, category assignment, material/weight fields, stock tracking, featured flag, and active/inactive toggle. Slugs are auto-generated with collision handling.
+
+**Category Management** — Hierarchical categories with parent-child relationships, sort order, category images, and active/inactive status.
+
+**Order Management** — View all orders with status lifecycle tracking (pending > confirmed > processing > shipped > delivered). Update order status, view payment details, and see full item breakdowns with price snapshots.
+
+**User Management** — Create, edit, and deactivate admin users. Assign roles with granular permissions.
+
+**Role & Permission Management** — Define custom roles with fine-grained permissions (e.g., `product.create`, `order.view`). Permissions are enforced at the API layer.
+
+**Audit Logs** — Every admin action (create, update, delete) is logged with the actor, resource, IP address, and a diff of changes. Filterable by resource type, actor, and action.
+
+### AI Features
+
+**Product Description Generation** — Enter a product name and the AI generates a compelling 2-3 sentence description, SEO meta description, and relevant tags. Uses product context (category, material, price, weight) for accuracy.
+
+**Image Analysis** — Upload a product image and the AI extracts structured attributes: jewellery type, metal color, gemstones, style, material, suitable occasions, and a visual description. Auto-fills the product form with suggested name, description, material, and category.
+
+**Smart Categorization** — AI suggests the best matching category and material for a product based on its name and description. Matches against existing categories in the database.
+
+**Occasion-Based Auto-Tagging** — Generates occasion tags (wedding, festival, daily wear), style tags (traditional, modern, ethnic), and gifting tags (birthday gift, anniversary) for products.
+
+**Image Alt Text Generation** — Creates 15-25 word accessibility descriptions for product images, optimized for screen readers and SEO.
+
+**AI Shopping Assistant** — Multi-turn chat interface using RAG (Retrieval-Augmented Generation). Searches product embeddings for relevant context and provides conversational product recommendations. Supports both guest and authenticated customer sessions.
+
+**Vector Embeddings** — Generates 768-dimension embeddings (Gemini text-embedding-004) for all active products. Stored in pgvector for semantic similarity search used by the chat assistant.
+
+### Analytics & Insights
+
+**Revenue Trends** — 30-day daily revenue and order count chart on the dashboard.
+
+**Top Selling Products** — Ranked by units sold and revenue generated.
+
+**Inventory Alerts** — Identifies out-of-stock and low-stock products. Calculates sales velocity over the last 30 days, predicts days until stockout, and provides restock recommendations with urgency levels (critical, warning, low). Optionally sends alerts to Discord.
+
+**Pricing Suggestions** — Analyzes product pricing and flags issues: products without a compare price, products with low discount visibility (< 5%), and products priced below category average. Provides suggested compare prices, discount percentages, and priority levels (high, medium, low). Includes category-level pricing analysis with min/max/average breakdowns.
+
+### Payments
+
+**Razorpay Integration** — Online payment flow with order creation, client-side payment modal, server-side signature verification, and webhook handling for payment.captured, payment.failed, and refund.processed events.
+
+**Cash on Delivery** — Alternative payment option that creates orders in pending status with immediate confirmation email.
+
+**Payment Tracking** — Each order tracks payment status (pending, paid, failed, refunded) and payment method independently from order status.
+
+### Email Notifications
+
+**Order Confirmation** — Itemized order summary with prices, shipping address, payment method, and a link to view the order. HTML-formatted with amber branding.
+
+**Email Verification** — Token-based verification link sent on registration. 24-hour expiration with resend capability.
+
+**Password Reset** — Secure token-based reset flow with 1-hour expiration.
 
 ### Security
-- JWT authentication with HTTP-only cookies (admin + customer)
-- Role-based access control with permission system
-- IP-based rate limiting across all API tiers
-- Razorpay webhook signature verification
-- Atomic checkout with stock locking to prevent overselling
+
+**Authentication** — JWT tokens (HS256, 7-day expiry) stored in HTTP-only cookies. Middleware verifies tokens and injects user context headers for all protected routes. Separate auth flows for admin and customer.
+
+**Authorization** — Role-based access control with a granular permission system. Each API endpoint checks specific permissions (e.g., `product.create`, `order.update`).
+
+**Rate Limiting** — IP-based sliding window rate limiting across all API tiers: auth (10/15min), AI (20/min), admin (100/min), customer (60/min), public (120/min). Returns 429 with Retry-After header when exceeded.
+
+**CSRF Protection** — Double-submit cookie pattern for form submissions.
+
+**Input Sanitization** — HTML tag stripping on all user inputs. Zod schema validation on every API endpoint.
+
+**Security Headers** — Content Security Policy and standard security headers applied via middleware.
+
+**Webhook Verification** — Razorpay webhooks verified with HMAC SHA256 signature validation.
+
+### Infrastructure
+
+**Image Optimization** — Cloudinary-hosted images served with automatic AVIF/WebP format, responsive sizing, and Cloudinary-side cropping. All images rendered via a custom `CloudinaryImage` component wrapping `next-cloudinary`.
+
+**API Response Caching** — Cache-Control headers on public endpoints. `unstable_cache` with tag-based revalidation on storefront queries. On-demand `revalidateTag` when admin mutations occur.
+
+**Database Migrations** — Managed via Supabase CLI with versioned migration files in `supabase/migrations/`.
+
+**Discord Notifications** — Admin actions (product created, order updated, user deleted, etc.) are sent to a Discord channel as color-coded embeds with actor, resource, and change details.
+
+**Bundle Optimization** — `next/dynamic` lazy-loading for admin form pages. `optimizePackageImports` for lucide-react, TanStack, and Framer Motion.
+
+**Dark Mode** — Full dark mode support via CSS variables. All theme colors use shadcn semantic tokens.
+
+**Accessibility** — All form inputs linked to error messages via `aria-describedby`. Focus rings, labels, and color contrast (WCAG AA 4.5:1) verified across the UI.
 
 ## Getting Started
 
 ```bash
 cp .env.local.example .env.local   # configure environment variables
 npm install
+npx tsx src/lib/seed-admin.ts      # seed initial admin user
 npm run dev                        # http://localhost:3000
 ```
 
 ## Environment Variables
 
-See `.env.local.example` for the full list. Key services required:
+See `.env.local.example` for the full list. Key services:
 
-- **Supabase** — database and auth
-- **Cloudinary** — image storage
-- **Razorpay** — payment processing (optional, for checkout)
-- **Gmail SMTP** — transactional emails
-- **Gemini API** — AI generation (optional)
-- **Discord Webhook** — admin notifications (optional)
+| Variable Group | Purpose | Required |
+|---------------|---------|----------|
+| `NEXT_PUBLIC_SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY` | Database and auth | Yes |
+| `CLOUDINARY_*`, `NEXT_PUBLIC_CLOUDINARY_*` | Image upload and delivery | Yes |
+| `JWT_SECRET` | Token signing | Yes |
+| `ADMIN_EMAIL`, `ADMIN_PASSWORD` | Seed script credentials | Yes (initial setup) |
+| `SMTP_USER`, `SMTP_PASS` | Gmail SMTP for emails | Yes |
+| `RAZORPAY_*`, `NEXT_PUBLIC_RAZORPAY_KEY_ID` | Payment processing | For checkout |
+| `GEMINI_API_KEY` | AI features | For AI features |
+| `DISCORD_WEBHOOK_URL` | Admin notifications | Optional |
+
+## Scripts
+
+```bash
+npm run dev              # Start development server
+npm run build            # Production build (React Compiler enabled)
+npm run lint             # Run ESLint
+npm run db:migrate       # Push migrations to remote database
+npm run db:migration:new # Create a new migration file
+npm run db:reset         # Reset database and re-run all migrations
+npm run db:types         # Regenerate TypeScript types from schema
+npm run db:seed          # Seed initial admin user
+```
+
+## Project Structure
+
+```
+src/
+  app/
+    (storefront)/        # Customer-facing pages (/, /products, /cart, etc.)
+    admin/               # Admin panel pages
+    api/
+      auth/              # Admin + customer authentication
+      admin/             # Protected admin endpoints
+      customer/          # Protected customer endpoints
+      products/          # Public product endpoints
+      categories/        # Public category endpoints
+      chat/              # AI shopping assistant
+      webhooks/          # Razorpay webhook handler
+      upload/            # Image upload proxy
+  features/              # Domain logic organized by feature
+    products/            # Product CRUD, queries, components
+    categories/          # Category management
+    orders/              # Order management
+    cart/                # Cart operations
+    wishlist/            # Wishlist feature
+    auth/                # Authentication logic
+    dashboard/           # Dashboard widgets and analytics
+    storefront/          # Storefront-specific components
+    admin/               # Admin layout and shared components
+    users/               # User management
+    roles/               # Role and permission management
+  lib/                   # Shared infrastructure
+    ai.ts                # Gemini AI functions
+    api-client.ts        # Client-side fetch wrapper
+    supabase/            # Supabase clients (browser, server, admin)
+    validators.ts        # Zod schemas
+    email.ts             # Email templates and sending
+    discord.ts           # Discord webhook integration
+    razorpay.ts          # Razorpay client
+    rate-limit.ts        # Rate limiting
+  components/ui/         # shadcn/ui components
+supabase/migrations/     # Database migration files
+```
