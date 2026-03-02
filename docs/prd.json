@@ -418,23 +418,25 @@
                     "priority": "P3",
                     "impact": "medium",
                     "effort": "high",
-                    "status": "not_started",
+                    "status": "done",
+                    "completedAt": "2026-03-02",
+                    "summary": "Built full RAG pipeline: pgvector migration with HNSW index and match_product_embeddings RPC, embeddings service using Gemini text-embedding-004, vector similarity search, chat service with conversation history and context-aware responses, POST /api/chat public endpoint, and POST /api/admin/ai/embeddings for batch/single embedding generation.",
                     "description": "RAG pipeline over product data for a storefront chatbot: embeddings, vector search, and conversational API.",
                     "subtasks": [
                         {
                             "id": "TASK-A13-A",
                             "title": "Set up product embeddings pipeline (generate embeddings on product create/update)",
-                            "status": "not_started"
+                            "status": "done"
                         },
                         {
                             "id": "TASK-A13-B",
                             "title": "Create vector search endpoint using Supabase pgvector",
-                            "status": "not_started"
+                            "status": "done"
                         },
                         {
                             "id": "TASK-A13-C",
                             "title": "Create POST /api/chat endpoint with RAG-augmented responses",
-                            "status": "not_started"
+                            "status": "done"
                         }
                     ]
                 },
