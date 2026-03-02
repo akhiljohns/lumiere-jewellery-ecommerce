@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { usePermissions } from "@/hooks/use-permissions";
 
 interface PermissionGuardProps {
@@ -14,6 +15,13 @@ export function PermissionGuard({
   fallback = null,
 }: PermissionGuardProps) {
   const { hasPermission } = usePermissions();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => setMounted(true), []);
+
+  // Before hydration, render nothing to match server output and avoid mismatch
+  if (!mounted) return null;
+
   return hasPermission(permission) ? <>{children}</> : <>{fallback}</>;
 }
 

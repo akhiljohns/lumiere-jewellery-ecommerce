@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
@@ -44,10 +44,13 @@ const navLinks = [
 export function StorefrontNavbar() {
   const [searchOpen, setSearchOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const pathname = usePathname();
   const itemCount = useCartStore((s) => s.getItemCount());
   const { data: profile } = useGetProfile();
   const user = profile?.data;
+
+  useEffect(() => setMounted(true), []);
 
   return (
     <>
@@ -98,7 +101,7 @@ export function StorefrontNavbar() {
                 <ShoppingBag className="size-4" />
                 <span className="sr-only">Cart</span>
               </Button>
-              {itemCount > 0 && (
+              {mounted && itemCount > 0 && (
                 <Badge className="absolute -top-1 -right-1 flex size-4 items-center justify-center p-0 text-[0.5rem]">
                   {itemCount > 99 ? "99+" : itemCount}
                 </Badge>
@@ -110,7 +113,7 @@ export function StorefrontNavbar() {
             </div>
 
             {/* User Menu */}
-            {user ? (
+            {mounted && user ? (
               <DropdownMenu>
                 <DropdownMenuTrigger
                   render={
