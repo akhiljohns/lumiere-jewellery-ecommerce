@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { Minus, Plus, Trash2, ShoppingBag, ArrowLeft } from "lucide-react";
+import { toast } from "sonner";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { CloudinaryImage } from "@/components/cloudinary-image";
@@ -88,7 +89,10 @@ function CartItemRow({ item }: { item: LocalCartItem }) {
               variant="ghost"
               size="icon"
               className="h-7 w-7 text-muted-foreground hover:text-destructive"
-              onClick={() => removeItem(item.product_id)}
+              onClick={() => {
+                removeItem(item.product_id);
+                toast.success(`${item.name} removed from cart`);
+              }}
             >
               <Trash2 className="h-4 w-4" />
             </Button>
@@ -142,7 +146,10 @@ export default function CartPage() {
           variant="ghost"
           size="sm"
           className="text-muted-foreground hover:text-destructive"
-          onClick={clearCart}
+          onClick={() => {
+            clearCart();
+            toast.success("Cart cleared");
+          }}
         >
           Clear Cart
         </Button>

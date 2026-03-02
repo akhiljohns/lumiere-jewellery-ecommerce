@@ -14,7 +14,27 @@ export function useDeleteProduct() {
 
   return useMutation({
     mutationFn: deleteProduct,
-    onSuccess: () => {
+    onMutate: async (id) => {
+      await queryClient.cancelQueries({ queryKey: [PRODUCTS_QUERY_KEY] });
+      const previous = queryClient.getQueriesData({ queryKey: [PRODUCTS_QUERY_KEY] });
+      queryClient.setQueriesData(
+        { queryKey: [PRODUCTS_QUERY_KEY] },
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (old: any) => {
+          if (!old?.data) return old;
+          return { ...old, data: old.data.filter((p: { id: string }) => p.id !== id) };
+        },
+      );
+      return { previous };
+    },
+    onError: (_err, _id, context) => {
+      if (context?.previous) {
+        for (const [key, data] of context.previous) {
+          queryClient.setQueryData(key, data);
+        }
+      }
+    },
+    onSettled: () => {
       queryClient.invalidateQueries({ queryKey: [PRODUCTS_QUERY_KEY] });
     },
   });

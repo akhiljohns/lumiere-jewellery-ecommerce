@@ -1137,18 +1137,20 @@
                     "priority": "P1",
                     "impact": "medium",
                     "effort": "low",
-                    "status": "not_started",
+                    "status": "done",
+                    "completedAt": "2026-03-02",
+                    "summary": "Added optimistic delete mutations with cache snapshot + rollback for products, users, and categories. Added optimistic wishlist toggle with immediate UI update and server reconciliation. Added toast feedback to cart remove/clear actions. All admin CRUD already had toasts from prior work.",
                     "description": "Ensure every CRUD action shows a success/error toast using sonner and implement optimistic updates.",
                     "subtasks": [
                         {
                             "id": "TASK-C12-A",
                             "title": "Add toast notifications to all admin CRUD actions (products, users, categories, orders)",
-                            "status": "not_started"
+                            "status": "done"
                         },
                         {
                             "id": "TASK-C12-B",
                             "title": "Implement optimistic updates via TanStack Query useMutation + onMutate",
-                            "status": "not_started"
+                            "status": "done"
                         }
                     ]
                 },

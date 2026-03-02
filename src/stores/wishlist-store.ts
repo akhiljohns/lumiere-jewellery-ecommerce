@@ -69,25 +69,40 @@ export const useWishlistStore = create<WishlistState>()((set, get) => ({
   },
 
   toggle: async (productId) => {
-    const result = await fetchApi<{
-      data: { added: boolean };
-    }>(CUSTOMER_WISHLIST, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ product_id: productId }),
-    });
-
+    // Optimistic update — flip state immediately
+    const wasWishlisted = get().items.has(productId);
     set((state) => {
       const newItems = new Set(state.items);
-      if (result.data.added) {
-        newItems.add(productId);
-      } else {
-        newItems.delete(productId);
-      }
+      wasWishlisted ? newItems.delete(productId) : newItems.add(productId);
       return { items: newItems };
     });
 
-    return result.data.added;
+    try {
+      const result = await fetchApi<{
+        data: { added: boolean };
+      }>(CUSTOMER_WISHLIST, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ product_id: productId }),
+      });
+
+      // Reconcile with server truth
+      set((state) => {
+        const newItems = new Set(state.items);
+        result.data.added ? newItems.add(productId) : newItems.delete(productId);
+        return { items: newItems };
+      });
+
+      return result.data.added;
+    } catch (error) {
+      // Rollback on failure
+      set((state) => {
+        const newItems = new Set(state.items);
+        wasWishlisted ? newItems.add(productId) : newItems.delete(productId);
+        return { items: newItems };
+      });
+      throw error;
+    }
   },
 
   remove: async (productId) => {
