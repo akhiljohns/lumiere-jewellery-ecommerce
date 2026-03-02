@@ -122,6 +122,7 @@ export const userUpdateSchema = z.object({
   phone: z.string().optional().nullable(),
   role: z.string().optional(),
   is_active: z.boolean().optional(),
+  email_verified: z.boolean().optional(),
 });
 
 export type UserCreateInput = z.infer<typeof userCreateSchema>;

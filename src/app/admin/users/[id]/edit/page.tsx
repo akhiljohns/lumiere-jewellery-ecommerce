@@ -46,13 +46,14 @@ export default function EditUserPage() {
   const user = data?.data;
   if (!user) return null;
 
-  const defaultValues: Partial<UserCreateInput> = {
+  const defaultValues: Partial<UserCreateInput> & { email_verified?: boolean } = {
     email: user.email,
     password: "",
     full_name: user.full_name ?? "",
     phone: user.phone ?? "",
     role: user.role,
     is_active: user.is_active,
+    email_verified: user.email_verified,
   };
 
   return (

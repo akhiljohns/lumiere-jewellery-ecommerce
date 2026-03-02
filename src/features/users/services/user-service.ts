@@ -133,6 +133,13 @@ export async function updateUser(
   if (input.phone !== undefined) updateData.phone = input.phone;
   if (input.role !== undefined) updateData.role = input.role;
   if (input.is_active !== undefined) updateData.is_active = input.is_active;
+  if (input.email_verified !== undefined) {
+    updateData.email_verified = input.email_verified;
+    if (input.email_verified) {
+      updateData.verification_token = null;
+      updateData.verification_token_expires = null;
+    }
+  }
 
   // Hash new password if provided
   if (input.password) {

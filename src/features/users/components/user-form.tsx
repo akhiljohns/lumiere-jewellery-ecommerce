@@ -31,6 +31,7 @@ type UserFormValues = {
   phone?: string | null;
   role: string;
   is_active: boolean;
+  email_verified?: boolean;
 };
 
 interface UserFormBaseProps {
@@ -100,6 +101,7 @@ export function UserForm({
       if (data.phone !== undefined) updateData.phone = data.phone || null;
       if (data.role) updateData.role = data.role;
       if (data.is_active !== undefined) updateData.is_active = data.is_active;
+      if (data.email_verified !== undefined) updateData.email_verified = data.email_verified;
       (onSubmit as (data: UserUpdateInput) => void)(updateData as UserUpdateInput);
     } else {
       (onSubmit as (data: UserCreateInput) => void)(data as UserCreateInput);
@@ -204,20 +206,39 @@ export function UserForm({
           </Field>
         )}
 
-        <Field orientation="horizontal">
-          <Controller
-            control={control}
-            name="is_active"
-            render={({ field }) => (
-              <Checkbox
-                id="is_active"
-                checked={field.value}
-                onCheckedChange={field.onChange}
+        <div className="flex flex-wrap gap-x-8 gap-y-4">
+          <Field orientation="horizontal">
+            <Controller
+              control={control}
+              name="is_active"
+              render={({ field }) => (
+                <Checkbox
+                  id="is_active"
+                  checked={field.value}
+                  onCheckedChange={field.onChange}
+                />
+              )}
+            />
+            <FieldLabel htmlFor="is_active">Active (can log in)</FieldLabel>
+          </Field>
+
+          {isEdit && (
+            <Field orientation="horizontal">
+              <Controller
+                control={control}
+                name="email_verified"
+                render={({ field }) => (
+                  <Checkbox
+                    id="email_verified"
+                    checked={field.value ?? false}
+                    onCheckedChange={field.onChange}
+                  />
+                )}
               />
-            )}
-          />
-          <FieldLabel htmlFor="is_active">Active (can log in)</FieldLabel>
-        </Field>
+              <FieldLabel htmlFor="email_verified">Email verified</FieldLabel>
+            </Field>
+          )}
+        </div>
 
         <div className="flex justify-end gap-3">
           <Button type="submit" size="lg" disabled={isSubmitting}>

@@ -27,6 +27,9 @@ export default function CustomerSignInPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [emailNotVerified, setEmailNotVerified] = useState(false);
+  const [resendLoading, setResendLoading] = useState(false);
+  const [resendSuccess, setResendSuccess] = useState(false);
   const [fieldErrors, setFieldErrors] = useState<{
     email?: string;
     password?: string;
@@ -72,10 +75,13 @@ export default function CustomerSignInPage() {
 
       if (!res.ok) {
         if (data.code === "EMAIL_NOT_VERIFIED") {
+          setEmailNotVerified(true);
+          setResendSuccess(false);
           setError(
-            "Please verify your email before signing in. Check your inbox for the verification link.",
+            "Please verify your email before signing in.",
           );
         } else {
+          setEmailNotVerified(false);
           setError(data.error || "Sign in failed");
         }
         return;
@@ -87,6 +93,26 @@ export default function CustomerSignInPage() {
       setError("Something went wrong. Please try again.");
     } finally {
       setIsLoading(false);
+    }
+  }
+
+  async function handleResendVerification() {
+    setResendLoading(true);
+    try {
+      const csrfToken = getCsrfToken();
+      await fetch("/api/auth/resend-verification", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          ...(csrfToken && { "x-csrf-token": csrfToken }),
+        },
+        body: JSON.stringify({ email }),
+      });
+      setResendSuccess(true);
+    } catch {
+      // Silently fail
+    } finally {
+      setResendLoading(false);
     }
   }
 
@@ -114,7 +140,30 @@ export default function CustomerSignInPage() {
               <FieldGroup>
                 {error && (
                   <div className="rounded-md bg-destructive/10 px-3 py-2 text-sm text-destructive">
-                    {error}
+                    <p>{error}</p>
+                    {emailNotVerified && (
+                      <div className="mt-2">
+                        {resendSuccess ? (
+                          <p className="text-xs text-muted-foreground">
+                            Verification email sent! Check your inbox.
+                          </p>
+                        ) : (
+                          <Button
+                            type="button"
+                            variant="outline"
+                            size="sm"
+                            onClick={handleResendVerification}
+                            disabled={resendLoading}
+                            className="h-7 text-xs"
+                          >
+                            {resendLoading ? (
+                              <Loader2 className="size-3 animate-spin" />
+                            ) : null}
+                            Resend verification email
+                          </Button>
+                        )}
+                      </div>
+                    )}
                   </div>
                 )}
                 <Field>
