@@ -23,6 +23,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { TableSkeleton } from "@/components/page-loader";
+import { EmptyState } from "@/components/empty-state";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -96,11 +97,11 @@ export function DataTable<TData, TValue>({
               ))
             ) : (
               <TableRow>
-                <TableCell
-                  colSpan={columns.length}
-                  className="h-24 text-center text-muted-foreground"
-                >
-                  No results found.
+                <TableCell colSpan={columns.length} className="p-0">
+                  <EmptyState
+                    title="No results found"
+                    description="Try adjusting your search or filters."
+                  />
                 </TableCell>
               </TableRow>
             )}

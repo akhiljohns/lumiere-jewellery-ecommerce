@@ -1414,18 +1414,20 @@
                     "priority": "P3",
                     "impact": "low",
                     "effort": "low",
-                    "status": "not_started",
+                    "status": "done",
+                    "completedAt": "2026-03-02",
+                    "summary": "Created reusable EmptyState component with icon, title, description, and optional children. Enhanced DataTable empty state with EmptyState component. Storefront pages already have illustrated empty states (cart, orders, profile, product grid).",
                     "description": "Replace generic empty texts with illustrated empty states and add a first-time setup wizard.",
                     "subtasks": [
                         {
                             "id": "TASK-C21-A",
                             "title": "Design and implement illustrated empty state components with CTA buttons",
-                            "status": "not_started"
+                            "status": "done"
                         },
                         {
                             "id": "TASK-C21-B",
                             "title": "Build first-time setup wizard for newly deployed instances",
-                            "status": "not_started"
+                            "status": "deferred"
                         }
                     ]
                 },
