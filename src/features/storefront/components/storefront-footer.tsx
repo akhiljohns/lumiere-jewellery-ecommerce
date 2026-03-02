@@ -52,7 +52,7 @@ export function StorefrontFooter() {
             </h3>
             <ul className="space-y-2">
               {[
-                { href: "/login", label: "My Account" },
+                { href: "/profile", label: "My Account" },
                 { href: "/orders", label: "Order Tracking" },
                 { href: "/cart", label: "Shopping Cart" },
               ].map((link) => (
