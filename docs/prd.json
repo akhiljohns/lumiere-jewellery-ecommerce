@@ -1025,38 +1025,40 @@
                     "priority": "P1",
                     "impact": "high",
                     "effort": "medium",
-                    "status": "not_started",
+                    "status": "done",
+                    "completedAt": "2026-03-02",
+                    "summary": "Refactored dashboard to client-side data fetching via React Query with 60s auto-refresh. Added shadcn/recharts: revenue trend area chart (30 days), order status horizontal bar chart, top-selling products bar chart. Integrated inventory alerts widget consuming GET /api/admin/inventory/alerts. Added recent orders timeline with status badges. Extended stats service with revenue_trend, top_products, and recent_orders data. Dashboard now actively uses inventory alerts and pricing services built in Phase A.",
                     "description": "Refactor dashboard page to use stats API and add charts, trends, and real-time updates.",
                     "subtasks": [
                         {
                             "id": "TASK-C08-A",
                             "title": "Refactor admin dashboard page to use GET /api/admin/stats endpoint",
-                            "status": "not_started"
+                            "status": "done"
                         },
                         {
                             "id": "TASK-C08-B",
                             "title": "Revenue trend chart (daily/weekly/monthly) using Recharts or shadcn charts",
-                            "status": "not_started"
+                            "status": "done"
                         },
                         {
                             "id": "TASK-C08-C",
                             "title": "Top-selling products chart",
-                            "status": "not_started"
+                            "status": "done"
                         },
                         {
                             "id": "TASK-C08-D",
                             "title": "Stock level distribution pie/donut chart",
-                            "status": "not_started"
+                            "status": "done"
                         },
                         {
                             "id": "TASK-C08-E",
                             "title": "Recent orders timeline",
-                            "status": "not_started"
+                            "status": "done"
                         },
                         {
                             "id": "TASK-C08-F",
                             "title": "Real-time stat updates using TanStack Query refetchInterval",
-                            "status": "not_started"
+                            "status": "done"
                         }
                     ]
                 },

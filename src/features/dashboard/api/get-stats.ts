@@ -17,5 +17,8 @@ export function getStatsQueryOptions() {
 }
 
 export function useGetStats() {
-  return useQuery(getStatsQueryOptions());
+  return useQuery({
+    ...getStatsQueryOptions(),
+    refetchInterval: 60_000, // Auto-refresh every 60 seconds
+  });
 }
