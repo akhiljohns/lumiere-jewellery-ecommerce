@@ -13,7 +13,6 @@ import {
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue,
 } from "@/components/ui/select";
 import {
   Field,
@@ -106,28 +105,35 @@ export function CategoryForm({
               <Controller
                 control={control}
                 name="parent_id"
-                render={({ field }) => (
-                  <Select
-                    value={field.value ?? ""}
-                    onValueChange={(v) => field.onChange(v || null)}
-                  >
-                    <SelectTrigger
-                      className="w-full"
-                      aria-invalid={!!errors.parent_id}
-                      aria-describedby={errors.parent_id ? "parent_id-error" : undefined}
+                render={({ field }) => {
+                  const selectedName = field.value
+                    ? categories.find((c) => c.id === field.value)?.name
+                    : null;
+                  return (
+                    <Select
+                      value={field.value ?? ""}
+                      onValueChange={(v) => field.onChange(v || null)}
                     >
-                      <SelectValue placeholder="None (top-level)" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="">None (top-level)</SelectItem>
-                      {categories.map((cat) => (
-                        <SelectItem key={cat.id} value={cat.id}>
-                          {cat.name}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                )}
+                      <SelectTrigger
+                        className="w-full"
+                        aria-invalid={!!errors.parent_id}
+                        aria-describedby={errors.parent_id ? "parent_id-error" : undefined}
+                      >
+                        <span className="truncate">
+                          {selectedName ?? "None (top-level)"}
+                        </span>
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="">None (top-level)</SelectItem>
+                        {categories.map((cat) => (
+                          <SelectItem key={cat.id} value={cat.id}>
+                            {cat.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  );
+                }}
               />
             )}
             {errors.parent_id && (

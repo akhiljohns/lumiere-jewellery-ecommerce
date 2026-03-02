@@ -16,7 +16,6 @@ import {
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue,
 } from "@/components/ui/select";
 import {
   Field,
@@ -280,23 +279,28 @@ export function ProductForm({
             <Controller
               control={control}
               name="category_id"
-              render={({ field }) => (
-                <Select
-                  value={field.value ?? ""}
-                  onValueChange={(v) => field.onChange(v || null)}
-                >
-                  <SelectTrigger className="w-full" aria-invalid={!!errors.category_id} aria-describedby={errors.category_id ? "category_id-error" : undefined}>
-                    <SelectValue placeholder="Select category" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {categories.map((cat) => (
-                      <SelectItem key={cat.id} value={cat.id}>
-                        {cat.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-              )}
+              render={({ field }) => {
+                const selectedName = categories.find((c) => c.id === field.value)?.name;
+                return (
+                  <Select
+                    value={field.value ?? ""}
+                    onValueChange={(v) => field.onChange(v || null)}
+                  >
+                    <SelectTrigger className="w-full" aria-invalid={!!errors.category_id} aria-describedby={errors.category_id ? "category_id-error" : undefined}>
+                      <span className="truncate">
+                        {selectedName ?? "Select category"}
+                      </span>
+                    </SelectTrigger>
+                    <SelectContent>
+                      {categories.map((cat) => (
+                        <SelectItem key={cat.id} value={cat.id}>
+                          {cat.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                );
+              }}
             />
             {errors.category_id && (
               <FieldError id="category_id-error">{errors.category_id.message}</FieldError>
