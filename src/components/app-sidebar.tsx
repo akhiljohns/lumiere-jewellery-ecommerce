@@ -1,12 +1,13 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useSyncExternalStore } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Gem } from "lucide-react";
 import { adminMenuItems } from "@/config/admin-menu";
 import { NavUser } from "@/components/nav-user";
 import { usePermissions } from "@/hooks/use-permissions";
+import { useAuthStore } from "@/stores/auth-store";
 import {
   Sidebar,
   SidebarContent,
@@ -29,11 +30,21 @@ export function AppSidebar({
 }) {
   const pathname = usePathname();
   const { hasPermission } = usePermissions();
-  const [hydrated, setHydrated] = useState(false);
 
-  useEffect(() => setHydrated(true), []);
+  // Track both React hydration and Zustand persist rehydration from sessionStorage
+  const [reactHydrated, setReactHydrated] = useState(false);
+  useEffect(() => setReactHydrated(true), []);
 
-  const visibleItems = hydrated
+  const storeHydrated = useSyncExternalStore(
+    useAuthStore.persist.onFinishHydration,
+    () => useAuthStore.persist.hasHydrated(),
+    () => false,
+  );
+
+  const fullyHydrated = reactHydrated && storeHydrated;
+
+  // Show all items until both React and Zustand store are fully hydrated
+  const visibleItems = fullyHydrated
     ? adminMenuItems.filter(
         (item) => !item.permission || hasPermission(item.permission),
       )
