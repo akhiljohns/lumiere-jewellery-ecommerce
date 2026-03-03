@@ -32,7 +32,7 @@ export function MediaPickerModal({
   const [search, setSearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
   const [page, setPage] = useState(1);
-  const [view, setView] = useState<"grid" | "list">("grid");
+  const [view, setView] = useState<"grid" | "list">("list");
   const [selectedMap, setSelectedMap] = useState<Map<string, Media>>(new Map());
 
   const { data, isLoading } = useGetMedia({
@@ -82,7 +82,7 @@ export function MediaPickerModal({
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogContent className="max-w-5xl h-[85vh] flex flex-col">
+      <DialogContent className="w-[75vw] max-w-5xl sm:max-w-5xl h-[85vh] flex flex-col">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <ImageIcon className="size-4" />
