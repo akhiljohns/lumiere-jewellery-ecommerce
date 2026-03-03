@@ -51,7 +51,7 @@ export function FeaturesStrip() {
               <h3 className="mt-3 font-display text-sm font-semibold text-foreground">
                 {feature.title}
               </h3>
-              <p className="mt-1 text-xs leading-relaxed text-muted-foreground">
+              <p className="mt-1 text-sm leading-relaxed text-foreground/70">
                 {feature.description}
               </p>
             </motion.div>
