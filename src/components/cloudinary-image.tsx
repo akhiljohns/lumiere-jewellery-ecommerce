@@ -26,5 +26,11 @@ export type CloudinaryImageProps = Omit<CldImageProps, "src"> & {
  * - Extracts public_id from full Cloudinary URLs
  */
 export function CloudinaryImage({ src, ...props }: CloudinaryImageProps) {
-  return <CldImage src={extractPublicId(src)} loading="lazy" {...props} />;
+  return (
+    <CldImage
+      src={extractPublicId(src)}
+      {...(!props.priority && { loading: "lazy" })}
+      {...props}
+    />
+  );
 }
