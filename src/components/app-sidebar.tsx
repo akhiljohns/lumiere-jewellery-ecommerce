@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useSyncExternalStore } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Gem } from "lucide-react";
@@ -31,20 +31,19 @@ export function AppSidebar({
   const pathname = usePathname();
   const { hasPermission } = usePermissions();
 
-  // Track both React hydration and Zustand persist rehydration from sessionStorage
-  const [reactHydrated, setReactHydrated] = useState(false);
-  useEffect(() => setReactHydrated(true), []);
+  const [storeHydrated, setStoreHydrated] = useState(false);
+  useEffect(() => {
+    if (useAuthStore.persist?.hasHydrated?.()) {
+      setStoreHydrated(true);
+      return;
+    }
+    const unsub = useAuthStore.persist?.onFinishHydration?.(() => {
+      setStoreHydrated(true);
+    });
+    return () => unsub?.();
+  }, []);
 
-  const storeHydrated = useSyncExternalStore(
-    useAuthStore.persist.onFinishHydration,
-    () => useAuthStore.persist.hasHydrated(),
-    () => false,
-  );
-
-  const fullyHydrated = reactHydrated && storeHydrated;
-
-  // Show all items until both React and Zustand store are fully hydrated
-  const visibleItems = fullyHydrated
+  const visibleItems = storeHydrated
     ? adminMenuItems.filter(
         (item) => !item.permission || hasPermission(item.permission),
       )
