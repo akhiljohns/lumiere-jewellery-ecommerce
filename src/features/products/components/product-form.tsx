@@ -2,7 +2,7 @@
 
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader2, Upload, X, Sparkles, ScanSearch } from "lucide-react";
+import { Loader2, Upload, X, Sparkles, ScanSearch, ImageIcon } from "lucide-react";
 import { CloudinaryImage } from "@/components/cloudinary-image";
 import { useCallback, useRef, useState } from "react";
 import { toast } from "sonner";
@@ -42,6 +42,7 @@ type ProductFormValues = {
   images?: { url: string; public_id: string; is_primary: boolean }[];
 };
 import { useUploadImage, useDeleteImage } from "@/features/products/api/upload-image";
+import { MediaPickerModal } from "@/features/media/components/media-picker-modal";
 import { fetchApi } from "@/lib/api-client";
 
 interface ProductImage {
@@ -72,6 +73,8 @@ export function ProductForm({
   const uploadImage = useUploadImage();
   const deleteImage = useDeleteImage();
 
+  const [uploadingCount, setUploadingCount] = useState(0);
+  const [mediaPickerOpen, setMediaPickerOpen] = useState(false);
   const [aiGenerating, setAiGenerating] = useState<"description" | "category" | "analyze-image" | null>(null);
 
   const {
@@ -106,6 +109,7 @@ export function ProductForm({
         const reader = new FileReader();
         reader.onload = async () => {
           const base64 = reader.result as string;
+          setUploadingCount((c) => c + 1);
           try {
             const result = await uploadImage.mutateAsync(base64);
             setImages((prev) => [
@@ -120,6 +124,8 @@ export function ProductForm({
             toast.error(
               err instanceof Error ? err.message : "Failed to upload image",
             );
+          } finally {
+            setUploadingCount((c) => c - 1);
           }
         };
         reader.readAsDataURL(file);
@@ -291,6 +297,21 @@ export function ProductForm({
       setAiGenerating(null);
     }
   }, [images, getValues, setValue, categories]);
+
+  const handleMediaPick = useCallback((media: { url: string; public_id: string }) => {
+    setImages((prev) => {
+      // Avoid duplicates
+      if (prev.some((img) => img.public_id === media.public_id)) return prev;
+      return [
+        ...prev,
+        {
+          url: media.url,
+          public_id: media.public_id,
+          is_primary: prev.length === 0,
+        },
+      ];
+    });
+  }, []);
 
   const onFormSubmit = handleSubmit((data) => {
     onSubmit({
@@ -533,6 +554,14 @@ export function ProductForm({
               )}
               <span className="text-[10px]">Upload</span>
             </button>
+            <button
+              type="button"
+              onClick={() => setMediaPickerOpen(true)}
+              className="flex size-20 flex-col items-center justify-center gap-1 rounded-md border border-dashed border-border text-muted-foreground hover:border-primary hover:text-primary hover:bg-primary/5 transition-colors"
+            >
+              <ImageIcon className="size-4" />
+              <span className="text-[10px]">Library</span>
+            </button>
           </div>
           <input
             ref={fileInputRef}
@@ -562,12 +591,18 @@ export function ProductForm({
         </Field>
 
         <div className="flex justify-end gap-3">
-          <Button type="submit" size="lg" disabled={isSubmitting}>
-            {isSubmitting && <Loader2 className="size-3.5 animate-spin" />}
-            {submitLabel}
+          <Button type="submit" size="lg" disabled={isSubmitting || uploadingCount > 0 || deleteImage.isPending}>
+            {(isSubmitting || uploadingCount > 0) && <Loader2 className="size-3.5 animate-spin" />}
+            {uploadingCount > 0 ? `Uploading (${uploadingCount})...` : submitLabel}
           </Button>
         </div>
       </FieldGroup>
+
+      <MediaPickerModal
+        open={mediaPickerOpen}
+        onOpenChange={setMediaPickerOpen}
+        onSelect={handleMediaPick}
+      />
     </form>
   );
 }
