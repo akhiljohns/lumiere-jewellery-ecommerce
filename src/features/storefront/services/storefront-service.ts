@@ -277,15 +277,19 @@ async function _searchProducts(
   const { query: searchQuery, page, limit, sort, order, category_id, material, min_price, max_price } = query;
   const offset = (page - 1) * limit;
 
-  // Use PostgreSQL full-text search via textSearch
+  // Combine ILIKE (partial match) + full-text search for best results
+  // Sanitize for PostgREST filter syntax
+  const sanitized = searchQuery
+    .replace(/\\/g, "\\\\")
+    .replace(/,/g, "\\,")
+    .replace(/\(/g, "\\(")
+    .replace(/\)/g, "\\)");
+
   let queryBuilder = supabase
     .from("products")
     .select("*, product_images(*), categories(*)", { count: "exact" })
     .eq("is_active", true)
-    .textSearch("search_vector", searchQuery, {
-      type: "websearch",
-      config: "english",
-    });
+    .or(`name.ilike.%${sanitized}%,search_vector.wfts(english).${sanitized}`);
 
   if (category_id) {
     queryBuilder = queryBuilder.eq("category_id", category_id);
