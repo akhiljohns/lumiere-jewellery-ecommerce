@@ -126,6 +126,7 @@ export default function CategoriesPage() {
         total={pagination.total}
         onPageChange={setPage}
         isLoading={isLoading}
+        getRowHref={(row) => `/admin/categories/${row.id}/edit`}
       />
 
       <ConfirmDialog

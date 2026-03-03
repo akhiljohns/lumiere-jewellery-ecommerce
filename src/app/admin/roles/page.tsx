@@ -76,6 +76,7 @@ export default function RolesPage() {
         total={roles.length}
         onPageChange={() => {}}
         isLoading={isLoading}
+        getRowHref={(row) => `/admin/roles/${row.id}/edit`}
       />
 
       <ConfirmDialog

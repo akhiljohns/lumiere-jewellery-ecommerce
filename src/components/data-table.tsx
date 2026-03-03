@@ -12,6 +12,7 @@ import {
   ChevronsLeft,
   ChevronsRight,
 } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -34,6 +35,7 @@ interface DataTableProps<TData, TValue> {
   total: number;
   onPageChange: (page: number) => void;
   isLoading?: boolean;
+  getRowHref?: (row: TData) => string;
 }
 
 export function DataTable<TData, TValue>({
@@ -45,7 +47,9 @@ export function DataTable<TData, TValue>({
   total,
   onPageChange,
   isLoading,
+  getRowHref,
 }: DataTableProps<TData, TValue>) {
+  const router = useRouter();
   const table = useReactTable({
     data,
     columns,
@@ -83,18 +87,31 @@ export function DataTable<TData, TValue>({
           </TableHeader>
           <TableBody>
             {table.getRowModel().rows.length ? (
-              table.getRowModel().rows.map((row) => (
-                <TableRow key={row.id}>
-                  {row.getVisibleCells().map((cell) => (
-                    <TableCell key={cell.id}>
-                      {flexRender(
-                        cell.column.columnDef.cell,
-                        cell.getContext(),
-                      )}
-                    </TableCell>
-                  ))}
-                </TableRow>
-              ))
+              table.getRowModel().rows.map((row) => {
+                const href = getRowHref?.(row.original);
+                return (
+                  <TableRow
+                    key={row.id}
+                    className={href ? "cursor-pointer" : undefined}
+                    onClick={(e) => {
+                      if (!href) return;
+                      // Don't navigate when clicking interactive elements inside the row
+                      const target = e.target as HTMLElement;
+                      if (target.closest("button, a, input, select, textarea, [data-no-row-click]")) return;
+                      router.push(href);
+                    }}
+                  >
+                    {row.getVisibleCells().map((cell) => (
+                      <TableCell key={cell.id}>
+                        {flexRender(
+                          cell.column.columnDef.cell,
+                          cell.getContext(),
+                        )}
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                );
+              })
             ) : (
               <TableRow>
                 <TableCell colSpan={columns.length} className="p-0">

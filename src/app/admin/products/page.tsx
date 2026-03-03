@@ -120,6 +120,7 @@ export default function ProductsPage() {
         total={pagination.total}
         onPageChange={setPage}
         isLoading={isLoading}
+        getRowHref={(row) => `/admin/products/${row.id}/edit`}
       />
 
       <ConfirmDialog

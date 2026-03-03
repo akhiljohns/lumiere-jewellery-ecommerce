@@ -163,6 +163,7 @@ export default function OrdersPage() {
         total={pagination.total}
         onPageChange={setPage}
         isLoading={isLoading}
+        getRowHref={(row) => `/admin/orders/${row.id}`}
       />
     </div>
   );

@@ -150,6 +150,7 @@ export default function UsersPage() {
         total={pagination.total}
         onPageChange={setPage}
         isLoading={isLoading}
+        getRowHref={(row) => `/admin/users/${row.id}/edit`}
       />
 
       <ConfirmDialog
