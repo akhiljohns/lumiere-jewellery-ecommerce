@@ -3,10 +3,12 @@
 import { Heart } from "lucide-react";
 import { motion } from "framer-motion";
 import { toast } from "sonner";
+import { useQueryClient } from "@tanstack/react-query";
 
 import { Button } from "@/components/ui/button";
 import { useWishlistStore } from "@/stores/wishlist-store";
 import { useGetProfile } from "@/features/auth/api/get-profile";
+import { WISHLIST_QUERY_KEY } from "@/features/wishlist/api/get-wishlist";
 import { cn } from "@/lib/utils";
 
 interface WishlistButtonProps {
@@ -17,6 +19,7 @@ interface WishlistButtonProps {
 export function WishlistButton({ productId, className }: WishlistButtonProps) {
   const { isWishlisted, toggle } = useWishlistStore();
   const { data: profile } = useGetProfile();
+  const queryClient = useQueryClient();
   const wishlisted = isWishlisted(productId);
 
   async function handleToggle(e: React.MouseEvent) {
@@ -30,6 +33,8 @@ export function WishlistButton({ productId, className }: WishlistButtonProps) {
 
     try {
       const added = await toggle(productId);
+      // Invalidate React Query cache so the wishlist page reflects changes
+      queryClient.invalidateQueries({ queryKey: [WISHLIST_QUERY_KEY] });
       toast.success(added ? "Added to wishlist" : "Removed from wishlist");
     } catch {
       toast.error("Failed to update wishlist");
