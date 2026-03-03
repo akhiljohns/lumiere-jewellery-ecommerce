@@ -1,14 +1,14 @@
 "use client";
 
 import { useCallback, useState } from "react";
-import { Search } from "lucide-react";
+import { Search, Grid3X3, List, ImageIcon } from "lucide-react";
 import { useQueryState, parseAsInteger } from "nuqs";
 import { toast } from "sonner";
 
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { ConfirmDialog } from "@/components/confirm-dialog";
-import { MediaGrid } from "@/features/media/components/media-grid";
+import { MediaGrid, MediaGridSkeleton } from "@/features/media/components/media-grid";
 import { MediaUploadButton } from "@/features/media/components/media-upload-button";
 import { useGetMedia } from "@/features/media/api/get-media";
 import { useDeleteMedia } from "@/features/media/api/delete-media";
@@ -19,6 +19,7 @@ export default function MediaPage() {
   const [search, setSearch] = useQueryState("search", { defaultValue: "" });
   const [debouncedSearch, setDebouncedSearch] = useState(search);
   const [deleteTarget, setDeleteTarget] = useState<Media | null>(null);
+  const [view, setView] = useState<"grid" | "list">("grid");
 
   const { data, isLoading } = useGetMedia({
     page,
@@ -75,27 +76,43 @@ export default function MediaPage() {
         <MediaUploadButton />
       </div>
 
-      <div className="relative max-w-sm">
-        <Search className="absolute left-2 top-1/2 size-3.5 -translate-y-1/2 text-muted-foreground" />
-        <Input
-          placeholder="Search by filename..."
-          value={search}
-          onChange={(e) => handleSearchChange(e.target.value)}
-          className="pl-8"
-        />
+      <div className="flex flex-wrap items-center gap-3">
+        <div className="relative min-w-0 flex-1 basis-48 max-w-sm">
+          <Search className="absolute left-2 top-1/2 size-3.5 -translate-y-1/2 text-muted-foreground" />
+          <Input
+            placeholder="Search by filename..."
+            value={search}
+            onChange={(e) => handleSearchChange(e.target.value)}
+            className="pl-8"
+          />
+        </div>
+        <div className="flex items-center rounded-md border">
+          <Button
+            variant={view === "grid" ? "secondary" : "ghost"}
+            size="icon-sm"
+            onClick={() => setView("grid")}
+            title="Grid view"
+            className="rounded-r-none"
+          >
+            <Grid3X3 className="size-3.5" />
+          </Button>
+          <Button
+            variant={view === "list" ? "secondary" : "ghost"}
+            size="icon-sm"
+            onClick={() => setView("list")}
+            title="List view"
+            className="rounded-l-none"
+          >
+            <List className="size-3.5" />
+          </Button>
+        </div>
       </div>
 
       {isLoading ? (
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
-          {Array.from({ length: 12 }).map((_, i) => (
-            <div
-              key={i}
-              className="aspect-square animate-pulse rounded-lg bg-muted"
-            />
-          ))}
-        </div>
+        <MediaGridSkeleton count={12} view={view} />
       ) : media.length === 0 ? (
         <div className="flex flex-col items-center justify-center py-24 text-center text-muted-foreground">
+          <ImageIcon className="mb-2 size-8 opacity-40" />
           <p className="text-sm">No media found</p>
           <p className="text-xs">Upload images to get started</p>
         </div>
@@ -103,6 +120,7 @@ export default function MediaPage() {
         <MediaGrid
           items={media}
           onDelete={(m) => setDeleteTarget(m)}
+          view={view}
         />
       )}
 

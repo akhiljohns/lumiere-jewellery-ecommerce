@@ -298,18 +298,17 @@ export function ProductForm({
     }
   }, [images, getValues, setValue, categories]);
 
-  const handleMediaPick = useCallback((media: { url: string; public_id: string }) => {
+  const handleMediaPick = useCallback((mediaList: { url: string; public_id: string }[]) => {
     setImages((prev) => {
-      // Avoid duplicates
-      if (prev.some((img) => img.public_id === media.public_id)) return prev;
-      return [
-        ...prev,
-        {
-          url: media.url,
-          public_id: media.public_id,
-          is_primary: prev.length === 0,
-        },
-      ];
+      const existing = new Set(prev.map((img) => img.public_id));
+      const newItems = mediaList
+        .filter((m) => !existing.has(m.public_id))
+        .map((m, i) => ({
+          url: m.url,
+          public_id: m.public_id,
+          is_primary: prev.length === 0 && i === 0,
+        }));
+      return [...prev, ...newItems];
     });
   }, []);
 
