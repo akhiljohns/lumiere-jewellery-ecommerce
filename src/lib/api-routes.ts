@@ -61,6 +61,9 @@ export const PUBLIC_CATEGORIES = "/api/categories";
 
 export const AUTH_GUEST_CHECKOUT = "/api/auth/guest-checkout";
 
+export const ADMIN_MEDIA = "/api/admin/media";
+export const adminMedia = (id: string) => `${ADMIN_MEDIA}/${id}`;
+
 // ── Upload ───────────────────────────────────────────
 
 export const UPLOAD_IMAGE = "/api/upload/image";

@@ -1,4 +1,4 @@
-import { LayoutDashboard, Package, FolderTree, Users, ShieldCheck, ShoppingCart, ClipboardList, type LucideIcon } from "lucide-react";
+import { LayoutDashboard, Package, FolderTree, Users, ShieldCheck, ShoppingCart, ClipboardList, ImageIcon, type LucideIcon } from "lucide-react";
 
 export interface AdminMenuItem {
   title: string;
@@ -37,6 +37,11 @@ export const adminMenuItems: AdminMenuItem[] = [
     href: "/admin/users",
     icon: Users,
     permission: "user.view",
+  },
+  {
+    title: "Media",
+    href: "/admin/media",
+    icon: ImageIcon,
   },
   {
     title: "Roles",
