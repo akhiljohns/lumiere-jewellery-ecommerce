@@ -24,6 +24,12 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
+import {
   Select,
   SelectContent,
   SelectItem,
@@ -382,114 +388,114 @@ export default function OrderDetailPage() {
             )}
           </PermissionGuard>
 
-          {/* Order Info */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <CreditCard className="size-4" />
-                Order Info
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <DetailField
-                label="Status"
-                value={
-                  <Badge
-                    variant={statusVariant[order.status] ?? "secondary"}
-                  >
-                    {order.status}
-                  </Badge>
-                }
-              />
-              <DetailField
-                label="Payment Status"
-                value={
-                  <Badge
-                    variant={
-                      paymentVariant[order.payment_status] ?? "secondary"
-                    }
-                  >
-                    {order.payment_status}
-                  </Badge>
-                }
-              />
-              <DetailField
-                label="Payment Method"
-                value={order.payment_method.toUpperCase()}
-              />
-              {order.razorpay_payment_id && (
+          {/* Order Info, Customer & Shipping — Accordion */}
+          <Accordion defaultValue={["order-info"]}>
+            <AccordionItem value="order-info">
+              <AccordionTrigger>
+                <span className="flex items-center gap-2 text-sm font-semibold">
+                  <CreditCard className="size-4" />
+                  Order Info
+                </span>
+              </AccordionTrigger>
+              <AccordionContent className="space-y-3 pt-1">
                 <DetailField
-                  label="Razorpay ID"
+                  label="Status"
                   value={
-                    <span className="font-mono text-xs">
-                      {order.razorpay_payment_id}
-                    </span>
+                    <Badge
+                      variant={statusVariant[order.status] ?? "secondary"}
+                    >
+                      {order.status}
+                    </Badge>
                   }
                 />
-              )}
-              {order.notes && (
-                <DetailField label="Notes" value={order.notes} />
-              )}
-              <DetailField
-                label="Created"
-                value={new Date(order.created_at).toLocaleString("en-IN")}
-              />
-              <DetailField
-                label="Last Updated"
-                value={new Date(order.updated_at).toLocaleString("en-IN")}
-              />
-            </CardContent>
-          </Card>
+                <DetailField
+                  label="Payment Status"
+                  value={
+                    <Badge
+                      variant={
+                        paymentVariant[order.payment_status] ?? "secondary"
+                      }
+                    >
+                      {order.payment_status}
+                    </Badge>
+                  }
+                />
+                <DetailField
+                  label="Payment Method"
+                  value={order.payment_method.toUpperCase()}
+                />
+                {order.razorpay_payment_id && (
+                  <DetailField
+                    label="Razorpay ID"
+                    value={
+                      <span className="font-mono text-xs">
+                        {order.razorpay_payment_id}
+                      </span>
+                    }
+                  />
+                )}
+                {order.notes && (
+                  <DetailField label="Notes" value={order.notes} />
+                )}
+                <DetailField
+                  label="Created"
+                  value={new Date(order.created_at).toLocaleString("en-IN")}
+                />
+                <DetailField
+                  label="Last Updated"
+                  value={new Date(order.updated_at).toLocaleString("en-IN")}
+                />
+              </AccordionContent>
+            </AccordionItem>
 
-          {/* Customer Info */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <User className="size-4" />
-                Customer
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-3">
-              <DetailField
-                label="Name"
-                value={order.users?.full_name || "—"}
-              />
-              <DetailField
-                label="Email"
-                value={order.users?.email || "—"}
-              />
-              <DetailField
-                label="Phone"
-                value={order.users?.phone || "—"}
-              />
-            </CardContent>
-          </Card>
+            <AccordionItem value="customer">
+              <AccordionTrigger>
+                <span className="flex items-center gap-2 text-sm font-semibold">
+                  <User className="size-4" />
+                  Customer
+                </span>
+              </AccordionTrigger>
+              <AccordionContent className="space-y-3 pt-1">
+                <DetailField
+                  label="Name"
+                  value={order.users?.full_name || "—"}
+                />
+                <DetailField
+                  label="Email"
+                  value={order.users?.email || "—"}
+                />
+                <DetailField
+                  label="Phone"
+                  value={order.users?.phone || "—"}
+                />
+              </AccordionContent>
+            </AccordionItem>
 
-          {/* Shipping Address */}
-          {address && (
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <MapPin className="size-4" />
-                  Shipping Address
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="text-sm text-foreground leading-relaxed">
-                  <p className="font-medium">{address.full_name}</p>
-                  {address.phone && (
-                    <p className="text-muted-foreground">{address.phone}</p>
-                  )}
-                  <p>{address.address_line_1}</p>
-                  {address.address_line_2 && <p>{address.address_line_2}</p>}
-                  <p>
-                    {address.city}, {address.state} {address.pincode}
-                  </p>
-                  <p>{address.country}</p>
-                </div>
-              </CardContent>
-            </Card>
-          )}
+            {address && (
+              <AccordionItem value="shipping">
+                <AccordionTrigger>
+                  <span className="flex items-center gap-2 text-sm font-semibold">
+                    <MapPin className="size-4" />
+                    Shipping Address
+                  </span>
+                </AccordionTrigger>
+                <AccordionContent className="pt-1">
+                  <div className="text-sm text-foreground leading-relaxed">
+                    <p className="font-medium">{address.full_name}</p>
+                    {address.phone && (
+                      <p className="text-muted-foreground">{address.phone}</p>
+                    )}
+                    <p>{address.address_line_1}</p>
+                    {address.address_line_2 && <p>{address.address_line_2}</p>}
+                    <p>
+                      {address.city}, {address.state} {address.pincode}
+                    </p>
+                    <p>{address.country}</p>
+                  </div>
+                </AccordionContent>
+              </AccordionItem>
+            )}
+          </Accordion>
         </div>
       </div>
 
