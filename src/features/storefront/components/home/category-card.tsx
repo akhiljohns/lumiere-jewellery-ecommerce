@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
 
-import { CloudinaryImage } from "@/components/cloudinary-image";
+import { SmartImage } from "@/components/smart-image";
 import { getPlaceholderImage } from "../placeholder-images";
 import { staggerItem, cardHover } from "../motion-variants";
 import type { CategoryWithCount } from "@/features/storefront/types";
@@ -22,7 +22,7 @@ export function CategoryCard({ category }: CategoryCardProps) {
       >
         <div className="relative aspect-[3/4] overflow-hidden bg-muted">
           {category.image_url ? (
-            <CloudinaryImage
+            <SmartImage
               src={category.image_url}
               alt={category.name}
               fill

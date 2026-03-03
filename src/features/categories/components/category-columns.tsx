@@ -2,7 +2,7 @@
 
 import type { ColumnDef } from "@tanstack/react-table";
 import { Eye, Pencil, Trash2 } from "lucide-react";
-import { CloudinaryImage } from "@/components/cloudinary-image";
+import { SmartImage } from "@/components/smart-image";
 import Link from "next/link";
 
 import { Badge } from "@/components/ui/badge";
@@ -30,7 +30,7 @@ export function getCategoryColumns(
       cell: ({ row }) => {
         const url = row.original.image_url;
         return url ? (
-          <CloudinaryImage
+          <SmartImage
             src={url}
             alt={row.original.name}
             width={44}

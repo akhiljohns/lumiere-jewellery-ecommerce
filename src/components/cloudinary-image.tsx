@@ -14,7 +14,7 @@ export function extractPublicId(urlOrId: string): string {
   return match?.[1] ?? urlOrId;
 }
 
-type CloudinaryImageProps = Omit<CldImageProps, "src"> & {
+export type CloudinaryImageProps = Omit<CldImageProps, "src"> & {
   /** Cloudinary URL or public_id */
   src: string;
 };
