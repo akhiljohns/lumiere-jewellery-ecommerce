@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { ArrowLeft, MapPin, CreditCard, Check, Loader2, ShoppingBag, ShieldCheck, Truck, RotateCcw } from "lucide-react";
+import { useQueryClient } from "@tanstack/react-query";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -11,9 +12,10 @@ import { Separator } from "@/components/ui/separator";
 import { Textarea } from "@/components/ui/textarea";
 import { CloudinaryImage } from "@/components/cloudinary-image";
 import { useCartStore } from "@/stores/cart-store";
-import { useGetProfile } from "@/features/auth/api/get-profile";
+import { useGetProfile, CUSTOMER_PROFILE_QUERY_KEY } from "@/features/auth/api/get-profile";
 import { useGetAddresses } from "@/features/orders/api/get-addresses";
 import { useCreateAddress } from "@/features/orders/api/create-address";
+import { useGuestCheckout } from "@/features/cart/api/guest-checkout";
 import { formatCurrency } from "@/lib/utils";
 import { fetchApi } from "@/lib/api-client";
 import type { Address } from "@/lib/supabase/types";
@@ -32,9 +34,15 @@ declare global {
 function AddressForm({
   onSave,
   isPending,
+  isAuthenticated,
+  guestEmail,
+  onGuestEmailChange,
 }: {
   onSave: (data: Record<string, string>) => void;
   isPending: boolean;
+  isAuthenticated: boolean;
+  guestEmail: string;
+  onGuestEmailChange: (email: string) => void;
 }) {
   const [form, setForm] = useState({
     full_name: "",
@@ -56,9 +64,25 @@ function AddressForm({
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <form onSubmit={handleSubmit} className="space-y-5">
+      {!isAuthenticated && (
+        <div className="space-y-1.5">
+          <Label htmlFor="guest_email">Email Address</Label>
+          <Input
+            id="guest_email"
+            type="email"
+            value={guestEmail}
+            onChange={(e) => onGuestEmailChange(e.target.value)}
+            placeholder="you@example.com"
+            required
+          />
+          <p className="text-xs text-muted-foreground">
+            An account will be created with this email for order tracking
+          </p>
+        </div>
+      )}
       <div className="grid gap-4 sm:grid-cols-2">
-        <div>
+        <div className="space-y-1.5">
           <Label htmlFor="full_name">Full Name</Label>
           <Input
             id="full_name"
@@ -67,7 +91,7 @@ function AddressForm({
             required
           />
         </div>
-        <div>
+        <div className="space-y-1.5">
           <Label htmlFor="phone">Phone</Label>
           <Input
             id="phone"
@@ -79,7 +103,7 @@ function AddressForm({
           />
         </div>
       </div>
-      <div>
+      <div className="space-y-1.5">
         <Label htmlFor="address_line_1">Address Line 1</Label>
         <Input
           id="address_line_1"
@@ -88,7 +112,7 @@ function AddressForm({
           required
         />
       </div>
-      <div>
+      <div className="space-y-1.5">
         <Label htmlFor="address_line_2">Address Line 2 (Optional)</Label>
         <Input
           id="address_line_2"
@@ -97,7 +121,7 @@ function AddressForm({
         />
       </div>
       <div className="grid gap-4 sm:grid-cols-3">
-        <div>
+        <div className="space-y-1.5">
           <Label htmlFor="city">City</Label>
           <Input
             id="city"
@@ -106,7 +130,7 @@ function AddressForm({
             required
           />
         </div>
-        <div>
+        <div className="space-y-1.5">
           <Label htmlFor="state">State</Label>
           <Input
             id="state"
@@ -115,7 +139,7 @@ function AddressForm({
             required
           />
         </div>
-        <div>
+        <div className="space-y-1.5">
           <Label htmlFor="pincode">Pincode</Label>
           <Input
             id="pincode"
@@ -181,9 +205,11 @@ export default function CheckoutPage() {
   const getSubtotal = useCartStore((s) => s.getSubtotal);
   const clearCart = useCartStore((s) => s.clearCart);
 
+  const queryClient = useQueryClient();
   const { data: profileData } = useGetProfile();
   const { data: addressesData } = useGetAddresses();
   const createAddress = useCreateAddress();
+  const guestCheckout = useGuestCheckout();
 
   const isAuthenticated = !!profileData?.data;
   const addresses = addressesData?.data ?? [];
@@ -194,9 +220,11 @@ export default function CheckoutPage() {
   );
   const [showNewForm, setShowNewForm] = useState(false);
   const [shippingAddress, setShippingAddress] = useState<Record<string, string> | null>(null);
+  const [guestEmail, setGuestEmail] = useState("");
   const [paymentMethod, setPaymentMethod] = useState<"cod" | "razorpay">("cod");
   const [notes, setNotes] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [orderPlaced, setOrderPlaced] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const subtotal = getSubtotal();
@@ -207,7 +235,21 @@ export default function CheckoutPage() {
     setSelectedAddressId(defaultAddr.id);
   }
 
-  if (items.length === 0 && !isSubmitting) {
+  if (orderPlaced) {
+    return (
+      <div className="mx-auto max-w-2xl px-4 py-16 text-center">
+        <Loader2 className="mx-auto h-10 w-10 animate-spin text-primary" />
+        <h1 className="mt-4 font-display text-2xl font-bold text-foreground">
+          Order Placed Successfully!
+        </h1>
+        <p className="mt-2 text-muted-foreground">
+          Redirecting to your order confirmation...
+        </p>
+      </div>
+    );
+  }
+
+  if (items.length === 0 && !isSubmitting && !orderPlaced) {
     return (
       <div className="mx-auto max-w-2xl px-4 py-16 text-center">
         <ShoppingBag className="mx-auto h-16 w-16 text-muted-foreground/50" />
@@ -273,8 +315,32 @@ export default function CheckoutPage() {
     setError(null);
 
     try {
-      // Sync cart if authenticated
-      if (isAuthenticated) {
+      // For guests: create account, set cookie, and sync cart in one step
+      if (!isAuthenticated && guestEmail) {
+        try {
+          await guestCheckout.mutateAsync({
+            email: guestEmail,
+            full_name: shippingAddress?.full_name ?? null,
+            phone: shippingAddress?.phone ?? null,
+          });
+          await queryClient.invalidateQueries({
+            queryKey: [CUSTOMER_PROFILE_QUERY_KEY],
+          });
+        } catch (err) {
+          const message =
+            err instanceof Error ? err.message : "Account creation failed";
+          if (message.toLowerCase().includes("already exists")) {
+            setError(
+              "An account with this email already exists. Please sign in to continue.",
+            );
+          } else {
+            setError(message);
+          }
+          setIsSubmitting(false);
+          return;
+        }
+      } else if (isAuthenticated) {
+        // Already authenticated — just sync cart
         await useCartStore.getState().syncToServer();
       }
 
@@ -344,6 +410,7 @@ export default function CheckoutPage() {
                   razorpay_signature: response.razorpay_signature,
                 }),
               });
+              setOrderPlaced(true);
               clearCart();
               router.push(`/order-confirmation?id=${order.order_id}`);
             } catch {
@@ -362,7 +429,11 @@ export default function CheckoutPage() {
                 email: profileData.data.email,
                 contact: profileData.data.phone ?? "",
               }
-            : undefined,
+            : {
+                name: shippingAddress?.full_name ?? "",
+                email: guestEmail,
+                contact: shippingAddress?.phone ?? "",
+              },
           theme: { color: "#f59e0b" },
         };
 
@@ -372,6 +443,7 @@ export default function CheckoutPage() {
       }
 
       // COD — success
+      setOrderPlaced(true);
       clearCart();
       router.push(`/order-confirmation?id=${order.order_id}`);
     } catch (err) {
@@ -505,6 +577,9 @@ export default function CheckoutPage() {
                   <AddressForm
                     onSave={handleSaveNewAddress}
                     isPending={createAddress.isPending}
+                    isAuthenticated={isAuthenticated}
+                    guestEmail={guestEmail}
+                    onGuestEmailChange={setGuestEmail}
                   />
                 </div>
               )}
