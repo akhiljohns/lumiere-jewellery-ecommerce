@@ -74,7 +74,7 @@ export default function OrdersPage() {
             {orders.map((order) => (
               <Link
                 key={order.id}
-                href={`/order-confirmation?id=${order.id}`}
+                href={`/orders/${order.id}`}
                 className="block rounded-lg border border-border bg-card p-4 transition-colors hover:bg-muted/50"
               >
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
