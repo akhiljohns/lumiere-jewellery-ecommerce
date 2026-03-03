@@ -8,6 +8,7 @@ import { logAdminAction, logAdminError } from "@/lib/discord";
 import { requirePermission } from "@/lib/api-auth";
 import { revalidateCategoryCache } from "@/lib/cache";
 import { AppError, ErrorCode, errorResponse } from "@/lib/errors";
+import { getClientIP } from "@/lib/rate-limit";
 
 /**
  * GET /api/admin/categories
@@ -80,7 +81,7 @@ export async function POST(request: NextRequest) {
         value: parsed.data.is_active !== false ? "Yes" : "No",
         inline: true,
       },
-    ], { resource_id: category.id, actor_id: request.headers.get("x-user-id") ?? undefined });
+    ], { resource_id: category.id, actor_id: request.headers.get("x-user-id") ?? undefined, ip_address: getClientIP(request) });
 
     return NextResponse.json(
       { data: category, message: "Category created successfully" },

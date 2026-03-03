@@ -4,6 +4,7 @@ import { getUsers, createUser } from "@/features/users/services/user-service";
 import { logAdminAction, logAdminError } from "@/lib/discord";
 import { requirePermission } from "@/lib/api-auth";
 import { AppError, ErrorCode, errorResponse } from "@/lib/errors";
+import { getClientIP } from "@/lib/rate-limit";
 
 /**
  * GET /api/admin/users
@@ -69,7 +70,7 @@ export async function POST(request: NextRequest) {
       { name: "Name", value: parsed.data.full_name ?? "—", inline: true },
       { name: "Role", value: parsed.data.role ?? "customer", inline: true },
       { name: "Active", value: parsed.data.is_active !== false ? "Yes" : "No", inline: true },
-    ], { resource_id: user.id, actor_id: request.headers.get("x-user-id") ?? undefined });
+    ], { resource_id: user.id, actor_id: request.headers.get("x-user-id") ?? undefined, ip_address: getClientIP(request) });
 
     return NextResponse.json(
       { data: user, message: "User created successfully" },

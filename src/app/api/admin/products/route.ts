@@ -8,6 +8,7 @@ import { logAdminAction, logAdminError } from "@/lib/discord";
 import { requirePermission } from "@/lib/api-auth";
 import { revalidateProductCache } from "@/lib/cache";
 import { AppError, ErrorCode, errorResponse } from "@/lib/errors";
+import { getClientIP } from "@/lib/rate-limit";
 
 /**
  * GET /api/admin/products
@@ -73,7 +74,7 @@ export async function POST(request: NextRequest) {
       { name: "Price", value: `₹${parsed.data.price}`, inline: true },
       { name: "Stock", value: String(parsed.data.stock ?? 0), inline: true },
       { name: "Active", value: parsed.data.is_active !== false ? "Yes" : "No", inline: true },
-    ], { resource_id: product.id, actor_id: request.headers.get("x-user-id") ?? undefined });
+    ], { resource_id: product.id, actor_id: request.headers.get("x-user-id") ?? undefined, ip_address: getClientIP(request) });
 
     return NextResponse.json(
       { data: product, message: "Product created successfully" },

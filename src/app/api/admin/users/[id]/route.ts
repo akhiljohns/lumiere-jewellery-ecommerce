@@ -8,6 +8,7 @@ import {
 import { logAdminAction, logAdminError, diffFields } from "@/lib/discord";
 import { requirePermission } from "@/lib/api-auth";
 import { AppError, ErrorCode, errorResponse } from "@/lib/errors";
+import { getClientIP } from "@/lib/rate-limit";
 
 interface RouteParams {
   params: Promise<{ id: string }>;
@@ -77,7 +78,7 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
       ...(changes.length === 0 && !hasPasswordChange
         ? [{ name: "Changes", value: "no field changes detected" }]
         : []),
-    ], { resource_id: id, actor_id: request.headers.get("x-user-id") ?? undefined });
+    ], { resource_id: id, actor_id: request.headers.get("x-user-id") ?? undefined, ip_address: getClientIP(request) });
 
     return NextResponse.json(
       { data: user, message: "User updated successfully" },
@@ -121,7 +122,7 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
       { name: "ID", value: id, inline: true },
       { name: "Name", value: existing.full_name ?? "—", inline: true },
       { name: "Role", value: existing.role, inline: true },
-    ], { resource_id: id, actor_id: request.headers.get("x-user-id") ?? undefined });
+    ], { resource_id: id, actor_id: request.headers.get("x-user-id") ?? undefined, ip_address: getClientIP(request) });
 
     return NextResponse.json(
       { message: "User deleted successfully" },

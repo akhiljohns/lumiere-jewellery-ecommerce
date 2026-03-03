@@ -7,6 +7,7 @@ import {
 import { logAdminAction, logAdminError } from "@/lib/discord";
 import { requirePermission } from "@/lib/api-auth";
 import { AppError, ErrorCode, errorResponse } from "@/lib/errors";
+import { getClientIP } from "@/lib/rate-limit";
 
 interface RouteParams {
   params: Promise<{ id: string }>;
@@ -57,7 +58,7 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
       ...(parsed.data.cancelled_reason
         ? [{ name: "Reason", value: parsed.data.cancelled_reason, inline: false }]
         : []),
-    ], { resource_id: id, actor_id: request.headers.get("x-user-id") ?? undefined });
+    ], { resource_id: id, actor_id: request.headers.get("x-user-id") ?? undefined, ip_address: getClientIP(request) });
 
     return NextResponse.json(
       { data: order, message: "Order status updated successfully" },
