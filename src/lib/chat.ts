@@ -1,6 +1,5 @@
 import { GoogleGenAI } from "@google/genai";
 import { createAdminClient } from "@/lib/supabase/admin";
-import { vectorSearch } from "@/lib/embeddings";
 
 // ── Lazy-initialized client ────────────────────────
 
@@ -112,6 +111,93 @@ async function saveMessage(
     .eq("id", conversationId);
 }
 
+// ── Product context for chat ──────────────────────
+
+interface ProductRow {
+  id: string;
+  name: string;
+  slug: string;
+  description: string | null;
+  price: number;
+  compare_price: number | null;
+  material: string | null;
+  weight: string | null;
+  stock: number;
+  is_featured: boolean;
+  categories: { name: string } | { name: string }[] | null;
+}
+
+function formatProduct(p: ProductRow, i: number): string {
+  const cat = Array.isArray(p.categories) ? p.categories[0]?.name : p.categories?.name;
+  const parts = [
+    `[Product ${i + 1}] ${p.name}`,
+    `Price: ₹${p.price.toLocaleString("en-IN")}`,
+    p.compare_price ? `MRP: ₹${p.compare_price.toLocaleString("en-IN")}` : null,
+    cat ? `Category: ${cat}` : null,
+    p.material ? `Material: ${p.material}` : null,
+    p.weight ? `Weight: ${p.weight}` : null,
+    p.stock > 0 ? "In Stock" : "Out of Stock",
+    p.description ? `Description: ${p.description.slice(0, 200)}` : null,
+    `Link: /products/${p.slug}`,
+  ];
+  return parts.filter(Boolean).join(" | ");
+}
+
+async function fetchProductContext(
+  message: string,
+): Promise<{ contextText: string; productIds: string[] }> {
+  const supabase = createAdminClient();
+  const selectFields = "id, name, slug, description, price, compare_price, material, weight, stock, is_featured, categories(name)";
+
+  // 1. Search for products matching the user's query using full-text + ILIKE
+  const sanitized = message
+    .replace(/\\/g, "\\\\")
+    .replace(/,/g, "\\,")
+    .replace(/\(/g, "\\(")
+    .replace(/\)/g, "\\)");
+
+  const { data: searchResults } = await supabase
+    .from("products")
+    .select(selectFields)
+    .eq("is_active", true)
+    .or(`name.ilike.%${sanitized}%,search_vector.wfts(english).${sanitized}`)
+    .order("is_featured", { ascending: false })
+    .limit(5);
+
+  const matched = (searchResults ?? []) as unknown as ProductRow[];
+
+  // 2. If fewer than 3 search results, pad with featured/popular products
+  let featured: ProductRow[] = [];
+  if (matched.length < 3) {
+    const excludeIds = matched.map((p) => p.id);
+    let query = supabase
+      .from("products")
+      .select(selectFields)
+      .eq("is_active", true)
+      .eq("is_featured", true)
+      .order("created_at", { ascending: false })
+      .limit(5 - matched.length);
+
+    if (excludeIds.length > 0) {
+      query = query.not("id", "in", `(${excludeIds.join(",")})`);
+    }
+
+    const { data: featuredResults } = await query;
+    featured = (featuredResults ?? []) as unknown as ProductRow[];
+  }
+
+  const allProducts = [...matched, ...featured];
+
+  if (allProducts.length === 0) {
+    return { contextText: "", productIds: [] };
+  }
+
+  const contextText = allProducts.map((p, i) => formatProduct(p, i)).join("\n\n");
+  const productIds = allProducts.map((p) => p.id);
+
+  return { contextText, productIds };
+}
+
 // ── Chat with RAG ──────────────────────────────────
 
 export async function chat(input: {
@@ -135,21 +221,8 @@ export async function chat(input: {
   // Get conversation history for context
   const history = await getConversationHistory(conversationId);
 
-  // Perform vector search to find relevant products
-  let contextText = "";
-  let productIds: string[] = [];
-
-  try {
-    const results = await vectorSearch(input.message, 5);
-    if (results.length > 0) {
-      productIds = results.map((r) => r.product_id);
-      contextText = results
-        .map((r, i) => `[Product ${i + 1}]: ${r.chunk_text}`)
-        .join("\n\n");
-    }
-  } catch {
-    // Vector search may fail if no embeddings exist yet — continue without context
-  }
+  // Fetch relevant products from database
+  const { contextText, productIds } = await fetchProductContext(input.message);
 
   // Build conversation for Gemini
   const systemPrompt = `You are a helpful jewellery shopping assistant for an Indian jewellery e-commerce store. You help customers find the perfect jewellery pieces, answer questions about products, materials, and styling.
@@ -157,12 +230,13 @@ export async function chat(input: {
 Guidelines:
 - Be warm, professional, and helpful
 - Use Indian currency (₹) when mentioning prices
-- Recommend products based on the context provided
-- If you don't have product information to answer a question, say so honestly
+- When recommending products, mention the product name, price, and key details from the catalog below
+- Include the product link (e.g., /products/slug) so the customer can view it
+- If the customer asks for something not in the catalog, say so honestly and suggest the closest alternatives
 - Keep responses concise (2-4 sentences for simple queries, up to a short paragraph for detailed questions)
 - If the customer asks about something unrelated to jewellery or shopping, politely redirect
 
-${contextText ? `\nRelevant products from our catalog:\n${contextText}` : "\nNote: No specific product matches found for this query. Answer based on general jewellery knowledge."}`;
+${contextText ? `\nProducts from our catalog:\n${contextText}` : "\nNote: No products found matching this query. Answer based on general jewellery knowledge."}`;
 
   const conversationParts = history.slice(-8).map((m) => ({
     role: m.role === "user" ? ("user" as const) : ("model" as const),
