@@ -7,11 +7,11 @@ A full-stack jewellery e-commerce platform with an admin panel and customer-faci
 | Layer | Technology |
 |-------|-----------|
 | Framework | Next.js 16 (App Router), React 19, TypeScript |
-| Database | Supabase (PostgreSQL), pgvector for embeddings |
+| Database | Supabase (PostgreSQL) |
 | Styling | Tailwind CSS v4, shadcn/ui (Mira style, amber theme) |
 | Payments | Razorpay (online), Cash on Delivery |
 | Images | Cloudinary with auto AVIF/WebP optimization |
-| AI | Google Gemini 2.0 Flash, text-embedding-004 |
+| AI | Google Gemini 2.5 Flash (structured JSON mode) |
 | Auth | JWT (jose, HS256), HTTP-only cookies |
 | Email | Nodemailer (Gmail SMTP) |
 | State | TanStack Query v5, Zustand, nuqs (URL state) |
@@ -55,21 +55,21 @@ A full-stack jewellery e-commerce platform with an admin panel and customer-faci
 
 **Audit Logs** — Every admin action (create, update, delete) is logged with the actor, resource, IP address, and a diff of changes. Filterable by resource type, actor, and action.
 
-### AI Features
+### AI Features (Gemini 2.5 Flash)
 
-**Product Description Generation** — Enter a product name and the AI generates a compelling 2-3 sentence description, SEO meta description, and relevant tags. Uses product context (category, material, price, weight) for accuracy.
+All AI functions use `responseMimeType: "application/json"` for guaranteed structured output and `thinkingConfig: { thinkingBudget: 0 }` to disable reasoning overhead on structured tasks.
 
-**Image Analysis** — Upload a product image and the AI extracts structured attributes: jewellery type, metal color, gemstones, style, material, suitable occasions, and a visual description. Auto-fills the product form with suggested name, description, material, and category.
+**One-Click Image Analysis & Auto-Fill** — Upload one or more product images and click "Analyze with AI". The system sends all images to Gemini vision, which extracts jewellery type, metal color, gemstones, style, material, weight estimate, and a suggested price range (INR). It then auto-fills every form field: name, description (via a chained generate-description call), category (fuzzy-matched against real DB categories), material, weight, price (midpoint of AI range), and compare price (max of range). Admins can create a complete product listing from images alone.
 
-**Smart Categorization** — AI suggests the best matching category and material for a product based on its name and description. Matches against existing categories in the database.
+**Product Description Generation** — Generates a compelling 2-3 sentence description, SEO meta description, and relevant tags using product context (name, category, material, price, weight). Called automatically during image analysis or available as a standalone API.
 
-**Occasion-Based Auto-Tagging** — Generates occasion tags (wedding, festival, daily wear), style tags (traditional, modern, ethnic), and gifting tags (birthday gift, anniversary) for products.
+**Smart Categorization** — AI classifies products by matching against the store's actual category list from the database, with confidence scoring. Includes material suggestion from a curated list of Indian jewellery materials.
+
+**Occasion-Based Auto-Tagging** — Generates occasion tags (wedding, festival, daily wear), style tags (traditional, modern, ethnic), and gifting tags (birthday gift, anniversary) for product merchandising.
 
 **Image Alt Text Generation** — Creates 15-25 word accessibility descriptions for product images, optimized for screen readers and SEO.
 
-**AI Shopping Assistant** — Multi-turn chat interface using RAG (Retrieval-Augmented Generation). Searches product embeddings for relevant context and provides conversational product recommendations. Supports both guest and authenticated customer sessions.
-
-**Vector Embeddings** — Generates 768-dimension embeddings (Gemini text-embedding-004) for all active products. Stored in pgvector for semantic similarity search used by the chat assistant.
+**AI Shopping Assistant** — Multi-turn conversational chat that helps customers find products. Uses full-text search (tsvector + ILIKE) against the product database to retrieve relevant products with real prices, stock status, and direct product links. Falls back to featured products when no search matches, ensuring the AI always has catalog context to recommend from. Supports both guest and authenticated sessions with persistent conversation history.
 
 ### Analytics & Insights
 
@@ -195,7 +195,8 @@ src/
     users/               # User management
     roles/               # Role and permission management
   lib/                   # Shared infrastructure
-    ai.ts                # Gemini AI functions
+    ai.ts                # Gemini AI functions (description, categorization, image analysis)
+    chat.ts              # AI shopping assistant with DB product context
     api-client.ts        # Client-side fetch wrapper
     supabase/            # Supabase clients (browser, server, admin)
     validators.ts        # Zod schemas
