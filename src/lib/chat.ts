@@ -183,12 +183,13 @@ ${contextText ? `\nRelevant products from our catalog:\n${contextText}` : "\nNot
   }
 
   const response = await ai.models.generateContent({
-    model: "gemini-2.0-flash",
+    model: "gemini-2.5-flash",
     contents,
     config: {
       temperature: 0.7,
       maxOutputTokens: 500,
       systemInstruction: systemPrompt,
+      thinkingConfig: { thinkingBudget: 0 },
     },
   });
 

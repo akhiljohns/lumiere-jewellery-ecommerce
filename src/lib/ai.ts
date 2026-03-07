@@ -101,28 +101,27 @@ ${input.material ? `- Material: ${input.material}` : ""}
 ${input.price ? `- Price: ₹${input.price}` : ""}
 ${input.weight ? `- Weight: ${input.weight}` : ""}
 
-Return a JSON object with exactly these fields:
+Respond with a JSON object containing:
 1. "description" — A compelling 2-3 sentence product description highlighting craftsmanship, beauty, and occasion. Use elegant, luxury tone.
 2. "meta_description" — A 150-160 character SEO meta description for the product page.
-3. "tags" — An array of 5-8 relevant tags (e.g., "wedding", "gold", "traditional", "daily wear").
-
-Return ONLY valid JSON, no markdown fences or extra text.`;
+3. "tags" — An array of 5-8 relevant tags (e.g., "wedding", "gold", "traditional", "daily wear").`;
 
   return callGemini(async () => {
     const response = await ai.models.generateContent({
-      model: "gemini-2.0-flash",
+      model: "gemini-2.5-flash",
       contents: prompt,
       config: {
         temperature: 0.7,
         maxOutputTokens: 500,
+        responseMimeType: "application/json",
+        thinkingConfig: { thinkingBudget: 0 },
       },
     });
 
     const text = response.text?.trim() ?? "";
-    const cleaned = text.replace(/^```(?:json)?\n?/i, "").replace(/\n?```$/i, "").trim();
 
     try {
-      const parsed = JSON.parse(cleaned) as GenerateDescriptionOutput;
+      const parsed = JSON.parse(text) as GenerateDescriptionOutput;
       return {
         description: parsed.description ?? "",
         meta_description: parsed.meta_description ?? "",
@@ -143,9 +142,7 @@ export async function generateImageAltText(
 
   const prompt = `You are writing alt text for a jewellery product image on an e-commerce website.
 
-Describe this jewellery image in a concise, descriptive alt text (15-25 words) suitable for screen readers and SEO. Focus on the type of jewellery, material, design elements, and any gemstones visible.
-
-Return ONLY the alt text string, no quotes, no extra text.`;
+Describe this jewellery image in a concise, descriptive alt text (15-25 words) suitable for screen readers and SEO. Focus on the type of jewellery, material, design elements, and any gemstones visible. Return only the alt text string.`;
 
   // Fetch the image and convert to base64
   const imageResponse = await fetch(imageUrl);
@@ -158,7 +155,7 @@ Return ONLY the alt text string, no quotes, no extra text.`;
 
   return callGemini(async () => {
     const response = await ai.models.generateContent({
-      model: "gemini-2.0-flash",
+      model: "gemini-2.5-flash",
       contents: [
         {
           role: "user",
@@ -176,6 +173,7 @@ Return ONLY the alt text string, no quotes, no extra text.`;
       config: {
         temperature: 0.3,
         maxOutputTokens: 100,
+        thinkingConfig: { thinkingBudget: 0 },
       },
     });
 
@@ -222,29 +220,28 @@ Available categories: ${categoryList}
 
 Common jewellery materials: Gold, Silver, Platinum, Diamond, Rose Gold, White Gold, 22K Gold, 18K Gold, 14K Gold, Sterling Silver, Kundan, Meenakari, Pearl, Ruby, Emerald, Sapphire, American Diamond, Oxidized Silver, Brass, Copper
 
-Return a JSON object with exactly these fields:
+Respond with a JSON object containing:
 1. "suggested_category" — The best matching category from the available list, or null if none match well.
 2. "suggested_material" — The most likely material based on the product name/description.
 3. "confidence" — A number from 0 to 1 indicating how confident you are in the classification.
-4. "tags" — An array of 3-6 relevant attribute tags (e.g., "handcrafted", "traditional", "lightweight", "statement piece").
-
-Return ONLY valid JSON, no markdown fences or extra text.`;
+4. "tags" — An array of 3-6 relevant attribute tags (e.g., "handcrafted", "traditional", "lightweight", "statement piece").`;
 
   return callGemini(async () => {
     const response = await ai.models.generateContent({
-      model: "gemini-2.0-flash",
+      model: "gemini-2.5-flash",
       contents: prompt,
       config: {
         temperature: 0.3,
         maxOutputTokens: 300,
+        responseMimeType: "application/json",
+        thinkingConfig: { thinkingBudget: 0 },
       },
     });
 
     const text = response.text?.trim() ?? "";
-    const cleaned = text.replace(/^```(?:json)?\n?/i, "").replace(/\n?```$/i, "").trim();
 
     try {
-      const parsed = JSON.parse(cleaned) as SuggestCategoryOutput;
+      const parsed = JSON.parse(text) as SuggestCategoryOutput;
       return {
         suggested_category: parsed.suggested_category ?? null,
         suggested_material: parsed.suggested_material ?? null,
@@ -285,28 +282,27 @@ ${input.category ? `- Category: ${input.category}` : ""}
 ${input.material ? `- Material: ${input.material}` : ""}
 ${input.description ? `- Description: ${input.description}` : ""}
 
-Return a JSON object with exactly these fields:
+Respond with a JSON object containing:
 1. "occasions" — Array of 2-5 occasion tags from: wedding, engagement, anniversary, festival, daily wear, party, office, puja, mehendi, sangeet, reception, casual, formal, bridal
 2. "styles" — Array of 2-4 style tags from: traditional, modern, contemporary, ethnic, indo-western, minimalist, statement, vintage, bohemian, classic, royal, temple
-3. "gifting" — Array of 1-3 gifting tags from: birthday gift, valentine gift, anniversary gift, wedding gift, mothers day, diwali gift, rakhi gift, housewarming, self purchase, bridesmaids gift
-
-Return ONLY valid JSON, no markdown fences or extra text.`;
+3. "gifting" — Array of 1-3 gifting tags from: birthday gift, valentine gift, anniversary gift, wedding gift, mothers day, diwali gift, rakhi gift, housewarming, self purchase, bridesmaids gift`;
 
   return callGemini(async () => {
     const response = await ai.models.generateContent({
-      model: "gemini-2.0-flash",
+      model: "gemini-2.5-flash",
       contents: prompt,
       config: {
         temperature: 0.4,
         maxOutputTokens: 300,
+        responseMimeType: "application/json",
+        thinkingConfig: { thinkingBudget: 0 },
       },
     });
 
     const text = response.text?.trim() ?? "";
-    const cleaned = text.replace(/^```(?:json)?\n?/i, "").replace(/\n?```$/i, "").trim();
 
     try {
-      const parsed = JSON.parse(cleaned) as AutoTagOutput;
+      const parsed = JSON.parse(text) as AutoTagOutput;
       return {
         occasions: Array.isArray(parsed.occasions) ? parsed.occasions : [],
         styles: Array.isArray(parsed.styles) ? parsed.styles : [],
@@ -328,24 +324,51 @@ interface AnalyzeImageOutput {
   material: string | null;
   occasion: string[];
   description: string;
+  suggested_price: { min: number; max: number } | null;
   suggested_fields: {
     name: string | null;
     category: string | null;
     material: string | null;
+    weight: string | null;
     tags: string[];
+  };
+}
+
+async function fetchImageAsBase64(url: string): Promise<{ data: string; mimeType: string }> {
+  const res = await fetch(url);
+  if (!res.ok) {
+    throw new AppError(ErrorCode.BAD_REQUEST, `Failed to fetch image (HTTP ${res.status}).`);
+  }
+  const buf = await res.arrayBuffer();
+  return {
+    data: Buffer.from(buf).toString("base64"),
+    mimeType: res.headers.get("content-type") ?? "image/jpeg",
   };
 }
 
 export async function analyzeImage(
   imageUrl: string,
+  additionalImageUrls?: string[],
+  categories?: string[],
 ): Promise<AnalyzeImageOutput> {
   const ai = getAI();
 
-  const prompt = `You are a jewellery expert analyzing a product image for an Indian jewellery e-commerce store.
+  const imageCount = 1 + (additionalImageUrls?.length ?? 0);
+  const imageNote = imageCount > 1
+    ? `You are provided ${imageCount} images of the same jewellery product from different angles. Analyze all images together.`
+    : "Analyze this jewellery image and extract structured attributes.";
 
-Analyze this jewellery image and extract structured attributes.
+  const categoryInstruction = categories && categories.length > 0
+    ? `Available categories in our store: ${categories.join(", ")}. You MUST pick "category" from this list. Choose the best match.`
+    : "";
 
-Return a JSON object with exactly these fields:
+  const prompt = `You are a jewellery expert analyzing product images for an Indian jewellery e-commerce store.
+
+${imageNote}
+
+${categoryInstruction}
+
+Respond with a JSON object containing:
 1. "type" — The type of jewellery (e.g., "ring", "necklace", "earring", "bracelet", "bangle", "pendant", "chain", "anklet", "nose pin", "mangalsutra", "toe ring", "brooch", "hair accessory")
 2. "metal_color" — The visible metal color (e.g., "gold", "silver", "rose gold", "white gold", "oxidized", "two-tone") or null if unclear
 3. "gemstones" — Array of visible gemstones/stones (e.g., ["diamond", "ruby", "emerald", "pearl", "kundan", "american diamond", "meenakari"]). Empty array if none visible.
@@ -353,51 +376,44 @@ Return a JSON object with exactly these fields:
 5. "material" — Best guess at material (e.g., "22K Gold", "Sterling Silver", "Gold Plated", "Brass", "Kundan") or null if unclear
 6. "occasion" — Array of 2-4 suitable occasions (e.g., ["wedding", "festival", "daily wear", "party", "office", "bridal"])
 7. "description" — A brief 1-2 sentence visual description of the piece
-8. "suggested_fields" — An object with:
+8. "suggested_price" — An object with "min" and "max" fields representing a realistic INR price range for this piece based on the material, craftsmanship, gemstones, and Indian market rates. Use whole numbers. Return null only if you truly cannot estimate.
+9. "suggested_fields" — An object with:
    - "name" — A suggested product name based on what you see, or null
-   - "category" — Suggested category, or null
+   - "category" — Suggested category from the available list above (must match exactly), or null
    - "material" — Suggested material for the product listing, or null
-   - "tags" — Array of 4-8 relevant product tags
+   - "weight" — Estimated weight as a string (e.g., "5g", "12g"), or null if unclear
+   - "tags" — Array of 4-8 relevant product tags`;
 
-Return ONLY valid JSON, no markdown fences or extra text.`;
+  // Fetch all images in parallel
+  const allUrls = [imageUrl, ...(additionalImageUrls ?? [])];
+  const imageResults = await Promise.all(allUrls.map(fetchImageAsBase64));
 
-  // Fetch the image and convert to base64
-  const imageResponse = await fetch(imageUrl);
-  if (!imageResponse.ok) {
-    throw new AppError(ErrorCode.BAD_REQUEST, `Failed to fetch image (HTTP ${imageResponse.status}). Please check the image URL.`);
-  }
-  const imageBuffer = await imageResponse.arrayBuffer();
-  const base64Image = Buffer.from(imageBuffer).toString("base64");
-  const mimeType = imageResponse.headers.get("content-type") ?? "image/jpeg";
+  const imageParts = imageResults.map((img) => ({
+    inlineData: { mimeType: img.mimeType, data: img.data },
+  }));
 
   return callGemini(async () => {
     const response = await ai.models.generateContent({
-      model: "gemini-2.0-flash",
+      model: "gemini-2.5-flash",
       contents: [
         {
           role: "user",
-          parts: [
-            {
-              inlineData: {
-                mimeType,
-                data: base64Image,
-              },
-            },
-            { text: prompt },
-          ],
+          parts: [...imageParts, { text: prompt }],
         },
       ],
       config: {
         temperature: 0.3,
-        maxOutputTokens: 600,
+        maxOutputTokens: 800,
+        responseMimeType: "application/json",
+        thinkingConfig: { thinkingBudget: 0 },
       },
     });
 
     const text = response.text?.trim() ?? "";
-    const cleaned = text.replace(/^```(?:json)?\n?/i, "").replace(/\n?```$/i, "").trim();
 
     try {
-      const parsed = JSON.parse(cleaned) as AnalyzeImageOutput;
+      const parsed = JSON.parse(text) as AnalyzeImageOutput;
+      const sp = parsed.suggested_price;
       return {
         type: parsed.type ?? "unknown",
         metal_color: parsed.metal_color ?? null,
@@ -406,10 +422,14 @@ Return ONLY valid JSON, no markdown fences or extra text.`;
         material: parsed.material ?? null,
         occasion: Array.isArray(parsed.occasion) ? parsed.occasion : [],
         description: parsed.description ?? "",
+        suggested_price: sp && typeof sp.min === "number" && typeof sp.max === "number"
+          ? { min: Math.round(sp.min), max: Math.round(sp.max) }
+          : null,
         suggested_fields: {
           name: parsed.suggested_fields?.name ?? null,
           category: parsed.suggested_fields?.category ?? null,
           material: parsed.suggested_fields?.material ?? null,
+          weight: parsed.suggested_fields?.weight ?? null,
           tags: Array.isArray(parsed.suggested_fields?.tags) ? parsed.suggested_fields.tags : [],
         },
       };

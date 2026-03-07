@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { aiAnalyzeImageSchema } from "@/lib/validators";
 import { analyzeImage } from "@/lib/ai";
+import { createAdminClient } from "@/lib/supabase/admin";
 import { requirePermission } from "@/lib/api-auth";
 import { AppError, ErrorCode, errorResponse } from "@/lib/errors";
 
@@ -23,7 +24,20 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const analysis = await analyzeImage(parsed.data.image_url);
+    // Fetch existing category names so AI picks from real categories
+    const supabase = createAdminClient();
+    const { data: cats } = await supabase
+      .from("categories")
+      .select("name")
+      .eq("is_active", true)
+      .order("name");
+    const categoryNames = (cats ?? []).map((c) => c.name);
+
+    const analysis = await analyzeImage(
+      parsed.data.image_url,
+      parsed.data.additional_image_urls,
+      categoryNames,
+    );
 
     return NextResponse.json({ data: analysis }, { status: 200 });
   } catch (err) {

@@ -2,7 +2,7 @@
 
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { Loader2, Upload, X, Sparkles, ScanSearch, ImageIcon } from "lucide-react";
+import { Loader2, Upload, X, ScanSearch, ImageIcon } from "lucide-react";
 import { CloudinaryImage } from "@/components/cloudinary-image";
 import { useCallback, useRef, useState } from "react";
 import { toast } from "sonner";
@@ -75,7 +75,7 @@ export function ProductForm({
 
   const [uploadingCount, setUploadingCount] = useState(0);
   const [mediaPickerOpen, setMediaPickerOpen] = useState(false);
-  const [aiGenerating, setAiGenerating] = useState<"description" | "category" | "analyze-image" | null>(null);
+  const [aiGenerating, setAiGenerating] = useState<"analyze-image" | null>(null);
 
   const {
     register,
@@ -165,76 +165,20 @@ export function ProductForm({
     );
   }, []);
 
-  const handleGenerateDescription = useCallback(async () => {
-    const name = getValues("name");
-    if (!name) {
-      toast.error("Enter a product name first");
-      return;
-    }
-    setAiGenerating("description");
-    try {
-      const categoryId = getValues("category_id");
-      const category = categories.find((c) => c.id === categoryId);
-      const result = await fetchApi<{
-        data: { description: string };
-      }>("/api/admin/ai/generate-description", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name,
-          category: category?.name ?? null,
-          material: getValues("material") || null,
-          price: getValues("price") || null,
-          weight: getValues("weight") || null,
-        }),
+  const findMatchingCategory = useCallback(
+    (suggested: string) => {
+      const s = suggested.toLowerCase();
+      // Exact match
+      const exact = categories.find((c) => c.name.toLowerCase() === s);
+      if (exact) return exact;
+      // Partial match — either side contains the other
+      return categories.find((c) => {
+        const cn = c.name.toLowerCase();
+        return cn.includes(s) || s.includes(cn);
       });
-      setValue("description", result.data.description, { shouldDirty: true });
-      toast.success("Description generated");
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to generate description");
-    } finally {
-      setAiGenerating(null);
-    }
-  }, [getValues, setValue, categories]);
-
-  const handleSuggestCategory = useCallback(async () => {
-    const name = getValues("name");
-    if (!name) {
-      toast.error("Enter a product name first");
-      return;
-    }
-    setAiGenerating("category");
-    try {
-      const result = await fetchApi<{
-        data: { suggested_category: string | null; suggested_material: string | null };
-      }>("/api/admin/ai/suggest-category", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name,
-          description: getValues("description") || null,
-        }),
-      });
-      if (result.data.suggested_category) {
-        const match = categories.find(
-          (c) => c.name.toLowerCase() === result.data.suggested_category!.toLowerCase(),
-        );
-        if (match) {
-          setValue("category_id", match.id, { shouldDirty: true });
-          toast.success(`Category set to "${match.name}"`);
-        } else {
-          toast.info(`AI suggested "${result.data.suggested_category}" but no matching category found`);
-        }
-      }
-      if (result.data.suggested_material) {
-        setValue("material", result.data.suggested_material, { shouldDirty: true });
-      }
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Failed to suggest category");
-    } finally {
-      setAiGenerating(null);
-    }
-  }, [getValues, setValue, categories]);
+    },
+    [categories],
+  );
 
   const handleAnalyzeImage = useCallback(async () => {
     if (images.length === 0) {
@@ -242,52 +186,112 @@ export function ProductForm({
       return;
     }
     const primaryImage = images.find((img) => img.is_primary) ?? images[0];
+    const additionalUrls = images
+      .filter((img) => img.public_id !== primaryImage.public_id)
+      .map((img) => img.url);
+
     setAiGenerating("analyze-image");
     try {
       const result = await fetchApi<{
         data: {
           description: string;
           material: string | null;
+          suggested_price: { min: number; max: number } | null;
           suggested_fields: {
             name: string | null;
             category: string | null;
             material: string | null;
+            weight: string | null;
             tags: string[];
           };
         };
       }>("/api/admin/ai/analyze-image", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ image_url: primaryImage.url }),
+        body: JSON.stringify({
+          image_url: primaryImage.url,
+          additional_image_urls: additionalUrls.length > 0 ? additionalUrls : undefined,
+        }),
       });
 
       const filled: string[] = [];
+      const sf = result.data.suggested_fields;
 
-      if (result.data.suggested_fields.name && !getValues("name")) {
-        setValue("name", result.data.suggested_fields.name, { shouldDirty: true });
+      // Fill name
+      const suggestedName = sf.name;
+      if (suggestedName && !getValues("name")) {
+        setValue("name", suggestedName, { shouldDirty: true });
         filled.push("name");
       }
-      if (result.data.description) {
-        setValue("description", result.data.description, { shouldDirty: true });
-        filled.push("description");
-      }
-      const material = result.data.suggested_fields.material ?? result.data.material;
+
+      // Fill material
+      const material = sf.material ?? result.data.material;
       if (material) {
         setValue("material", material, { shouldDirty: true });
         filled.push("material");
       }
-      if (result.data.suggested_fields.category) {
-        const match = categories.find(
-          (c) => c.name.toLowerCase() === result.data.suggested_fields.category!.toLowerCase(),
-        );
+
+      // Fill weight
+      if (sf.weight && !getValues("weight")) {
+        setValue("weight", sf.weight, { shouldDirty: true });
+        filled.push("weight");
+      }
+
+      // Fill category — fuzzy string match
+      if (sf.category) {
+        const match = findMatchingCategory(sf.category);
         if (match) {
           setValue("category_id", match.id, { shouldDirty: true });
           filled.push("category");
         }
       }
 
+      // Fill price — use midpoint of suggested range
+      const currentPrice = getValues("price");
+      if (result.data.suggested_price && (!currentPrice || currentPrice === 0)) {
+        const { min, max } = result.data.suggested_price;
+        const midPrice = Math.round((min + max) / 2);
+        setValue("price", midPrice, { shouldDirty: true });
+        setValue("compare_price", max, { shouldDirty: true });
+        filled.push(`price (₹${min.toLocaleString("en-IN")}–₹${max.toLocaleString("en-IN")})`);
+      }
+
+      // Generate a full product description using the extracted fields
+      const nameForDesc = getValues("name") || suggestedName;
+      if (nameForDesc) {
+        try {
+          const categoryId = getValues("category_id");
+          const categoryName = categories.find((c) => c.id === categoryId)?.name ?? sf.category;
+          const descResult = await fetchApi<{
+            data: { description: string };
+          }>("/api/admin/ai/generate-description", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              name: nameForDesc,
+              category: categoryName ?? null,
+              material: getValues("material") || material || null,
+              price: getValues("price") || null,
+              weight: getValues("weight") || sf.weight || null,
+            }),
+          });
+          if (descResult.data.description) {
+            setValue("description", descResult.data.description, { shouldDirty: true });
+            filled.push("description");
+          }
+        } catch {
+          if (result.data.description) {
+            setValue("description", result.data.description, { shouldDirty: true });
+            filled.push("description");
+          }
+        }
+      } else if (result.data.description) {
+        setValue("description", result.data.description, { shouldDirty: true });
+        filled.push("description");
+      }
+
       if (filled.length > 0) {
-        toast.success(`Image analyzed — filled ${filled.join(", ")}`);
+        toast.success(`AI filled: ${filled.join(", ")}`);
       } else {
         toast.info("Image analyzed but no fields were auto-filled");
       }
@@ -296,7 +300,7 @@ export function ProductForm({
     } finally {
       setAiGenerating(null);
     }
-  }, [images, getValues, setValue, categories]);
+  }, [images, getValues, setValue, categories, findMatchingCategory]);
 
   const handleMediaPick = useCallback((mediaList: { url: string; public_id: string }[]) => {
     setImages((prev) => {
@@ -340,24 +344,7 @@ export function ProductForm({
           </Field>
 
           <Field>
-            <div className="flex items-center justify-between">
-              <FieldLabel>Category</FieldLabel>
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                onClick={handleSuggestCategory}
-                disabled={aiGenerating === "category"}
-                className="h-auto px-2 py-0.5 text-xs text-muted-foreground hover:text-primary"
-              >
-                {aiGenerating === "category" ? (
-                  <Loader2 className="mr-1 size-3 animate-spin" />
-                ) : (
-                  <Sparkles className="mr-1 size-3" />
-                )}
-                Suggest
-              </Button>
-            </div>
+            <FieldLabel>Category</FieldLabel>
             <Controller
               control={control}
               name="category_id"
@@ -391,24 +378,7 @@ export function ProductForm({
         </div>
 
         <Field>
-          <div className="flex items-center justify-between">
-            <FieldLabel htmlFor="description">Description</FieldLabel>
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              onClick={handleGenerateDescription}
-              disabled={aiGenerating === "description"}
-              className="h-auto px-2 py-0.5 text-xs text-muted-foreground hover:text-primary"
-            >
-              {aiGenerating === "description" ? (
-                <Loader2 className="mr-1 size-3 animate-spin" />
-              ) : (
-                <Sparkles className="mr-1 size-3" />
-              )}
-              Generate
-            </Button>
-          </div>
+          <FieldLabel htmlFor="description">Description</FieldLabel>
           <Textarea
             id="description"
             placeholder="Describe the product..."

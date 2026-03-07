@@ -351,6 +351,7 @@ export type AIAutoTagInput = z.infer<typeof aiAutoTagSchema>;
 
 export const aiAnalyzeImageSchema = z.object({
   image_url: z.string().url("Invalid image URL"),
+  additional_image_urls: z.array(z.string().url()).max(9).optional(),
 });
 
 export type AIAnalyzeImageInput = z.infer<typeof aiAnalyzeImageSchema>;
