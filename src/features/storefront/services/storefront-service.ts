@@ -185,13 +185,19 @@ async function _getFeaturedProducts(
     const existingIds = (featured ?? []).map((p) => p.id);
     const remaining = limit - (featured?.length ?? 0);
 
-    const { data: latest } = await supabase
+    let latestQuery = supabase
       .from("products")
       .select("*, product_images(*), categories(*)")
       .eq("is_active", true)
-      .not("id", "in", `(${existingIds.join(",")})`)
       .order("created_at", { ascending: false })
       .limit(remaining);
+
+    // Only exclude existing IDs when there are some — `id in ()` is invalid filter syntax
+    if (existingIds.length > 0) {
+      latestQuery = latestQuery.not("id", "in", `(${existingIds.join(",")})`);
+    }
+
+    const { data: latest } = await latestQuery;
 
     return [
       ...((featured as PublicProduct[]) ?? []),
