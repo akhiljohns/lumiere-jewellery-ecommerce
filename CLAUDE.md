@@ -8,32 +8,32 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **Use reusable global components**: Always prefer shared components from `components/` for loaders, buttons, badges, skeletons, and other common UI elements. Never inline one-off loading spinners or skeleton markup in pages — create or extend a reusable component in `components/` instead (e.g. `PageLoader`, `FormSkeleton`, `DetailSkeleton`, `TableSkeleton`). Skeletons are the preferred loading pattern over spinners for page and section loading states.
 - NEVER use `cd /path && command` compound style
 - Always use the working directory parameter or run commands directly
-- The project root is: N:/documents/coding-projects/personal/jewellery-ecommerce
+- The project root is the repository root
 - Assume all commands run from project root already
 - Run `git status` not `cd ... && git status`
-- Run `npm run build` not `cd ... && npm run build`
+- Run `pnpm build` not `cd ... && pnpm build`
 
 
 ## Commands
 
 ```bash
-npm run dev          # Start dev server (http://localhost:3000)
-npm run build        # Production build (React Compiler enabled)
-npm run lint         # ESLint (next/core-web-vitals + typescript)
-npx tsx src/lib/seed-admin.ts  # Seed initial admin user
+pnpm dev          # Start dev server (http://localhost:3000)
+pnpm build        # Production build (React Compiler enabled)
+pnpm lint         # ESLint (next/core-web-vitals + typescript)
+pnpm dlx tsx src/lib/seed-admin.ts  # Seed initial admin user
 
 # Database (Supabase CLI)
-npm run db:migrate          # Push migrations to remote DB (supabase db push)
-npm run db:migration:new    # Create a new migration file (e.g. npm run db:migration:new add_carts)
-npm run db:migration:list   # List migration status
-npm run db:reset            # Reset DB and re-run all migrations
-npm run db:diff             # Diff local schema against remote
-npm run db:types            # Regenerate TypeScript types from DB schema
+pnpm db:migrate          # Push migrations to remote DB (supabase db push)
+pnpm db:migration:new    # Create a new migration file (e.g. pnpm db:migration:new add_carts)
+pnpm db:migration:list   # List migration status
+pnpm db:reset            # Reset DB and re-run all migrations
+pnpm db:diff             # Diff local schema against remote
+pnpm db:types            # Regenerate TypeScript types from DB schema
 ```
 
 No test framework is configured yet.
 
-**Database Migrations**: Managed via Supabase CLI. Migration files live in `supabase/migrations/` with timestamp prefixes. Link to your remote project first with `npx supabase link --project-ref <ref>`.
+**Database Migrations**: Managed via Supabase CLI. Migration files live in `supabase/migrations/` with timestamp prefixes. Link to your remote project first with `pnpm dlx supabase link --project-ref <ref>`.
 
 ## Architecture
 
@@ -133,7 +133,7 @@ The project uses **shadcn/ui Mira style** with **amber primary**, **gray base co
    - **Cormorant Garamond** (`--font-cormorant`, `font-display`) — storefront headings and premium typography
    Use `font-display` class on all storefront section headings, page titles, product card titles, and hero text. Never import or reference Geist or other fonts.
 
-4. **Components**: Always prefer shadcn/ui components (`@/components/ui/*`). When adding new components, use `npx shadcn@latest add <component>`.
+4. **Components**: Always prefer shadcn/ui components (`@/components/ui/*`). When adding new components, use `pnpm dlx shadcn@latest add <component>`.
 
 5. **shadcn config**: Style is `base-mira`, base color is `gray`, icon library is `lucide`. See `components.json`.
 

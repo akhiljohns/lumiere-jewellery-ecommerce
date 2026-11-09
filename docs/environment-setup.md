@@ -10,7 +10,7 @@ Step-by-step instructions for obtaining all API keys, secrets, and configuring t
 # 1. Clone and install
 git clone <repo-url>
 cd jewellery-ecommerce
-npm install
+pnpm install
 
 # 2. Copy env template
 cp .env.local.example .env.local
@@ -18,14 +18,14 @@ cp .env.local.example .env.local
 # 3. Fill in all values (see sections below)
 
 # 4. Push database migrations
-npx supabase link --project-ref <your-project-ref>
-npm run db:migrate
+pnpm dlx supabase link --project-ref <your-project-ref>
+pnpm db:migrate
 
 # 5. Seed admin user
-npx tsx src/lib/seed-admin.ts
+pnpm dlx tsx src/lib/seed-admin.ts
 
 # 6. Start dev server
-npm run dev
+pnpm dev
 ```
 
 ---
@@ -61,14 +61,14 @@ DATABASE_URL=postgresql://postgres.xxxx:password@aws-0-region.pooler.supabase.co
 Install the Supabase CLI if you haven't:
 
 ```bash
-npm install -g supabase
+pnpm install -g supabase
 ```
 
 Link to your project and push migrations:
 
 ```bash
-npx supabase link --project-ref <your-project-ref>
-npm run db:migrate
+pnpm dlx supabase link --project-ref <your-project-ref>
+pnpm db:migrate
 ```
 
 The project ref is the subdomain in your Supabase URL (e.g., `xxxxxxxxxxxx` from `xxxxxxxxxxxx.supabase.co`).
@@ -306,7 +306,7 @@ ADMIN_PASSWORD=your-secure-password
 ### Run the Seed
 
 ```bash
-npx tsx src/lib/seed-admin.ts
+pnpm dlx tsx src/lib/seed-admin.ts
 ```
 
 This creates (or updates) a user with `role='admin'` in the database. The password is hashed with bcryptjs (12 salt rounds).

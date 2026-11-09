@@ -24,7 +24,7 @@ No test framework is configured yet (TASK-B10 is pending). This guide serves as 
 ### 2.1 Installation
 
 ```bash
-npm install -D vitest @vitejs/plugin-react @testing-library/react @testing-library/jest-dom @testing-library/user-event jsdom msw
+pnpm install -D vitest @vitejs/plugin-react @testing-library/react @testing-library/jest-dom @testing-library/user-event jsdom msw
 ```
 
 ### 2.2 Configuration
@@ -272,8 +272,8 @@ afterAll(() => server.close());
 ### 3.1 Installation
 
 ```bash
-npm install -D @playwright/test
-npx playwright install
+pnpm install -D @playwright/test
+pnpm dlx playwright install
 ```
 
 ### 3.2 Configuration
@@ -300,7 +300,7 @@ export default defineConfig({
     { name: "mobile", use: { ...devices["iPhone 14"] } },
   ],
   webServer: {
-    command: "npm run dev",
+    command: "pnpm dev",
     url: "http://localhost:3000",
     reuseExistingServer: !process.env.CI,
   },
@@ -418,8 +418,8 @@ jobs:
           node-version: 20
           cache: npm
       - run: npm ci
-      - run: npm run lint
-      - run: npm run build
+      - run: pnpm lint
+      - run: pnpm build
         env:
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY }}
@@ -437,7 +437,7 @@ jobs:
           node-version: 20
           cache: npm
       - run: npm ci
-      - run: npm run test:coverage
+      - run: pnpm test:coverage
 
   e2e-tests:
     runs-on: ubuntu-latest
@@ -449,8 +449,8 @@ jobs:
           node-version: 20
           cache: npm
       - run: npm ci
-      - run: npx playwright install --with-deps
-      - run: npm run test:e2e
+      - run: pnpm dlx playwright install --with-deps
+      - run: pnpm test:e2e
         env:
           ADMIN_EMAIL: ${{ secrets.ADMIN_EMAIL }}
           ADMIN_PASSWORD: ${{ secrets.ADMIN_PASSWORD }}
