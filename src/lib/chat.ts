@@ -1,5 +1,7 @@
 import { GoogleGenAI } from "@google/genai";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { searchProducts } from "@/lib/retrieval/search-products";
+import { describeFilters, hasFilters } from "@/lib/retrieval/parse-filters";
 
 // ── Lazy-initialized client ────────────────────────
 
@@ -115,27 +117,17 @@ async function saveMessage(
 
 // ── Product context for chat ──────────────────────
 
-interface ProductRow {
-  id: string;
-  name: string;
-  slug: string;
-  description: string | null;
-  price: number;
-  compare_price: number | null;
-  material: string | null;
-  weight: string | null;
-  stock: number;
-  is_featured: boolean;
-  categories: { name: string } | { name: string }[] | null;
+interface ProductContext {
+  contextText: string;
+  productIds: string[];
 }
 
-function formatProduct(p: ProductRow, i: number): string {
-  const cat = Array.isArray(p.categories) ? p.categories[0]?.name : p.categories?.name;
+function formatProduct(p: ProductForPrompt, i: number): string {
   const parts = [
     `[Product ${i + 1}] ${p.name}`,
     `Price: ₹${p.price.toLocaleString("en-IN")}`,
     p.compare_price ? `MRP: ₹${p.compare_price.toLocaleString("en-IN")}` : null,
-    cat ? `Category: ${cat}` : null,
+    p.category_name ? `Category: ${p.category_name}` : null,
     p.material ? `Material: ${p.material}` : null,
     p.weight ? `Weight: ${p.weight}` : null,
     p.stock > 0 ? "In Stock" : "Out of Stock",
@@ -145,59 +137,68 @@ function formatProduct(p: ProductRow, i: number): string {
   return parts.filter(Boolean).join(" | ");
 }
 
-async function fetchProductContext(
-  message: string,
-): Promise<{ contextText: string; productIds: string[] }> {
+interface ProductForPrompt {
+  id: string;
+  name: string;
+  slug: string;
+  description: string | null;
+  price: number;
+  compare_price: number | null;
+  material: string | null;
+  weight: string | null;
+  stock: number;
+  category_name: string | null;
+}
+
+async function fetchFeaturedProducts(limit: number): Promise<ProductForPrompt[]> {
   const supabase = createAdminClient();
-  const selectFields = "id, name, slug, description, price, compare_price, material, weight, stock, is_featured, categories(name)";
-
-  // 1. Search for products matching the user's query using full-text + ILIKE
-  const sanitized = message
-    .replace(/\\/g, "\\\\")
-    .replace(/,/g, "\\,")
-    .replace(/\(/g, "\\(")
-    .replace(/\)/g, "\\)");
-
-  const { data: searchResults } = await supabase
+  const { data } = await supabase
     .from("products")
-    .select(selectFields)
+    .select("id, name, slug, description, price, compare_price, material, weight, stock, categories(name)")
     .eq("is_active", true)
-    .or(`name.ilike.%${sanitized}%,search_vector.wfts(english).${sanitized}`)
-    .order("is_featured", { ascending: false })
-    .limit(5);
+    .eq("is_featured", true)
+    .order("created_at", { ascending: false })
+    .limit(limit);
 
-  const matched = (searchResults ?? []) as unknown as ProductRow[];
+  return (data ?? []).map((p) => {
+    const cats = p.categories as unknown as { name: string } | { name: string }[] | null;
+    return { ...p, category_name: Array.isArray(cats) ? (cats[0]?.name ?? null) : (cats?.name ?? null) };
+  });
+}
 
-  // 2. If fewer than 3 search results, pad with featured/popular products
-  let featured: ProductRow[] = [];
-  if (matched.length < 3) {
-    const excludeIds = matched.map((p) => p.id);
-    let query = supabase
-      .from("products")
-      .select(selectFields)
-      .eq("is_active", true)
-      .eq("is_featured", true)
-      .order("created_at", { ascending: false })
-      .limit(5 - matched.length);
+async function fetchProductContext(message: string): Promise<ProductContext> {
+  const { products, filters } = await searchProducts(message);
+  const understood = describeFilters(filters);
 
-    if (excludeIds.length > 0) {
-      query = query.not("id", "in", `(${excludeIds.join(",")})`);
-    }
-
-    const { data: featuredResults } = await query;
-    featured = (featuredResults ?? []) as unknown as ProductRow[];
+  if (products.length > 0) {
+    const header = understood ? `Customer filters understood: ${understood}.\n\n` : "";
+    return {
+      contextText: header + products.map((p, i) => formatProduct(p, i)).join("\n\n"),
+      productIds: products.map((p) => p.id),
+    };
   }
 
-  const allProducts = [...matched, ...featured];
-
-  if (allProducts.length === 0) {
-    return { contextText: "", productIds: [] };
+  // R5: the customer asked for something specific and nothing in the catalogue fits.
+  if (hasFilters(filters)) {
+    return {
+      contextText:
+        `Customer filters understood: ${understood}.\n` +
+        "NO products in the catalogue match these filters. Say so plainly, do not name or price any " +
+        "product, and offer to widen the search (a higher budget, another material or category).",
+      productIds: [],
+    };
   }
 
-  const contextText = allProducts.map((p, i) => formatProduct(p, i)).join("\n\n");
-  const productIds = allProducts.map((p) => p.id);
-
-  return { contextText, productIds };
+  // R6: small talk or a question with no match. Offer popular items, clearly labelled.
+  const featured = await fetchFeaturedProducts(3);
+  if (featured.length === 0) return { contextText: "", productIds: [] };
+  return {
+    contextText:
+      "No product matched this message. These are popular items, NOT matches; only mention them " +
+      "if the customer is browsing:\n\n" +
+      featured.map((p, i) => formatProduct(p, i)).join("\n\n"),
+    productIds: featured.map((p) => p.id),
+  };
 }
 
 // ── Chat with RAG ──────────────────────────────────
@@ -238,7 +239,7 @@ Guidelines:
 - Keep responses concise (2-4 sentences for simple queries, up to a short paragraph for detailed questions)
 - If the customer asks about something unrelated to jewellery or shopping, politely redirect
 
-${contextText ? `\nProducts from our catalog:\n${contextText}` : "\nNote: No products found matching this query. Answer based on general jewellery knowledge."}`;
+${contextText ? `\nProducts from our catalog:\n${contextText}` : "\nNote: No products found matching this query. Do not name, price or invent any product; answer only general jewellery questions."}`;
 
   const conversationParts = history.slice(-8).map((m) => ({
     role: m.role === "user" ? ("user" as const) : ("model" as const),
