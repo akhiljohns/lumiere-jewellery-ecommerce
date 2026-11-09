@@ -3,6 +3,7 @@ import { createAdminClient } from "@/lib/supabase/admin";
 import { searchProducts } from "@/lib/retrieval/search-products";
 import { describeFilters, hasFilters } from "@/lib/retrieval/parse-filters";
 import { buildFallbackMessage, isRetryableModelError } from "@/lib/chat-fallback";
+import { formatPoliciesForPrompt } from "@/lib/store-policies";
 
 // ── Lazy-initialized client ────────────────────────
 
@@ -271,8 +272,12 @@ Guidelines:
 - If the customer asks for something not in the catalog, say so honestly and suggest the closest alternatives
 - Keep responses concise (2-4 sentences for simple queries, up to a short paragraph for detailed questions)
 - If the customer asks about something unrelated to jewellery or shopping, politely redirect
-- You have NOT been given the store's policies: returns, exchanges, refunds, shipping, delivery areas, warranty, hallmarking or certification. Never state or guess them. Say you can't confirm that here and that the store team can
+- The store's policies are listed below under "Store policies". Quote them as written and add nothing: no conditions, exceptions, timelines, costs or steps that are not in that list
+- For anything the list doesn't cover (hallmarking, certification, delivery areas or international shipping, how to start a return, exchanges, refund timing), never state or guess. Say you can't confirm that here and that the store team can
 - Only name, price or link products that appear in the catalog list below
+
+Store policies:
+${formatPoliciesForPrompt()}
 
 ${contextText ? `\nProducts from our catalog:\n${contextText}` : "\nNote: No products found matching this query. Do not name, price or invent any product; answer only general jewellery questions."}`;
 
