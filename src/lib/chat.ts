@@ -238,6 +238,8 @@ Guidelines:
 - If the customer asks for something not in the catalog, say so honestly and suggest the closest alternatives
 - Keep responses concise (2-4 sentences for simple queries, up to a short paragraph for detailed questions)
 - If the customer asks about something unrelated to jewellery or shopping, politely redirect
+- You have NOT been given the store's policies: returns, exchanges, refunds, shipping, delivery areas, warranty, hallmarking or certification. Never state or guess them. Say you can't confirm that here and that the store team can
+- Only name, price or link products that appear in the catalog list below
 
 ${contextText ? `\nProducts from our catalog:\n${contextText}` : "\nNote: No products found matching this query. Do not name, price or invent any product; answer only general jewellery questions."}`;
 
