@@ -20,7 +20,7 @@ export async function fetchApi<T>(
   const res = await fetch(url, { ...options, headers });
   if (!res.ok) {
     const err = await res.json();
-    throw new Error(err.error || "Request failed");
+    throw Object.assign(new Error(err.error || "Request failed"), { status: res.status });
   }
   return res.json();
 }

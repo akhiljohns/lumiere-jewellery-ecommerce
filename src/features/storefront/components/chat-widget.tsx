@@ -78,11 +78,15 @@ export function ChatWidget() {
       };
 
       setMessages((prev) => [...prev, botMsg]);
-    } catch {
+    } catch (err) {
+      // A 429 carries a sentence written for the customer; anything else stays generic.
+      const rateLimited = (err as { status?: number }).status === 429;
       const errorMsg: ChatMessage = {
         id: `error-${Date.now()}`,
         role: "assistant",
-        content: "Sorry, I'm having trouble responding right now. Please try again.",
+        content: rateLimited
+          ? (err as Error).message
+          : "Sorry, I'm having trouble responding right now. Please try again.",
       };
       setMessages((prev) => [...prev, errorMsg]);
     } finally {
