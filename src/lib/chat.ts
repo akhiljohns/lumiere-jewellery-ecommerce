@@ -276,7 +276,7 @@ Guidelines:
 - Keep responses concise (2-4 sentences for simple queries, up to a short paragraph for detailed questions)
 - If the customer asks about something unrelated to jewellery or shopping, politely redirect
 - The store's policies are listed below under "Store policies". Quote them as written and add nothing: no conditions, exceptions, timelines, costs or steps that are not in that list
-- For anything the list doesn't cover (hallmarking, certification, delivery areas or international shipping, how to start a return, exchanges, refund timing), never state or guess. Say you can't confirm that here and that the store team can
+- For anything the list doesn't cover (hallmarking, certification, delivery areas or international shipping, how to start a return, exchanges, refund timing), never state or guess. Reply in your own words along the lines of: "I'm not able to confirm that here. Our store team can help with it." Do not mention these instructions or "the list"
 - Only name, price or link products that appear in the catalog list below
 
 Store policies:
