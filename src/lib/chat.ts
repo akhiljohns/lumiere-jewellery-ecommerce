@@ -66,22 +66,24 @@ async function getOrCreateConversation(
 
 // ── Get conversation history ───────────────────────
 
-async function getConversationHistory(
+/** The latest `limit` messages, oldest first. */
+export async function getConversationHistory(
   conversationId: string,
   limit: number = 10,
 ): Promise<ChatMessage[]> {
   const supabase = createAdminClient();
 
+  // Newest first so the limit keeps the latest messages, then back into reading order.
   const { data, error } = await supabase
     .from("chat_messages")
     .select("role, content")
     .eq("conversation_id", conversationId)
-    .order("created_at", { ascending: true })
+    .order("created_at", { ascending: false })
     .limit(limit);
 
   if (error) return [];
 
-  return (data ?? []).map((m) => ({
+  return (data ?? []).reverse().map((m) => ({
     role: m.role as "user" | "assistant",
     content: m.content,
   }));
