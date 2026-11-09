@@ -28,8 +28,11 @@ export interface ProductSearchResult {
 }
 
 // Below this cosine similarity a product is not treated as a match by meaning.
-// A starting value; tune it with the eval set.
-const MIN_SIMILARITY = 0.5;
+// Measured 9 Nov on the 42-product demo catalogue with gemini-embedding-2: small talk peaks
+// at 0.648 ("hello") and off-topic at 0.528, real matches run 0.69-0.77. Vague intent
+// overlaps small talk ("mother's 60th birthday" 0.652), so it falls back to featured items.
+// Re-tune with the eval set.
+const MIN_SIMILARITY = 0.66;
 
 async function loadVocabulary(): Promise<StoreVocabulary> {
   const supabase = createAdminClient();
