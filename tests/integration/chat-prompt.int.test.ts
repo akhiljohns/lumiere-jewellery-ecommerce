@@ -5,7 +5,8 @@ import { Client } from "pg";
 
 const generateContent = vi.fn(async () => ({ text: "ok" }));
 
-vi.mock("@google/genai", () => ({
+vi.mock("@google/genai", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("@google/genai")>()),
   GoogleGenAI: class {
     models = {
       generateContent,
@@ -40,5 +41,17 @@ describe("store policies in the prompt", () => {
       expect(prompt).toContain(`${policy.title}: ${policy.description}`);
     }
     expect(prompt).toMatch(/hallmarking/i); // still listed as something it cannot confirm
+  });
+
+  it("uses gemini-3.5-flash-lite with minimal thinking", async () => {
+    // gemini-2.5-flash shuts down on 1 Dec 2026; 3.x models reject thinkingBudget.
+    vi.spyOn(console, "warn").mockImplementation(() => {});
+    await chat({ message: "hello", session_id: SESSION });
+
+    const call = generateContent.mock.calls[0] as unknown as [
+      { model: string; config: { thinkingConfig: Record<string, unknown> } },
+    ];
+    expect(call[0].model).toBe("gemini-3.5-flash-lite");
+    expect(call[0].config.thinkingConfig).toEqual({ thinkingLevel: "MINIMAL" });
   });
 });

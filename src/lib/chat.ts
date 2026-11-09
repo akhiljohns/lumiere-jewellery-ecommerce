@@ -4,6 +4,7 @@ import { searchProducts } from "@/lib/retrieval/search-products";
 import { describeFilters, hasFilters } from "@/lib/retrieval/parse-filters";
 import { buildFallbackMessage, isRetryableModelError } from "@/lib/chat-fallback";
 import { formatPoliciesForPrompt } from "@/lib/store-policies";
+import { MINIMAL_THINKING, TEXT_MODEL } from "@/lib/gemini-models";
 
 // ── Lazy-initialized client ────────────────────────
 
@@ -215,7 +216,9 @@ async function fetchProductContext(message: string): Promise<ProductContext> {
 
 // ── Call the answer model ─────────────────────────
 
-const MODEL_TIMEOUT_MS = 10_000;
+// gemini-3.5-flash-lite on the free tier usually answers in ~1.2 s but spikes to 8-9 s
+// (measured 9 Nov 2026); 10 s cut off about one call in sixteen.
+const MODEL_TIMEOUT_MS = 15_000;
 const RETRY_DELAY_MS = 700;
 
 type GenerateRequest = Parameters<GoogleGenAI["models"]["generateContent"]>[0];
@@ -302,13 +305,13 @@ ${contextText ? `\nProducts from our catalog:\n${contextText}` : "\nNote: No pro
   let answer: string | null;
   try {
     answer = await generateAnswer(ai, {
-      model: "gemini-2.5-flash",
+      model: TEXT_MODEL,
       contents,
       config: {
         temperature: 0.7,
         maxOutputTokens: 500,
         systemInstruction: systemPrompt,
-        thinkingConfig: { thinkingBudget: 0 },
+        thinkingConfig: MINIMAL_THINKING,
       },
     });
   } catch (err) {

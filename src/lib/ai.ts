@@ -1,5 +1,6 @@
 import { GoogleGenAI } from "@google/genai";
 import { AppError, ErrorCode } from "@/lib/errors";
+import { MINIMAL_THINKING, TEXT_MODEL } from "@/lib/gemini-models";
 
 // ── Lazy-initialized client ────────────────────────
 
@@ -108,13 +109,13 @@ Respond with a JSON object containing:
 
   return callGemini(async () => {
     const response = await ai.models.generateContent({
-      model: "gemini-2.5-flash",
+      model: TEXT_MODEL,
       contents: prompt,
       config: {
         temperature: 0.7,
         maxOutputTokens: 500,
         responseMimeType: "application/json",
-        thinkingConfig: { thinkingBudget: 0 },
+        thinkingConfig: MINIMAL_THINKING,
       },
     });
 
@@ -155,7 +156,7 @@ Describe this jewellery image in a concise, descriptive alt text (15-25 words) s
 
   return callGemini(async () => {
     const response = await ai.models.generateContent({
-      model: "gemini-2.5-flash",
+      model: TEXT_MODEL,
       contents: [
         {
           role: "user",
@@ -173,7 +174,7 @@ Describe this jewellery image in a concise, descriptive alt text (15-25 words) s
       config: {
         temperature: 0.3,
         maxOutputTokens: 100,
-        thinkingConfig: { thinkingBudget: 0 },
+        thinkingConfig: MINIMAL_THINKING,
       },
     });
 
@@ -228,13 +229,13 @@ Respond with a JSON object containing:
 
   return callGemini(async () => {
     const response = await ai.models.generateContent({
-      model: "gemini-2.5-flash",
+      model: TEXT_MODEL,
       contents: prompt,
       config: {
         temperature: 0.3,
         maxOutputTokens: 300,
         responseMimeType: "application/json",
-        thinkingConfig: { thinkingBudget: 0 },
+        thinkingConfig: MINIMAL_THINKING,
       },
     });
 
@@ -289,13 +290,13 @@ Respond with a JSON object containing:
 
   return callGemini(async () => {
     const response = await ai.models.generateContent({
-      model: "gemini-2.5-flash",
+      model: TEXT_MODEL,
       contents: prompt,
       config: {
         temperature: 0.4,
         maxOutputTokens: 300,
         responseMimeType: "application/json",
-        thinkingConfig: { thinkingBudget: 0 },
+        thinkingConfig: MINIMAL_THINKING,
       },
     });
 
@@ -394,7 +395,7 @@ Respond with a JSON object containing:
 
   return callGemini(async () => {
     const response = await ai.models.generateContent({
-      model: "gemini-2.5-flash",
+      model: TEXT_MODEL,
       contents: [
         {
           role: "user",
@@ -405,7 +406,7 @@ Respond with a JSON object containing:
         temperature: 0.3,
         maxOutputTokens: 800,
         responseMimeType: "application/json",
-        thinkingConfig: { thinkingBudget: 0 },
+        thinkingConfig: MINIMAL_THINKING,
       },
     });
 
