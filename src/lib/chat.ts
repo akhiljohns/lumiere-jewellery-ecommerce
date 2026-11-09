@@ -2,6 +2,7 @@ import { GoogleGenAI } from "@google/genai";
 import { createAdminClient } from "@/lib/supabase/admin";
 import { searchProducts } from "@/lib/retrieval/search-products";
 import { describeFilters, hasFilters } from "@/lib/retrieval/parse-filters";
+import { buildFallbackMessage, isRetryableModelError } from "@/lib/chat-fallback";
 
 // ── Lazy-initialized client ────────────────────────
 
@@ -29,6 +30,8 @@ interface ChatResponse {
   message: string;
   product_ids: string[];
   conversation_id: string;
+  /** true when the answer model was unavailable and the reply was built from retrieved data. */
+  fallback?: true;
 }
 
 // ── Get or create conversation ─────────────────────
@@ -120,6 +123,10 @@ async function saveMessage(
 interface ProductContext {
   contextText: string;
   productIds: string[];
+  /** Real matches only; featured padding is never listed here. */
+  matched: ProductForPrompt[];
+  /** Set when the customer's filters excluded every product. */
+  unmatchedFilters?: string;
 }
 
 function formatProduct(p: ProductForPrompt, i: number): string {
@@ -175,6 +182,7 @@ async function fetchProductContext(message: string): Promise<ProductContext> {
     return {
       contextText: header + products.map((p, i) => formatProduct(p, i)).join("\n\n"),
       productIds: products.map((p) => p.id),
+      matched: products,
     };
   }
 
@@ -186,19 +194,44 @@ async function fetchProductContext(message: string): Promise<ProductContext> {
         "NO products in the catalogue match these filters. Say so plainly, do not name or price any " +
         "product, and offer to widen the search (a higher budget, another material or category).",
       productIds: [],
+      matched: [],
+      unmatchedFilters: understood,
     };
   }
 
   // R6: small talk or a question with no match. Offer popular items, clearly labelled.
   const featured = await fetchFeaturedProducts(3);
-  if (featured.length === 0) return { contextText: "", productIds: [] };
+  if (featured.length === 0) return { contextText: "", productIds: [], matched: [] };
   return {
     contextText:
       "No product matched this message. These are popular items, NOT matches; only mention them " +
       "if the customer is browsing:\n\n" +
       featured.map((p, i) => formatProduct(p, i)).join("\n\n"),
     productIds: featured.map((p) => p.id),
+    matched: [],
   };
+}
+
+// ── Call the answer model ─────────────────────────
+
+const MODEL_TIMEOUT_MS = 10_000;
+const RETRY_DELAY_MS = 700;
+
+type GenerateRequest = Parameters<GoogleGenAI["models"]["generateContent"]>[0];
+
+/** One retry for momentary 500/503; quota (429), timeouts and the rest go to the fallback. */
+async function generateAnswer(ai: GoogleGenAI, request: GenerateRequest): Promise<string | null> {
+  const withTimeout: GenerateRequest = {
+    ...request,
+    config: { ...request.config, httpOptions: { timeout: MODEL_TIMEOUT_MS } },
+  };
+  try {
+    return (await ai.models.generateContent(withTimeout)).text?.trim() || null;
+  } catch (err) {
+    if (!isRetryableModelError(err)) throw err;
+    await new Promise((resolve) => setTimeout(resolve, RETRY_DELAY_MS));
+    return (await ai.models.generateContent(withTimeout)).text?.trim() || null;
+  }
 }
 
 // ── Chat with RAG ──────────────────────────────────
@@ -225,7 +258,7 @@ export async function chat(input: {
   const history = await getConversationHistory(conversationId);
 
   // Fetch relevant products from database
-  const { contextText, productIds } = await fetchProductContext(input.message);
+  const { contextText, productIds, matched, unmatchedFilters } = await fetchProductContext(input.message);
 
   // Build conversation for Gemini
   const systemPrompt = `You are a helpful jewellery shopping assistant for an Indian jewellery e-commerce store. You help customers find the perfect jewellery pieces, answer questions about products, materials, and styling.
@@ -261,26 +294,36 @@ ${contextText ? `\nProducts from our catalog:\n${contextText}` : "\nNote: No pro
     });
   }
 
-  const response = await ai.models.generateContent({
-    model: "gemini-2.5-flash",
-    contents,
-    config: {
-      temperature: 0.7,
-      maxOutputTokens: 500,
-      systemInstruction: systemPrompt,
-      thinkingConfig: { thinkingBudget: 0 },
-    },
-  });
+  let answer: string | null;
+  try {
+    answer = await generateAnswer(ai, {
+      model: "gemini-2.5-flash",
+      contents,
+      config: {
+        temperature: 0.7,
+        maxOutputTokens: 500,
+        systemInstruction: systemPrompt,
+        thinkingConfig: { thinkingBudget: 0 },
+      },
+    });
+  } catch (err) {
+    // R10: quota, outage or timeout. Answer from retrieved data instead of failing the request.
+    console.warn("[chat] answer model failed, sending the fallback:", err);
+    answer = null;
+  }
 
-  const assistantMessage = response.text?.trim() ?? "I apologize, I'm having trouble responding right now. Please try again.";
+  const fallback = answer === null;
+  const assistantMessage = answer ?? buildFallbackMessage({ matched, unmatchedFilters });
+  const shownProductIds = fallback ? matched.map((p) => p.id) : productIds;
 
   // Save assistant response
-  await saveMessage(conversationId, "assistant", assistantMessage, productIds);
+  await saveMessage(conversationId, "assistant", assistantMessage, shownProductIds);
 
   return {
     message: assistantMessage,
-    product_ids: productIds,
+    product_ids: shownProductIds,
     conversation_id: conversationId,
+    ...(fallback && { fallback: true }),
   };
 }
 
