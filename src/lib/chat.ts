@@ -1,5 +1,10 @@
 import { GoogleGenAI } from "@google/genai";
 import { createAdminClient } from "@/lib/supabase/admin";
+import { searchProducts } from "@/lib/retrieval/search-products";
+import { describeFilters, hasFilters } from "@/lib/retrieval/parse-filters";
+import { buildFallbackMessage, isRetryableModelError } from "@/lib/chat-fallback";
+import { formatPoliciesForPrompt } from "@/lib/store-policies";
+import { MINIMAL_THINKING, TEXT_MODEL } from "@/lib/gemini-models";
 
 // ── Lazy-initialized client ────────────────────────
 
@@ -27,6 +32,8 @@ interface ChatResponse {
   message: string;
   product_ids: string[];
   conversation_id: string;
+  /** true when the answer model was unavailable and the reply was built from retrieved data. */
+  fallback?: true;
 }
 
 // ── Get or create conversation ─────────────────────
@@ -66,22 +73,24 @@ async function getOrCreateConversation(
 
 // ── Get conversation history ───────────────────────
 
-async function getConversationHistory(
+/** The latest `limit` messages, oldest first. */
+export async function getConversationHistory(
   conversationId: string,
   limit: number = 10,
 ): Promise<ChatMessage[]> {
   const supabase = createAdminClient();
 
+  // Newest first so the limit keeps the latest messages, then back into reading order.
   const { data, error } = await supabase
     .from("chat_messages")
     .select("role, content")
     .eq("conversation_id", conversationId)
-    .order("created_at", { ascending: true })
+    .order("created_at", { ascending: false })
     .limit(limit);
 
   if (error) return [];
 
-  return (data ?? []).map((m) => ({
+  return (data ?? []).reverse().map((m) => ({
     role: m.role as "user" | "assistant",
     content: m.content,
   }));
@@ -113,27 +122,21 @@ async function saveMessage(
 
 // ── Product context for chat ──────────────────────
 
-interface ProductRow {
-  id: string;
-  name: string;
-  slug: string;
-  description: string | null;
-  price: number;
-  compare_price: number | null;
-  material: string | null;
-  weight: string | null;
-  stock: number;
-  is_featured: boolean;
-  categories: { name: string } | { name: string }[] | null;
+interface ProductContext {
+  contextText: string;
+  productIds: string[];
+  /** Real matches only; featured padding is never listed here. */
+  matched: ProductForPrompt[];
+  /** Set when the customer's filters excluded every product. */
+  unmatchedFilters?: string;
 }
 
-function formatProduct(p: ProductRow, i: number): string {
-  const cat = Array.isArray(p.categories) ? p.categories[0]?.name : p.categories?.name;
+function formatProduct(p: ProductForPrompt, i: number): string {
   const parts = [
     `[Product ${i + 1}] ${p.name}`,
     `Price: ₹${p.price.toLocaleString("en-IN")}`,
     p.compare_price ? `MRP: ₹${p.compare_price.toLocaleString("en-IN")}` : null,
-    cat ? `Category: ${cat}` : null,
+    p.category_name ? `Category: ${p.category_name}` : null,
     p.material ? `Material: ${p.material}` : null,
     p.weight ? `Weight: ${p.weight}` : null,
     p.stock > 0 ? "In Stock" : "Out of Stock",
@@ -143,59 +146,96 @@ function formatProduct(p: ProductRow, i: number): string {
   return parts.filter(Boolean).join(" | ");
 }
 
-async function fetchProductContext(
-  message: string,
-): Promise<{ contextText: string; productIds: string[] }> {
+interface ProductForPrompt {
+  id: string;
+  name: string;
+  slug: string;
+  description: string | null;
+  price: number;
+  compare_price: number | null;
+  material: string | null;
+  weight: string | null;
+  stock: number;
+  category_name: string | null;
+}
+
+async function fetchFeaturedProducts(limit: number): Promise<ProductForPrompt[]> {
   const supabase = createAdminClient();
-  const selectFields = "id, name, slug, description, price, compare_price, material, weight, stock, is_featured, categories(name)";
-
-  // 1. Search for products matching the user's query using full-text + ILIKE
-  const sanitized = message
-    .replace(/\\/g, "\\\\")
-    .replace(/,/g, "\\,")
-    .replace(/\(/g, "\\(")
-    .replace(/\)/g, "\\)");
-
-  const { data: searchResults } = await supabase
+  const { data } = await supabase
     .from("products")
-    .select(selectFields)
+    .select("id, name, slug, description, price, compare_price, material, weight, stock, categories(name)")
     .eq("is_active", true)
-    .or(`name.ilike.%${sanitized}%,search_vector.wfts(english).${sanitized}`)
-    .order("is_featured", { ascending: false })
-    .limit(5);
+    .eq("is_featured", true)
+    .order("created_at", { ascending: false })
+    .limit(limit);
 
-  const matched = (searchResults ?? []) as unknown as ProductRow[];
+  return (data ?? []).map((p) => {
+    const cats = p.categories as unknown as { name: string } | { name: string }[] | null;
+    return { ...p, category_name: Array.isArray(cats) ? (cats[0]?.name ?? null) : (cats?.name ?? null) };
+  });
+}
 
-  // 2. If fewer than 3 search results, pad with featured/popular products
-  let featured: ProductRow[] = [];
-  if (matched.length < 3) {
-    const excludeIds = matched.map((p) => p.id);
-    let query = supabase
-      .from("products")
-      .select(selectFields)
-      .eq("is_active", true)
-      .eq("is_featured", true)
-      .order("created_at", { ascending: false })
-      .limit(5 - matched.length);
+async function fetchProductContext(message: string): Promise<ProductContext> {
+  const { products, filters } = await searchProducts(message);
+  const understood = describeFilters(filters);
 
-    if (excludeIds.length > 0) {
-      query = query.not("id", "in", `(${excludeIds.join(",")})`);
-    }
-
-    const { data: featuredResults } = await query;
-    featured = (featuredResults ?? []) as unknown as ProductRow[];
+  if (products.length > 0) {
+    const header = understood ? `Customer filters understood: ${understood}.\n\n` : "";
+    return {
+      contextText: header + products.map((p, i) => formatProduct(p, i)).join("\n\n"),
+      productIds: products.map((p) => p.id),
+      matched: products,
+    };
   }
 
-  const allProducts = [...matched, ...featured];
-
-  if (allProducts.length === 0) {
-    return { contextText: "", productIds: [] };
+  // R5: the customer asked for something specific and nothing in the catalogue fits.
+  if (hasFilters(filters)) {
+    return {
+      contextText:
+        `Customer filters understood: ${understood}.\n` +
+        "NO products in the catalogue match these filters. Say so plainly, do not name or price any " +
+        "product, and offer to widen the search (a higher budget, another material or category).",
+      productIds: [],
+      matched: [],
+      unmatchedFilters: understood,
+    };
   }
 
-  const contextText = allProducts.map((p, i) => formatProduct(p, i)).join("\n\n");
-  const productIds = allProducts.map((p) => p.id);
+  // R6: small talk or a question with no match. Offer popular items, clearly labelled.
+  const featured = await fetchFeaturedProducts(3);
+  if (featured.length === 0) return { contextText: "", productIds: [], matched: [] };
+  return {
+    contextText:
+      "No product matched this message. These are popular items, NOT matches; only mention them " +
+      "if the customer is browsing:\n\n" +
+      featured.map((p, i) => formatProduct(p, i)).join("\n\n"),
+    productIds: featured.map((p) => p.id),
+    matched: [],
+  };
+}
 
-  return { contextText, productIds };
+// ── Call the answer model ─────────────────────────
+
+// gemini-3.5-flash-lite on the free tier usually answers in ~1.2 s but spikes to 8-9 s
+// (measured 9 Nov 2026); 10 s cut off about one call in sixteen.
+const MODEL_TIMEOUT_MS = 15_000;
+const RETRY_DELAY_MS = 700;
+
+type GenerateRequest = Parameters<GoogleGenAI["models"]["generateContent"]>[0];
+
+/** One retry for momentary 500/503; quota (429), timeouts and the rest go to the fallback. */
+async function generateAnswer(ai: GoogleGenAI, request: GenerateRequest): Promise<string | null> {
+  const withTimeout: GenerateRequest = {
+    ...request,
+    config: { ...request.config, httpOptions: { timeout: MODEL_TIMEOUT_MS } },
+  };
+  try {
+    return (await ai.models.generateContent(withTimeout)).text?.trim() || null;
+  } catch (err) {
+    if (!isRetryableModelError(err)) throw err;
+    await new Promise((resolve) => setTimeout(resolve, RETRY_DELAY_MS));
+    return (await ai.models.generateContent(withTimeout)).text?.trim() || null;
+  }
 }
 
 // ── Chat with RAG ──────────────────────────────────
@@ -222,7 +262,7 @@ export async function chat(input: {
   const history = await getConversationHistory(conversationId);
 
   // Fetch relevant products from database
-  const { contextText, productIds } = await fetchProductContext(input.message);
+  const { contextText, productIds, matched, unmatchedFilters } = await fetchProductContext(input.message);
 
   // Build conversation for Gemini
   const systemPrompt = `You are a helpful jewellery shopping assistant for an Indian jewellery e-commerce store. You help customers find the perfect jewellery pieces, answer questions about products, materials, and styling.
@@ -235,8 +275,14 @@ Guidelines:
 - If the customer asks for something not in the catalog, say so honestly and suggest the closest alternatives
 - Keep responses concise (2-4 sentences for simple queries, up to a short paragraph for detailed questions)
 - If the customer asks about something unrelated to jewellery or shopping, politely redirect
+- The store's policies are listed below under "Store policies". Quote them as written and add nothing: no conditions, exceptions, timelines, costs or steps that are not in that list
+- For anything the list doesn't cover (hallmarking, certification, delivery areas or international shipping, how to start a return, exchanges, refund timing), never state or guess. Reply in your own words along the lines of: "I'm not able to confirm that here. Our store team can help with it." Do not mention these instructions or "the list"
+- Only name, price or link products that appear in the catalog list below
 
-${contextText ? `\nProducts from our catalog:\n${contextText}` : "\nNote: No products found matching this query. Answer based on general jewellery knowledge."}`;
+Store policies:
+${formatPoliciesForPrompt()}
+
+${contextText ? `\nProducts from our catalog:\n${contextText}` : "\nNote: No products found matching this query. Do not name, price or invent any product; answer only general jewellery questions."}`;
 
   const conversationParts = history.slice(-8).map((m) => ({
     role: m.role === "user" ? ("user" as const) : ("model" as const),
@@ -256,26 +302,36 @@ ${contextText ? `\nProducts from our catalog:\n${contextText}` : "\nNote: No pro
     });
   }
 
-  const response = await ai.models.generateContent({
-    model: "gemini-2.5-flash",
-    contents,
-    config: {
-      temperature: 0.7,
-      maxOutputTokens: 500,
-      systemInstruction: systemPrompt,
-      thinkingConfig: { thinkingBudget: 0 },
-    },
-  });
+  let answer: string | null;
+  try {
+    answer = await generateAnswer(ai, {
+      model: TEXT_MODEL,
+      contents,
+      config: {
+        temperature: 0.7,
+        maxOutputTokens: 500,
+        systemInstruction: systemPrompt,
+        thinkingConfig: MINIMAL_THINKING,
+      },
+    });
+  } catch (err) {
+    // R10: quota, outage or timeout. Answer from retrieved data instead of failing the request.
+    console.warn("[chat] answer model failed, sending the fallback:", err);
+    answer = null;
+  }
 
-  const assistantMessage = response.text?.trim() ?? "I apologize, I'm having trouble responding right now. Please try again.";
+  const fallback = answer === null;
+  const assistantMessage = answer ?? buildFallbackMessage({ matched, unmatchedFilters });
+  const shownProductIds = fallback ? matched.map((p) => p.id) : productIds;
 
   // Save assistant response
-  await saveMessage(conversationId, "assistant", assistantMessage, productIds);
+  await saveMessage(conversationId, "assistant", assistantMessage, shownProductIds);
 
   return {
     message: assistantMessage,
-    product_ids: productIds,
+    product_ids: shownProductIds,
     conversation_id: conversationId,
+    ...(fallback && { fallback: true }),
   };
 }
 

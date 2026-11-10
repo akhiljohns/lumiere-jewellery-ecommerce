@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest, NextResponse, after } from "next/server";
 import { productCreateSchema, productQuerySchema } from "@/lib/validators";
 import {
   getProducts,
@@ -7,6 +7,7 @@ import {
 import { logAdminAction, logAdminError } from "@/lib/discord";
 import { requirePermission } from "@/lib/api-auth";
 import { revalidateProductCache } from "@/lib/cache";
+import { refreshProductEmbedding } from "@/lib/embeddings";
 import { AppError, ErrorCode, errorResponse } from "@/lib/errors";
 import { getClientIP } from "@/lib/rate-limit";
 
@@ -67,6 +68,7 @@ export async function POST(request: NextRequest) {
     const product = await createProduct(parsed.data);
 
     revalidateProductCache();
+    after(() => refreshProductEmbedding(product.id));
 
     logAdminAction("created", "Product", parsed.data.name, actor, [
       { name: "ID", value: product.id, inline: true },

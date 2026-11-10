@@ -41,7 +41,7 @@ Only `lucide-react`. Never use heroicons, react-icons, or fontawesome.
 Always prefer `@/components/ui/*` (shadcn/ui). To add new ones:
 
 ```bash
-npx shadcn@latest add <component>
+pnpm dlx shadcn@latest add <component>
 ```
 
 ---

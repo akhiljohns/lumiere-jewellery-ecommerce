@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest, NextResponse, after } from "next/server";
 import { productUpdateSchema } from "@/lib/validators";
 import {
   getProductById,
@@ -8,6 +8,7 @@ import {
 import { logAdminAction, logAdminError, diffFields } from "@/lib/discord";
 import { requirePermission } from "@/lib/api-auth";
 import { revalidateProductCache } from "@/lib/cache";
+import { refreshProductEmbedding } from "@/lib/embeddings";
 import { AppError, ErrorCode, errorResponse } from "@/lib/errors";
 import { getClientIP } from "@/lib/rate-limit";
 
@@ -64,6 +65,7 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
 
     const product = await updateProduct(id, parsed.data);
     revalidateProductCache();
+    after(() => refreshProductEmbedding(id));
 
     const changes = diffFields(
       parsed.data as Record<string, unknown>,

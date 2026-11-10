@@ -1,0 +1,12 @@
+allowBuilds:
+  esbuild: true
+  msw: false
+  protobufjs: false
+  sharp: false
+  unrs-resolver: true
+
+# Security pins carried over from npm's "overrides" field, which pnpm ignores.
+overrides:
+  protobufjs: ^7.6.2
+  qs: ^6.15.2
+  ws: ^8.21.0

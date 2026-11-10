@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { chat } from "@/lib/chat";
 import { AppError, ErrorCode, errorResponse } from "@/lib/errors";
+import { rateLimitMiddleware } from "@/lib/rate-limit";
 
 const chatSchema = z.object({
   message: z.string().min(1, "Message is required").max(1000),
@@ -16,6 +17,19 @@ const chatSchema = z.object({
  */
 export async function POST(request: NextRequest) {
   try {
+    // R12: the proxy matcher doesn't cover /api/chat, so the limit lives here.
+    // In memory, per server instance: it slows one client down, it doesn't cap total traffic.
+    const rl = rateLimitMiddleware(request, "chat");
+    if (!rl.success) {
+      return NextResponse.json(
+        { error: "You're sending messages quickly. Please wait a minute and try again." },
+        {
+          status: 429,
+          headers: { "Retry-After": String(Math.ceil((rl.resetAt - Date.now()) / 1000)) },
+        },
+      );
+    }
+
     const body = await request.json();
 
     const parsed = chatSchema.safeParse(body);

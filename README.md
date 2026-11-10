@@ -133,9 +133,9 @@ All AI functions use `responseMimeType: "application/json"` for guaranteed struc
 
 ```bash
 cp .env.local.example .env.local   # configure environment variables
-npm install
-npx tsx src/lib/seed-admin.ts      # seed initial admin user
-npm run dev                        # http://localhost:3000
+pnpm install
+pnpm dlx tsx src/lib/seed-admin.ts      # seed initial admin user
+pnpm dev                        # http://localhost:3000
 ```
 
 ## Environment Variables
@@ -156,14 +156,14 @@ See `.env.local.example` for the full list. Key services:
 ## Scripts
 
 ```bash
-npm run dev              # Start development server
-npm run build            # Production build (React Compiler enabled)
-npm run lint             # Run ESLint
-npm run db:migrate       # Push migrations to remote database
-npm run db:migration:new # Create a new migration file
-npm run db:reset         # Reset database and re-run all migrations
-npm run db:types         # Regenerate TypeScript types from schema
-npm run db:seed          # Seed initial admin user
+pnpm dev              # Start development server
+pnpm build            # Production build (React Compiler enabled)
+pnpm lint             # Run ESLint
+pnpm db:migrate       # Push migrations to remote database
+pnpm db:migration:new # Create a new migration file
+pnpm db:reset         # Reset database and re-run all migrations
+pnpm db:types         # Regenerate TypeScript types from schema
+pnpm db:seed          # Seed initial admin user
 ```
 
 ## Project Structure

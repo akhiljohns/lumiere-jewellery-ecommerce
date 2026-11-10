@@ -85,6 +85,8 @@ export function checkRateLimit(
 export const RATE_LIMITS = {
   /** Auth endpoints: 10 requests per 15 minutes */
   auth: { limit: 10, windowSeconds: 900 },
+  /** Shopping assistant: 10 messages per minute per client */
+  chat: { limit: 10, windowSeconds: 60 },
   /** AI generation: 20 requests per minute */
   ai: { limit: 20, windowSeconds: 60 },
   /** Admin API: 100 requests per minute */

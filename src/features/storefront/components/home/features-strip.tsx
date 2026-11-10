@@ -1,31 +1,29 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Gem, Shield, Truck, RotateCcw } from "lucide-react";
+import { Gem, Shield, Truck, RotateCcw, type LucideIcon } from "lucide-react";
 
+import { STORE_POLICIES, type StorePolicyId } from "@/lib/store-policies";
 import { staggerContainer, staggerItem } from "../motion-variants";
 
+const policyIcons: Record<StorePolicyId, LucideIcon> = {
+  warranty: Shield,
+  shipping: Truck,
+  returns: RotateCcw,
+};
+
+// Policy text comes from STORE_POLICIES, which the shopping assistant quotes too.
 const features = [
   {
     icon: Gem,
     title: "Handcrafted Excellence",
     description: "Each piece is meticulously crafted by skilled artisans",
   },
-  {
-    icon: Shield,
-    title: "Lifetime Warranty",
-    description: "We stand behind the quality of every piece we create",
-  },
-  {
-    icon: Truck,
-    title: "Free Shipping",
-    description: "Complimentary shipping on all orders, fully insured",
-  },
-  {
-    icon: RotateCcw,
-    title: "30-Day Returns",
-    description: "Easy returns within 30 days, no questions asked",
-  },
+  ...STORE_POLICIES.map((policy) => ({
+    icon: policyIcons[policy.id],
+    title: policy.title,
+    description: policy.description,
+  })),
 ];
 
 export function FeaturesStrip() {
