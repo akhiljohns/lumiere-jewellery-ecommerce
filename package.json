@@ -7,6 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "typecheck": "tsc --noEmit",
     "db:migrate": "supabase db push",
     "db:migration:new": "supabase migration new",
     "db:migration:list": "supabase migration list",

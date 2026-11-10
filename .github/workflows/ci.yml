@@ -1,0 +1,70 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.event_name }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  checks:
+    name: Typecheck, lint, unit tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v7
+      # Pinned here, not in packageManager: pnpm 12 writes that pin into pnpm-lock.yaml as a
+      # second YAML document, which the older pnpm Vercel selects may not read.
+      - uses: pnpm/action-setup@v6
+        with:
+          version: 12.15.0
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm typecheck
+      - run: pnpm lint
+      - run: pnpm test
+
+  integration:
+    name: Integration tests (local Supabase)
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+        with:
+          version: 12.15.0
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+
+      # The tests need Postgres, and PostgREST behind Kong for the service-role client.
+      # Auth stays up because the CLI only prints API keys while it runs.
+      - name: Start local Supabase
+        run: >
+          pnpm exec supabase start
+          -x realtime,storage-api,imgproxy,mailpit,postgres-meta,studio,edge-runtime,logflare,vector,supavisor
+
+      # Gemini is mocked in every integration test; the key only has to be present.
+      - name: Write .env.local for the local stack
+        run: |
+          eval "$(pnpm exec supabase status -o env 2>/dev/null | grep -E '^[A-Z_]+=')"
+          key="${SERVICE_ROLE_KEY:-$SECRET_KEY}"
+          test -n "$key" || { echo "supabase status printed no service role key"; exit 1; }
+          {
+            echo "NEXT_PUBLIC_SUPABASE_URL=$API_URL"
+            echo "SUPABASE_SERVICE_ROLE_KEY=$key"
+            echo "DATABASE_URL=$DB_URL"
+            echo "GEMINI_API_KEY=mocked-in-tests"
+          } > .env.local
+
+      - run: pnpm test:integration
