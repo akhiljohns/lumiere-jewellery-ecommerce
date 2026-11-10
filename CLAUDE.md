@@ -20,6 +20,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 pnpm dev          # Start dev server (http://localhost:3000)
 pnpm build        # Production build (React Compiler enabled)
 pnpm lint         # ESLint (next/core-web-vitals + typescript)
+pnpm typecheck    # tsc --noEmit
+pnpm test         # Vitest unit tests (src/**/*.test.ts)
+pnpm test:integration  # Vitest integration tests against the local Supabase stack
 pnpm dlx tsx src/lib/seed-admin.ts  # Seed initial admin user
 
 # Database (Supabase CLI)
@@ -31,7 +34,7 @@ pnpm db:diff             # Diff local schema against remote
 pnpm db:types            # Regenerate TypeScript types from DB schema
 ```
 
-No test framework is configured yet.
+CI (`.github/workflows/ci.yml`) runs typecheck, lint, unit tests and the integration tests on a fresh local Supabase stack on every push and pull request. Existing lint errors are recorded in `eslint-suppressions.json`; new ones fail CI. Fix one and run `pnpm exec eslint --prune-suppressions` to shrink the file.
 
 **Database Migrations**: Managed via Supabase CLI. Migration files live in `supabase/migrations/` with timestamp prefixes. Link to your remote project first with `pnpm dlx supabase link --project-ref <ref>`.
 

@@ -4,7 +4,7 @@ This document outlines the testing strategy, setup instructions, and conventions
 
 ## Current Status
 
-No test framework is configured yet (TASK-B10 is pending). This guide serves as the blueprint for setting up and writing tests.
+Vitest is set up with two projects (`vitest.config.mts`): `unit` (`src/**/*.test.ts`, `pnpm test`) and `integration` (`tests/integration/**/*.int.test.ts`, `pnpm test:integration`), which runs against the local Supabase stack and refuses any non-local database. CI runs both on every push and pull request. Component and Playwright tests below are not set up yet.
 
 ---
 
